@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Dollar Game</string>
+
+    <string name="mode_build">Build</string>
+    <string name="mode_solve">Solve</string>
+
+</resources>
