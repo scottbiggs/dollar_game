@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">Dollar Game</string>
 
+    <!-- main modes -->
     <string name="mode_build">Build</string>
     <string name="mode_solve">Solve</string>
+
+    <!-- menu items -->
+    <string name="load">load</string>
+    <string name="save">save</string>
+    <string name="share">share</string>
+    <string name="solve">solve</string>
+    <string name="build">build</string>
+    <string name="help">help</string>
+    <string name="about">about</string>
+    <string name="clear">clear</string>
+    <string name="exit">exit</string>
 
 </resources>
