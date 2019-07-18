@@ -16,8 +16,4 @@
         <item name="android:fontFamily">@font/designer_block</item>
     </style>
 
-    <style name="MenuTheme" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:fontFamily">sans-serif</item>
-    </style>
-
 </resources>

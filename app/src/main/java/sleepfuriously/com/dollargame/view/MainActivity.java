@@ -1,6 +1,5 @@
 package sleepfuriously.com.dollargame.view;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,16 +8,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
-import org.w3c.dom.Text;
-
-import java.util.Hashtable;
-
 import sleepfuriously.com.dollargame.R;
+
 
 /**
  * Attempting to implement the "Dollar Game" discussed by Dr. Holly Kreiger
@@ -61,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.build_menu, menu);
 
+        // nice simple font for menu
         Typeface tf = FontCache.get("fonts/roboto_med.ttf", this);
 
         // Change the fonts of the menu
