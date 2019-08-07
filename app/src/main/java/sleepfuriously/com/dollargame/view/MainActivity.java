@@ -1,5 +1,6 @@
 package sleepfuriously.com.dollargame.view;
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +11,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton;
+import com.fangxu.allangleexpandablebutton.ButtonEventListener;
+
+import java.util.List;
+
 import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.dollargame.model.Node;
 
 
 /**
@@ -23,7 +34,11 @@ import sleepfuriously.com.dollargame.R;
  * on the Numberphile channel.
  * https://www.youtube.com/watch?v=U33dsEcKgeQ
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements
+            View.OnTouchListener,
+            View.OnClickListener,
+            ButtonEventListener {
 
     //------------------------
     //  constants
@@ -36,7 +51,16 @@ public class MainActivity extends AppCompatActivity {
     //------------------------
 
     /** The play are of the game */
-    FrameLayout mPlayArea;
+    private FrameLayout mPlayArea;
+
+    /**
+     * Displays hints at the bottom of the screen. User can touch this
+     * area to toggle Android UI things.
+     */
+    private TextView mHelperTv;
+
+    /** holds all the buttons */
+    private List<AllAngleExpandableButton> mButtonList; // todo: make this work with GRaph class
 
 
     //------------------------
@@ -56,35 +80,21 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mHelperTv = findViewById(R.id.bottom_hint_tv);
+
         mPlayArea = findViewById(R.id.play_area_fl);
-        mPlayArea.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Toggle Android UI elements.  This is complicated!
-                // I have to compare the actual screen size (getMetrics)
-                // with the size returned by getSize.  If they are different,
-                // then the navbar and stuff are displayed.
-                DisplayMetrics metrics = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-                Point p = new Point();
-                getWindowManager().getDefaultDisplay().getSize(p);
-
-//                Log.d(TAG, "metrics.height = " + metrics.heightPixels + ", p.y = " + p.y);
-                boolean androidUiDisplaying = (metrics.heightPixels == p.y);
-                if (androidUiDisplaying) {
-                    // check other axis (some devices keep the bars on the ends in landscape mode)
-                    androidUiDisplaying = (metrics.widthPixels == p.x);
-                }
-
-                if (androidUiDisplaying) {
-                    fullScreen(true);
-                }
-                else {
-                    fullScreen(false);
-                }
-            }
-        });
+        mPlayArea.setOnTouchListener(this);
+//        mPlayArea.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (isAndroidUiDisplaying()) {
+//                    fullScreen(true);
+//                }
+//                else {
+//                    fullScreen(false);
+//                }
+//            }
+//        });
 
 
     }
@@ -97,6 +107,82 @@ public class MainActivity extends AppCompatActivity {
         fullScreen(true);
     }
 
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v == mPlayArea) {
+            playAreaTouched(event);
+        }
+        else if (v == mHelperTv) {
+            helperTouched(event);
+        }
+
+        return true;    // event consumed
+    }
+
+    /**
+     * Processes a touch event in the play area.
+     *
+     * @param event     MotionEvent
+     */
+    private void playAreaTouched(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // todo: check to see if this is over a button. If so, mark this button
+                break;
+            case MotionEvent.ACTION_UP:
+                NodeButton button = newButton(event.getX(), event.getY());
+                break;
+        }
+    }
+
+    /**
+     * User touched the bottom hint/helper area.  Just toggle the
+     * Android UI stuff.
+     *
+     * @param event     Describes the touch event
+     */
+    private void helperTouched(MotionEvent event) {
+
+        // when releasing their finger, toggle the UI
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isAndroidUiDisplaying()) {
+                fullScreen(true);
+            }
+            else {
+                fullScreen(false);
+            }
+        }
+
+    }
+
+
+    /**
+     * Tells if the Android UI components of status bar and navbar are
+     * currently displayed.
+     *
+     * @return  True - yes, they are displayed
+     */
+    private boolean isAndroidUiDisplaying() {
+        // Toggle Android UI elements.  This is complicated!
+        // I have to compare the actual screen size (getMetrics)
+        // with the size returned by getSize.  If they are different,
+        // then the navbar and stuff are displayed.
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        Point p = new Point();
+        getWindowManager().getDefaultDisplay().getSize(p);
+
+        boolean androidUiDisplaying = (metrics.heightPixels == p.y);
+        if (androidUiDisplaying) {
+            // check other axis (some devices keep the bars on the ends in landscape mode)
+            androidUiDisplaying = (metrics.widthPixels == p.x);
+        }
+
+        return androidUiDisplaying;
+    }
 
     /**
      * Turns the full-screen mode on or off.
@@ -183,5 +269,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Adds a button to the given coords.
+     */
+    private NodeButton newButton(float x, float y) {
 
+//        Button button = new Button(this);
+        NodeButton button = new NodeButton(this);
+        button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                                                            ViewGroup.LayoutParams.WRAP_CONTENT));
+        button.setOnClickListener(this);
+
+        button.setX(x - (NodeButton.BUTTON_WIDTH / 2f));
+        button.setY(y - (NodeButton.BUTTON_HEIGHT / 2f));
+
+        mPlayArea.addView(button);
+
+        return button;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        if (v instanceof AllAngleExpandableButton) {
+            // todo
+        }
+    }
+
+
+    @Override
+    public void onButtonClicked(int i) {
+        Log.d(TAG, "onButtonClicked ( " + i + " )");
+    }
+
+    @Override
+    public void onExpand() {
+
+    }
+
+    @Override
+    public void onCollapse() {
+
+    }
 }

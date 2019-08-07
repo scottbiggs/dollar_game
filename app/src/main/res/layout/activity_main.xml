@@ -63,9 +63,8 @@
         android:layout_marginBottom="8dp"
         android:background="@color/light_gray"
         app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
-        app:layout_constraintTop_toBottomOf="@+id/main_switch">
-
-    </FrameLayout>
+        app:layout_constraintTop_toBottomOf="@+id/main_switch"
+        />
 
     <TextView
         android:id="@+id/bottom_hint_tv"
@@ -73,6 +72,7 @@
         android:layout_height="wrap_content"
         tools:text="hints go here"
         android:textSize="18sp"
+        android:minHeight="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="111dp" />
 
