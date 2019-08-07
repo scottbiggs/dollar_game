@@ -100,4 +100,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Does all the UI for changing to Build mode.
+     */
+    private void buildMode() {
+        // todo
+    }
+
+    /**
+     * Does all the UI for Solve mode.
+     */
+    private void solveMode() {
+        // todo
+    }
+
+
+
 }
