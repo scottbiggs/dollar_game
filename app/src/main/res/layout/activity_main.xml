@@ -19,8 +19,8 @@
         android:text="@string/mode_build"
         android:textSize="30sp"
         android:textColor="@android:color/black"
-        app:layout_constraintBaseline_toBaselineOf="@+id/switch1"
-        app:layout_constraintEnd_toStartOf="@+id/switch1" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/main_switch"
+        app:layout_constraintEnd_toStartOf="@+id/main_switch" />
 
     <TextView
         android:id="@+id/solve_tv"
@@ -31,8 +31,8 @@
         android:text="@string/mode_solve"
         android:textColor="@color/textcolor_ghosted"
         android:textSize="30sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/switch1"
-        app:layout_constraintStart_toEndOf="@+id/switch1" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/main_switch"
+        app:layout_constraintStart_toEndOf="@+id/main_switch" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -46,7 +46,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/main_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -54,5 +54,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <FrameLayout
+        android:id="@+id/play_area_fl"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/light_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_switch">
+
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

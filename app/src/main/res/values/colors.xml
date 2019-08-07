@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
 
     <color name="textcolor_ghosted">#7D8080</color>
+    <color name="light_gray">#bbb</color>
 </resources>
