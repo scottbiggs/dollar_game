@@ -3,13 +3,15 @@ package sleepfuriously.com.dollargame.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton;
-import com.fangxu.allangleexpandablebutton.ButtonData;
+//import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton;
+//import com.fangxu.allangleexpandablebutton.ButtonData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.AllAngleExpandableButton;
+import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
 
 /**
  * Created on 2019-08-06.
