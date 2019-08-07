@@ -60,10 +60,20 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/light_gray"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
         app:layout_constraintTop_toBottomOf="@+id/main_switch">
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/bottom_hint_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="hints go here"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="111dp" />
 
 </android.support.constraint.ConstraintLayout>

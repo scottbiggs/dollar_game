@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
 //                Log.d(TAG, "metrics.height = " + metrics.heightPixels + ", p.y = " + p.y);
                 boolean androidUiDisplaying = (metrics.heightPixels == p.y);
+                if (androidUiDisplaying) {
+                    // check other axis (some devices keep the bars on the ends in landscape mode)
+                    androidUiDisplaying = (metrics.widthPixels == p.x);
+                }
 
                 if (androidUiDisplaying) {
                     fullScreen(true);
