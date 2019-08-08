@@ -87,15 +87,11 @@ public class NodeButton extends AllAngleExpandableButton {
         setStartAngle(0);
         setEndAngle(180);
 
-
-
-        // Not sure, but I think all settings need to be done before
-        // this is called.
+        // I'm pretty sure that most settings need to be done before
+        // this is called (or in XML).
         setButtonDatas(buttons);
-
-
-
     }
+
 
     /**
      * Sets the location of this button, using the center of the button as the
