@@ -276,14 +276,12 @@ public class MainActivity extends AppCompatActivity
      */
     private NodeButton newButton(float x, float y) {
 
-//        Button button = new Button(this);
         NodeButton button = new NodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
         button.setOnClickListener(this);
 
-        button.setX(x - (NodeButton.BUTTON_WIDTH / 2f));
-        button.setY(y - (NodeButton.BUTTON_HEIGHT / 2f));
+        button.setXYCenter(x, y);
 
         mPlayArea.addView(button);
 

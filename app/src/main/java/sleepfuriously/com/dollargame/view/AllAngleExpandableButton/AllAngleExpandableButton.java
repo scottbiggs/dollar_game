@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
@@ -628,29 +627,52 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private void drawContent(Canvas canvas, Paint paint, ButtonData buttonData) {
         paint.setAlpha(255);
         paint.setColor(buttonData.getBackgroundColor());
+
         RectF rectF = buttonRects.get(buttonData);
         canvas.drawOval(rectF, paint);
-        if (buttonData.isIconButton()) {
-            Drawable drawable = buttonData.getIcon();
-            if (drawable == null) {
-                throw new IllegalArgumentException("iconData is true, drawable cannot be null");
-            }
-            int left = (int) rectF.left + dp2px(getContext(), buttonData.getIconPaddingDp());
-            int right = (int) rectF.right - dp2px(getContext(), buttonData.getIconPaddingDp());
-            int top = (int) rectF.top + dp2px(getContext(), buttonData.getIconPaddingDp());
-            int bottom = (int) rectF.bottom - dp2px(getContext(), buttonData.getIconPaddingDp());
-            drawable.setBounds(left, top, right, bottom);
-            drawable.draw(canvas);
-        } else {
-            if (buttonData.getTexts() == null) {
-                throw new IllegalArgumentException("iconData is false, text cannot be null");
-            }
-            String[] texts = buttonData.getTexts();
-            int sizePx = buttonData.isMainButton() ? mainButtonTextSize : subButtonTextSize;
-            int textColor = buttonData.isMainButton() ? mainButtonTextColor : subButtonTextColor;
-            textPaint = getTextPaint(sizePx, textColor);
-            drawTexts(texts, canvas, rectF.centerX(), rectF.centerY());
+
+        switch (buttonData.getButtonType()) {
+
+            case BOTH:
+                // the same as for the TEXT case
+                if (buttonData.getTexts() == null) {
+                    throw new IllegalArgumentException("buttonType uses text, text cannot be null");
+                }
+                {
+                    String[] texts = buttonData.getTexts();
+                    int sizePx = buttonData.isMainButton() ? mainButtonTextSize : subButtonTextSize;
+                    int textColor = buttonData.isMainButton() ? mainButtonTextColor : subButtonTextColor;
+                    textPaint = getTextPaint(sizePx, textColor);
+                    drawTexts(texts, canvas, rectF.centerX(), rectF.centerY());
+                }
+                // falls through to ICON
+
+            case ICON:
+                Drawable drawable = buttonData.getIcon();
+                if (drawable == null) {
+                    throw new IllegalArgumentException("buttonType uses icon, drawable cannot be null");
+                }
+                int left = (int) rectF.left + dp2px(getContext(), buttonData.getIconPaddingDp());
+                int right = (int) rectF.right - dp2px(getContext(), buttonData.getIconPaddingDp());
+                int top = (int) rectF.top + dp2px(getContext(), buttonData.getIconPaddingDp());
+                int bottom = (int) rectF.bottom - dp2px(getContext(), buttonData.getIconPaddingDp());
+                drawable.setBounds(left, top, right, bottom);
+                drawable.draw(canvas);
+                break;
+
+            case TEXT:
+                if (buttonData.getTexts() == null) {
+                    throw new IllegalArgumentException("buttonType uses text, text cannot be null");
+                }
+                String[] texts = buttonData.getTexts();
+                int sizePx = buttonData.isMainButton() ? mainButtonTextSize : subButtonTextSize;
+                int textColor = buttonData.isMainButton() ? mainButtonTextColor : subButtonTextColor;
+                textPaint = getTextPaint(sizePx, textColor);
+                drawTexts(texts, canvas, rectF.centerX(), rectF.centerY());
+                break;
+
         }
+
     }
 
     /**
@@ -1072,13 +1094,25 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                 if (clickIndex > 0) {
                     ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(clickIndex);
                     ButtonData mainButton = allAngleExpandableButton.getMainButtonData();
-                    if (buttonData.isIconButton()) {
-                        mainButton.setIsIconButton(true);
-                        mainButton.setIcon(buttonData.getIcon());
-                    } else {
-                        mainButton.setIsIconButton(false);
-                        mainButton.setTexts(buttonData.getTexts());
+
+                    switch (buttonData.getButtonType()) {
+                        case ICON:
+                            mainButton.setButtonType(ButtonData.ButtonType.ICON);
+                            mainButton.setIcon(buttonData.getIcon());
+                            break;
+
+                        case TEXT:
+                            mainButton.setButtonType(ButtonData.ButtonType.TEXT);
+                            mainButton.setTexts(buttonData.getTexts());
+                            break;
+
+                        case BOTH:
+                            mainButton.setButtonType(ButtonData.ButtonType.BOTH);
+                            mainButton.setIcon(buttonData.getIcon());
+                            mainButton.setTexts(buttonData.getTexts());
+                            break;
                     }
+
                     mainButton.setBackgroundColor(buttonData.getBackgroundColor());
                 }
             }

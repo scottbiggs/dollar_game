@@ -11,17 +11,22 @@ public class ButtonData implements Cloneable{
     private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
 
     private boolean isMainButton = false;//main button is the button you see when buttons are all collapsed
-    private boolean iconButton;//true if the button use icon resource,else string resource
+//    private boolean buttonType;//true if the button use icon resource,else string resource
+    private ButtonType buttonType;//true if the button use icon resource,else string resource
 
     private String[] texts;//String array that you want to show at button center,texts[i] will be shown at the ith row
     private Drawable icon;//icon drawable that will be shown at button center
     private float iconPaddingDp;//the padding of the icon drawable in button
     private int backgroundColor = DEFAULT_BACKGROUND_COLOR;//the background color of the button
 
+    /** Replaces simple boolean for the type of button we're showing--I need both! */
+    public enum ButtonType { ICON, TEXT, BOTH };
+
+
     @Override
     protected Object clone() throws CloneNotSupportedException {
         ButtonData buttonData = (ButtonData)super.clone();
-        buttonData.setIsIconButton(this.iconButton);
+        buttonData.setButtonType(this.buttonType);
         buttonData.setBackgroundColor(this.backgroundColor);
         buttonData.setIsMainButton(this.isMainButton);
         buttonData.setIcon(this.icon);
@@ -31,22 +36,34 @@ public class ButtonData implements Cloneable{
     }
 
     public static ButtonData buildTextButton(String... text) {
-        ButtonData buttonData = new ButtonData(false);
-        buttonData.iconButton = false;
+        ButtonData buttonData = new ButtonData(ButtonType.TEXT);
+        buttonData.buttonType = ButtonType.TEXT;
         buttonData.setText(text);
         return buttonData;
     }
 
     public static ButtonData buildIconButton(Context context, int iconResId, float iconPaddingDp) {
-        ButtonData buttonData = new ButtonData(true);
-        buttonData.iconButton = true;
+        ButtonData buttonData = new ButtonData(ButtonType.ICON);
+        buttonData.buttonType = ButtonType.ICON;
         buttonData.iconPaddingDp = iconPaddingDp;
         buttonData.setIconResId(context, iconResId);
         return buttonData;
     }
 
-    private ButtonData(boolean iconButton) {
-        this.iconButton = iconButton;
+    public static ButtonData buildIconAndTextButton(Context ctx, int iconResId, float iconPaddingDp,
+                                                    String... text) {
+        ButtonData buttonData = new ButtonData(ButtonType.BOTH);
+        buttonData.buttonType = ButtonType.BOTH;
+        buttonData.setText(text);
+
+        buttonData.iconPaddingDp = iconPaddingDp;
+        buttonData.setIconResId(ctx, iconResId);
+
+        return buttonData;
+    }
+
+    private ButtonData(ButtonType buttonType) {
+        this.buttonType = buttonType;
     }
 
     public void setIsMainButton(boolean isMainButton) {
@@ -57,8 +74,8 @@ public class ButtonData implements Cloneable{
         return isMainButton;
     }
 
-    public void setIsIconButton(boolean isIconButton) {
-        iconButton = isIconButton;
+    public void setButtonType(ButtonType isIconButton) {
+        buttonType = isIconButton;
     }
 
     public String[] getTexts() {
@@ -88,8 +105,8 @@ public class ButtonData implements Cloneable{
         this.icon = context.getResources().getDrawable(iconResId);
     }
 
-    public boolean isIconButton() {
-        return iconButton;
+    public ButtonType getButtonType() {
+        return buttonType;
     }
 
     public float getIconPaddingDp() {

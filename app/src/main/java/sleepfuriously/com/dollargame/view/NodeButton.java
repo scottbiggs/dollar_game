@@ -18,15 +18,12 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
  * Created on 2019-08-06.
  */
 public class NodeButton extends AllAngleExpandableButton {
+
     //---------------------
     //  constants
     //---------------------
 
     private static final String TAG = NodeButton.class.getSimpleName();
-
-    /** width & height of button in dips */
-    public static final float BUTTON_WIDTH = 60f,
-                              BUTTON_HEIGHT = 60f;
 
     //---------------------
     //  data
@@ -60,15 +57,28 @@ public class NodeButton extends AllAngleExpandableButton {
 
 
     private void init(Context ctx, AttributeSet attrs) {
+
         // create the buttons
         final List<ButtonData> buttons = new ArrayList<>();
 
+        final String[] strings = { "one", "two", "three" };
+
         for (int i = 0; i < mButtonDrawables.length; i++) {
-            ButtonData aButton = ButtonData.buildIconButton(ctx, mButtonDrawables[i], 0);
+            ButtonData aButton;
 
-            aButton.setText("hi");// todo: make this work
+            if (i == 0) {
+                // works
+                aButton = ButtonData.buildIconAndTextButton(ctx, mButtonDrawables[0], 0, "-3");
 
-            aButton.setBackgroundColorId(ctx, android.R.color.transparent);
+                // you can also change it directly
+                aButton.setText("hi");
+            }
+            else {
+                aButton = ButtonData.buildIconButton(ctx, mButtonDrawables[i], 0);
+            }
+
+
+//            aButton.setBackgroundColorId(ctx, android.R.color.transparent);
 
             buttons.add(aButton);
         }
@@ -77,7 +87,6 @@ public class NodeButton extends AllAngleExpandableButton {
         setStartAngle(0);
         setEndAngle(180);
 
-        setMaskBackgroundColor(Color.argb(0, 0, 0, 0)); // todo: make this work
 
 
         // Not sure, but I think all settings need to be done before
@@ -88,5 +97,14 @@ public class NodeButton extends AllAngleExpandableButton {
 
     }
 
+    /**
+     * Sets the location of this button, using the center of the button as the
+     * coordinate location (instead of the top left as usual).
+     */
+    public void setXYCenter(float x, float y) {
+        float offset = getMainButtonSizePx() / 2f;
+        setX(x - offset);
+        setY(y - offset);
+    }
 
 }
