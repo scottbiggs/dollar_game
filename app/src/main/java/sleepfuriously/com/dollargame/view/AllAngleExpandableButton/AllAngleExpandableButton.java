@@ -770,6 +770,159 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         return (int) (dpValue * scale + 0.5f);
     }
 
+    public float getStartAngle() {
+        return startAngle;
+    }
+
+    public void setStartAngle(float startAngle) {
+        this.startAngle = startAngle;
+    }
+
+    public float getEndAngle() {
+        return endAngle;
+    }
+
+    public void setEndAngle(float endAngle) {
+        this.endAngle = endAngle;
+    }
+
+    public int getButtonGapPx() {
+        return buttonGapPx;
+    }
+
+    public void setButtonGapPx(int buttonGapPx) {
+        this.buttonGapPx = buttonGapPx;
+    }
+
+    public int getMainButtonRotateDegree() {
+        return mainButtonRotateDegree;
+    }
+
+    public void setMainButtonRotateDegree(int mainButtonRotateDegree) {
+        this.mainButtonRotateDegree = mainButtonRotateDegree;
+    }
+
+    public int getRotateAnimDuration() {
+        return rotateAnimDuration;
+    }
+
+    public void setRotateAnimDuration(int rotateAnimDuration) {
+        this.rotateAnimDuration = rotateAnimDuration;
+    }
+
+    public int getMainButtonSizePx() {
+        return mainButtonSizePx;
+    }
+
+    public void setMainButtonSizePx(int mainButtonSizePx) {
+        this.mainButtonSizePx = mainButtonSizePx;
+    }
+
+    public int getSubButtonSizePx() {
+        return subButtonSizePx;
+    }
+
+    public void setSubButtonSizePx(int subButtonSizePx) {
+        this.subButtonSizePx = subButtonSizePx;
+    }
+
+    public int getMainButtonTextSize() {
+        return mainButtonTextSize;
+    }
+
+    public void setMainButtonTextSize(int mainButtonTextSize) {
+        this.mainButtonTextSize = mainButtonTextSize;
+    }
+
+    public int getSubButtonTextSize() {
+        return subButtonTextSize;
+    }
+
+    public void setSubButtonTextSize(int subButtonTextSize) {
+        this.subButtonTextSize = subButtonTextSize;
+    }
+
+    public int getMainButtonTextColor() {
+        return mainButtonTextColor;
+    }
+
+    public void setMainButtonTextColor(int mainButtonTextColor) {
+        this.mainButtonTextColor = mainButtonTextColor;
+    }
+
+    public int getSubButtonTextColor() {
+        return subButtonTextColor;
+    }
+
+    public void setSubButtonTextColor(int subButtonTextColor) {
+        this.subButtonTextColor = subButtonTextColor;
+    }
+
+    public int getExpandAnimDuration() {
+        return expandAnimDuration;
+    }
+
+    public void setExpandAnimDuration(int expandAnimDuration) {
+        this.expandAnimDuration = expandAnimDuration;
+    }
+
+    public int getMaskBackgroundColor() {
+        return maskBackgroundColor;
+    }
+
+    public void setMaskBackgroundColor(int maskBackgroundColor) {
+        this.maskBackgroundColor = maskBackgroundColor;
+    }
+
+    public int getButtonElevationPx() {
+        return buttonElevationPx;
+    }
+
+    public void setButtonElevationPx(int buttonElevationPx) {
+        this.buttonElevationPx = buttonElevationPx;
+    }
+
+    public boolean isSelectionMode() {
+        return isSelectionMode;
+    }
+
+    public void setSelectionMode(boolean selectionMode) {
+        isSelectionMode = selectionMode;
+    }
+
+    public boolean isRippleEffect() {
+        return rippleEffect;
+    }
+
+    public void setRippleEffect(boolean rippleEffect) {
+        this.rippleEffect = rippleEffect;
+    }
+
+    public int getRippleColor() {
+        return rippleColor;
+    }
+
+    public void setRippleColor(int rippleColor) {
+        this.rippleColor = rippleColor;
+    }
+
+    public boolean isBlurBackground() {
+        return blurBackground;
+    }
+
+    public void setBlurBackground(boolean blurBackground) {
+        this.blurBackground = blurBackground;
+    }
+
+    public float getBlurRadius() {
+        return blurRadius;
+    }
+
+    public void setBlurRadius(float blurRadius) {
+        this.blurRadius = blurRadius;
+    }
+
+
     /**
      * when expand,draw MaskView to overlap the fullscreen,the background is transparent default
      */
