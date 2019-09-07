@@ -242,6 +242,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick()");
+
         if (v instanceof AllAngleExpandableButton) {
             // todo
         }
@@ -255,11 +257,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onExpand() {
+        Log.d(TAG, "onExpand()");
 
     }
 
     @Override
     public void onCollapse() {
-
+        Log.d(TAG, "onCollapse()");
     }
+
 }
