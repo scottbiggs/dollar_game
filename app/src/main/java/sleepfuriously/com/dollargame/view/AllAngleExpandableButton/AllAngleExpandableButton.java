@@ -275,6 +275,11 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         });
     }
 
+    /**
+     * Call THIS method to create the callback, NOT setOnClickListener!
+     *
+     * @param listener
+     */
     public void setButtonEventListener(ButtonEventListener listener) {
         buttonEventListener = listener;
     }

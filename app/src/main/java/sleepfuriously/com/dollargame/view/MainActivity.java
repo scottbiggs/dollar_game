@@ -230,7 +230,8 @@ public class MainActivity extends AppCompatActivity
         NodeButton button = new NodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
-        button.setOnClickListener(this);
+//        button.setOnClickListener(this);
+        button.setButtonEventListener(this);
 
         button.setXYCenter(x, y);
 
