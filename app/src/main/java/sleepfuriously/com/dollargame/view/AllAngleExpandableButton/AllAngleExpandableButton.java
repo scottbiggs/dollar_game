@@ -92,12 +92,13 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     /** When TRUE, this button is in movable mode */
 //    private static boolean mMovable = true;
     private static boolean mMovable = false;
+
     /** Indicates if the button is actually in the process of being moved */
     private static boolean mMoving = false;
     private float mMoveDiffX, mMoveDiffY;
 
     /** the disabled state of this button */
-    private boolean mDisabled = false;
+    protected boolean mDisabled = false;
 
     /** current highlight state of this button */
     private boolean mHighlighted = false;
@@ -1030,27 +1031,12 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         this.blurRadius = blurRadius;
     }
 
-    /**
-     * Returns if this button is currently disabled.
-     * Disabled buttons do NOT do their fancy button animation. They may
-     * move (if movement is enabled) and change highlight/color.
-     */
-    public boolean isDisabled() {
-        return mDisabled;
+    public boolean isMovable() {
+        return mMovable;
     }
 
-    /**
-     * Disable or enable the button.  Only enabled buttons (default) will do
-     * their fancy animations with secondary buttons.
-     *
-     * Disabled buttons still may move and do their highlights/color changes.
-     *
-     * @param   disabled    True means that this button will be DISABLED.
-     *                      False enables it (of course).
-     */
-    public void setDisabled(boolean disabled) {
-        // todo
-        mDisabled = disabled;
+    public void setMovable(boolean movable) {
+        mMovable = movable;
     }
 
     public boolean isHighlighted() {
@@ -1358,7 +1344,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             float distanceY = pressY - centerY;
             float pressToCenterDistance = (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
             if (pressToCenterDistance > radius) {
-                //press out of the button circle
+                //press out of the button black_circle
                 return;
             }
             allAngleExpandableButton.rippleInfo.pressX = pressX;

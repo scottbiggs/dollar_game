@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 disableAllButtons(mTestToggle.isChecked());
+                moveModeAllButtons(mTestToggle.isChecked());
             }
         });
 
@@ -207,6 +208,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** mostly for testing */
+    private void moveModeAllButtons(boolean enableMoveMode) {
+        for (NodeButton button : mButtonList) {
+            button.setMovable(enableMoveMode);
+        }
+    }
+
     /**
      * Does all the UI for changing to Build mode.
      */
@@ -230,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
         NodeButton button = new NodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
-//        button.setOnClickListener(this);
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
             public void onButtonClicked(int index) {
