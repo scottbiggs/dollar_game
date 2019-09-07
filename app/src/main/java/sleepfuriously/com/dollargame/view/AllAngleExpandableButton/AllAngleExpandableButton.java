@@ -90,6 +90,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private float blurRadius;
 
     /** When TRUE, this button is in movable mode */
+//    private static boolean mMovable = true;
     private static boolean mMovable = false;
     /** Indicates if the button is actually in the process of being moved */
     private static boolean mMoving = false;
@@ -182,6 +183,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         blurBackground = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebBlurBackground, false);
         blurRadius = ta.getFloat(R.styleable.AllAngleExpandableButton_aebBlurRadius, DEFAULT_BLUR_RADIUS);
 
+//        mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, true);
         mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, false);
 
         ta.recycle();
@@ -421,21 +423,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     private void continueMove(MotionEvent event) {
         if (mMoving) {
-            animate()
-                    .x(event.getRawX() + mMoveDiffX)
-                    .y(event.getRawY() + mMoveDiffY)
-                    .setDuration(0)
-                    .start();
+            setX(event.getRawX() + mMoveDiffX);
+            setY(event.getRawY() + mMoveDiffY);
         }
     }
 
     private void finishMove(MotionEvent event) {
         if (mMoving) {
-            animate()
-                    .x(event.getRawX() + mMoveDiffX)
-                    .y(event.getRawY() + mMoveDiffY)
-                    .setDuration(0)
-                    .start();
+            setX(event.getRawX() + mMoveDiffX);
+            setY(event.getRawY() + mMoveDiffY);
             mMoving = false;
         }
     }
