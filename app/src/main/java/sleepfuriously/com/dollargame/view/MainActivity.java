@@ -73,8 +73,7 @@ public class MainActivity extends AppCompatActivity {
         mTestToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NodeButton butt = mButtonList.get(0);
-                butt.setDisabled(mTestToggle.isChecked());
+                disableAllButtons(mTestToggle.isChecked());
             }
         });
 
@@ -110,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         // turn off status and navigation bar (top and bottom)
         fullScreenStickyImmersive();
     }
-
 
 
     /**
@@ -202,6 +200,12 @@ public class MainActivity extends AppCompatActivity {
         return true;   // end processing (consumed completely)
     }
 
+    /** Disables or enables ALL buttons */
+    private void disableAllButtons(boolean disable) {
+        for (NodeButton button : mButtonList) {
+            button.setDisabled(disable);
+        }
+    }
 
     /**
      * Does all the UI for changing to Build mode.

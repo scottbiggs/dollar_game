@@ -1044,6 +1044,9 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
      * their fancy animations with secondary buttons.
      *
      * Disabled buttons still may move and do their highlights/color changes.
+     *
+     * @param   disabled    True means that this button will be DISABLED.
+     *                      False enables it (of course).
      */
     public void setDisabled(boolean disabled) {
         // todo
