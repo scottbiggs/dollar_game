@@ -32,7 +32,7 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventLi
  */
 public class MainActivity extends AppCompatActivity {
 
-    //------------------------
+
     //  constants
     //------------------------
 
@@ -67,6 +67,27 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mPlayArea = findViewById(R.id.play_area_fl);
+        mPlayArea.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // todo: check to see if this is over a button. If so, mark this button
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        NodeButton button = newButton(event.getX(), event.getY());
+                        mButtonList.add(button);
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        // todo: draw lines if necessary
+                        break;
+                }
+                return true;
+            }
+        });
+
 
     }
 
@@ -78,28 +99,6 @@ public class MainActivity extends AppCompatActivity {
         fullScreenStickyImmersive();
     }
 
-
-    /**
-     * Processes a touch event in the play area.
-     *
-     * @param event     MotionEvent
-     */
-    private void playAreaTouched(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                // todo: check to see if this is over a button. If so, mark this button
-                break;
-
-            case MotionEvent.ACTION_UP:
-                NodeButton button = newButton(event.getX(), event.getY());
-                mButtonList.add(button);
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                // todo: draw lines if necessary
-                break;
-        }
-    }
 
 
     /**
