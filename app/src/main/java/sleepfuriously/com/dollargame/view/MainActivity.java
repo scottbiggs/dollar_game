@@ -30,11 +30,7 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventLi
  * on the Numberphile channel.
  * https://www.youtube.com/watch?v=U33dsEcKgeQ
  */
-public class MainActivity extends AppCompatActivity
-        implements
-            View.OnTouchListener,
-            View.OnClickListener,
-            ButtonEventListener {
+public class MainActivity extends AppCompatActivity {
 
     //------------------------
     //  constants
@@ -71,8 +67,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mPlayArea = findViewById(R.id.play_area_fl);
-        mPlayArea.setOnTouchListener(this);
-
 
     }
 
@@ -84,15 +78,6 @@ public class MainActivity extends AppCompatActivity
         fullScreenStickyImmersive();
     }
 
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (v == mPlayArea) {
-            playAreaTouched(event);
-        }
-
-        return true;    // event consumed
-    }
 
     /**
      * Processes a touch event in the play area.
@@ -231,7 +216,22 @@ public class MainActivity extends AppCompatActivity
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 //        button.setOnClickListener(this);
-        button.setButtonEventListener(this);
+        button.setButtonEventListener(new ButtonEventListener() {
+            @Override
+            public void onButtonClicked(int index) {
+
+            }
+
+            @Override
+            public void onExpand() {
+
+            }
+
+            @Override
+            public void onCollapse() {
+
+            }
+        });
 
         button.setXYCenter(x, y);
 
@@ -241,34 +241,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    // NOTE:  THIS IS NOT USED for the fancy buttons!!!
-    @Override
-    public void onClick(View v) {
-        Log.d(TAG, "onClick()");
 
-        if (v instanceof AllAngleExpandableButton) {
-            // todo
-        }
-    }
-
-
-    @Override
-    public void onButtonClicked(int i) {
-        // todo: move to anonymous class as there's no way to differentiate between the instances!
-        Log.d(TAG, "onButtonClicked ( " + i + " )");
-    }
-
-    @Override
-    public void onExpand() {
-        Log.d(TAG, "onExpand()");
-        // todo: move to anonymous class as there's no way to differentiate between the instances!
-
-    }
-
-    @Override
-    public void onCollapse() {
-        // todo: move to anonymous class as there's no way to differentiate between the instances!
-        Log.d(TAG, "onCollapse()");
-    }
 
 }
