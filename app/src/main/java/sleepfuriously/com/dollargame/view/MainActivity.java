@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventLi
 public class MainActivity extends AppCompatActivity {
 
 
+    //------------------------
     //  constants
     //------------------------
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     /** holds all the buttons */
     private List<NodeButton> mButtonList = new ArrayList<>(); // todo: make this work with GRaph class
 
+    ToggleButton mTestToggle;
 
     //------------------------
     //  data
@@ -65,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
         // use my toolbar instead of default
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mTestToggle = findViewById(R.id.test_toggle);
+        mTestToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NodeButton butt = mButtonList.get(0);
+                butt.setDisabled(mTestToggle.isChecked());
+            }
+        });
 
         mPlayArea = findViewById(R.id.play_area_fl);
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {

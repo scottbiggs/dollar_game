@@ -96,6 +96,12 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private static boolean mMoving = false;
     private float mMoveDiffX, mMoveDiffY;
 
+    /** the disabled state of this button */
+    private boolean mDisabled = false;
+
+    /** current highlight state of this button */
+    private boolean mHighlighted = false;
+
 
     private Bitmap mainShadowBitmap = null;
     private Bitmap subShadowBitmap = null;
@@ -379,12 +385,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     return true;    // event consumed
                 }
                 else {
-                    pressInButton = true;
-                    boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
-                    if (executeActionUp) {
-                        updatePressState(0, true);
+                    if (!mDisabled) {
+                        pressInButton = true;
+                        boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
+                        if (executeActionUp) {
+                            updatePressState(0, true);
+                        }
+                        return executeActionUp;
                     }
-                    return executeActionUp;
+                    return true;
                 }
 
             case MotionEvent.ACTION_MOVE:
@@ -393,7 +402,9 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     return true;
                 }
 
-                updatePressPosition(0, rawButtonRectF);
+                if (!mDisabled) {
+                    updatePressPosition(0, rawButtonRectF);
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -402,11 +413,13 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     return true;
                 }
 
-                if (!isPointInRectF(pressPointF, rawButtonRectF)) {
-                    return true;
+                if (!mDisabled) {
+                    if (!isPointInRectF(pressPointF, rawButtonRectF)) {
+                        return true;
+                    }
+                    updatePressState(0, false);
+                    expand();
                 }
-                updatePressState(0, false);
-                expand();
                 return true;
         }
         return super.onTouchEvent(event);
@@ -1015,6 +1028,36 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     public void setBlurRadius(float blurRadius) {
         this.blurRadius = blurRadius;
+    }
+
+    /**
+     * Returns if this button is currently disabled.
+     * Disabled buttons do NOT do their fancy button animation. They may
+     * move (if movement is enabled) and change highlight/color.
+     */
+    public boolean isDisabled() {
+        return mDisabled;
+    }
+
+    /**
+     * Disable or enable the button.  Only enabled buttons (default) will do
+     * their fancy animations with secondary buttons.
+     *
+     * Disabled buttons still may move and do their highlights/color changes.
+     */
+    public void setDisabled(boolean disabled) {
+        // todo
+        mDisabled = disabled;
+    }
+
+    public boolean isHighlighted() {
+        return mHighlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        // todo
+
+        mHighlighted = highlighted;
     }
 
 

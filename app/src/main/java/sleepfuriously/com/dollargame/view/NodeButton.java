@@ -36,6 +36,7 @@ public class NodeButton extends AllAngleExpandableButton {
             R.drawable.ic_take_money
             };
 
+
     //---------------------
     //  methods
     //---------------------
@@ -91,7 +92,6 @@ public class NodeButton extends AllAngleExpandableButton {
         // this is called (or in XML).
         setButtonDatas(buttons);
     }
-
 
 
 }
