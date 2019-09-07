@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    // NOTE:  THIS IS NOT USED for the fancy buttons!!!
     @Override
     public void onClick(View v) {
         Log.d(TAG, "onClick()");
@@ -253,17 +254,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onButtonClicked(int i) {
+        // todo: move to anonymous class as there's no way to differentiate between the instances!
         Log.d(TAG, "onButtonClicked ( " + i + " )");
     }
 
     @Override
     public void onExpand() {
         Log.d(TAG, "onExpand()");
+        // todo: move to anonymous class as there's no way to differentiate between the instances!
 
     }
 
     @Override
     public void onCollapse() {
+        // todo: move to anonymous class as there's no way to differentiate between the instances!
         Log.d(TAG, "onCollapse()");
     }
 

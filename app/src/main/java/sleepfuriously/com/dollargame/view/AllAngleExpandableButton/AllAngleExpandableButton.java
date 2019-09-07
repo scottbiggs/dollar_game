@@ -89,6 +89,13 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private boolean blurBackground;
     private float blurRadius;
 
+    /** When TRUE, this button is in movable mode */
+    private static boolean mMovable = false;
+    /** Indicates if the button is actually in the process of being moved */
+    private static boolean mMoving = false;
+    private float mMoveDiffX, mMoveDiffY;
+
+
     private Bitmap mainShadowBitmap = null;
     private Bitmap subShadowBitmap = null;
     Matrix shadowMatrix;
@@ -174,6 +181,9 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         rippleColor = ta.getColor(R.styleable.AllAngleExpandableButton_aebRippleColor, rippleColor);
         blurBackground = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebBlurBackground, false);
         blurRadius = ta.getFloat(R.styleable.AllAngleExpandableButton_aebBlurRadius, DEFAULT_BLUR_RADIUS);
+
+        mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, false);
+
         ta.recycle();
 
         if (blurBackground) {
@@ -360,16 +370,36 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                 if (checker.isQuick()) {
                     return false;
                 }
-                pressInButton = true;
-                boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
-                if (executeActionUp) {
-                    updatePressState(0, true);
+
+                // if we're in movable mode, initiate move
+                if (mMovable) {
+                    startMove(event);
+                    return true;    // event consumed
                 }
-                return executeActionUp;
+                else {
+                    pressInButton = true;
+                    boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
+                    if (executeActionUp) {
+                        updatePressState(0, true);
+                    }
+                    return executeActionUp;
+                }
+
             case MotionEvent.ACTION_MOVE:
+                if (mMovable && mMoving) {
+                    continueMove(event);
+                    return true;
+                }
+
                 updatePressPosition(0, rawButtonRectF);
                 break;
+
             case MotionEvent.ACTION_UP:
+                if (mMovable && mMoving) {
+                    finishMove(event);
+                    return true;
+                }
+
                 if (!isPointInRectF(pressPointF, rawButtonRectF)) {
                     return true;
                 }
@@ -379,6 +409,37 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         }
         return super.onTouchEvent(event);
     }
+
+    /**
+     * Begins a move of the button.  Assumes that the button CAN move!
+     */
+    private void startMove(MotionEvent event) {
+        mMoving = true;
+        mMoveDiffX = getX() - event.getRawX();
+        mMoveDiffY = getY() - event.getRawY();
+    }
+
+    private void continueMove(MotionEvent event) {
+        if (mMoving) {
+            animate()
+                    .x(event.getRawX() + mMoveDiffX)
+                    .y(event.getRawY() + mMoveDiffY)
+                    .setDuration(0)
+                    .start();
+        }
+    }
+
+    private void finishMove(MotionEvent event) {
+        if (mMoving) {
+            animate()
+                    .x(event.getRawX() + mMoveDiffX)
+                    .y(event.getRawY() + mMoveDiffY)
+                    .setDuration(0)
+                    .start();
+            mMoving = false;
+        }
+    }
+
 
     /**
      * used for update press effect when finger move
@@ -769,6 +830,17 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
     }
 
+    /**
+     * Sets the location of this button, using the center of the button as the
+     * coordinate location (instead of the top left as usual).
+     */
+    public void setXYCenter(float x, float y) {
+        float offset = getMainButtonSizePx() / 2f;
+        setX(x - offset);
+        setY(y - offset);
+    }
+
+
     private int getLighterColor(int color) {
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
@@ -1050,14 +1122,17 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                         return false;
                     }
                     clickIndex = getTouchedButtonIndex();
+
                     if (allAngleExpandableButton.expanded) {
                         allAngleExpandableButton.updatePressState(clickIndex, true);
                     }
                     allAngleExpandableButton.pressInButton = true;
                     return allAngleExpandableButton.expanded;
+
                 case MotionEvent.ACTION_MOVE:
                     allAngleExpandableButton.updatePressPosition(clickIndex, touchRectF);
                     break;
+
                 case MotionEvent.ACTION_UP:
                     if (!allAngleExpandableButton.isPointInRectF(allAngleExpandableButton.pressPointF, touchRectF)) {
                         if (clickIndex < 0) {

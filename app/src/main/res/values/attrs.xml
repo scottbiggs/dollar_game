@@ -21,6 +21,8 @@
         <attr name="aebMainButtonRotateAnimDurationMillis" format="integer|reference"/>
         <attr name="aebBlurBackground" format="boolean" />
         <attr name="aebBlurRadius" format="float|reference"/>
+
+        <attr name="aebMovable" format="boolean"/>
     </declare-styleable>
 
 </resources>

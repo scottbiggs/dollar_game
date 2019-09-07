@@ -93,14 +93,5 @@ public class NodeButton extends AllAngleExpandableButton {
     }
 
 
-    /**
-     * Sets the location of this button, using the center of the button as the
-     * coordinate location (instead of the top left as usual).
-     */
-    public void setXYCenter(float x, float y) {
-        float offset = getMainButtonSizePx() / 2f;
-        setX(x - offset);
-        setY(y - offset);
-    }
 
 }
