@@ -42,6 +42,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+
+    /** The different game modes. These are the highest level of logic for the game. */
+    enum Modes {
+        BUILD_MODE, SOLVE_MODE
+    }
+
+    /** start in build mode */
+    private static final Modes DEFAULT_MODE = Modes.BUILD_MODE;
+
+
     //------------------------
     //  widgets
     //------------------------
@@ -61,10 +71,17 @@ public class MainActivity extends AppCompatActivity {
     /** Textviews that spell out BUILD or SOLVE at the top of the screen */
     private TextView mBuildTv, mSolveTv;
 
+    /** displays hints to keep the user going */
+    private TextView mHintTv;
+
 
     //------------------------
     //  data
     //------------------------
+
+    /** true = solve mode, false = build mode */
+    private Modes mMode = DEFAULT_MODE;
+
 
     //------------------------
     //  methods
@@ -75,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //
+        // setup ui and widgets
+        //
+
         // use my toolbar instead of default
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,27 +104,24 @@ public class MainActivity extends AppCompatActivity {
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    solveMode();
-                }
-                else {
-                    buildModeUI();
-                }
+                setMode(buttonView.isChecked() ? Modes.SOLVE_MODE : Modes.BUILD_MODE);
             }
         });
 
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
 
-        // todo: for testing!
-        mTestToggle = findViewById(R.id.test_toggle);
-        mTestToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                disableAllButtons(mTestToggle.isChecked());
-                moveModeAllButtons(mTestToggle.isChecked());
-            }
-        });
+//        // todo: for testing!
+//        mTestToggle = findViewById(R.id.test_toggle);
+//        mTestToggle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                disableAllButtons(mTestToggle.isChecked());
+//                moveModeAllButtons(mTestToggle.isChecked());
+//            }
+//        });
+
+        mHintTv = findViewById(R.id.bottom_hint_tv);
 
         mPlayArea = findViewById(R.id.play_area_fl);
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
@@ -115,8 +133,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        NodeButton button = newButton(event.getX(), event.getY());
-                        mButtonList.add(button);
+                        // only build a new button if we're in build mode
+                        if (mMode == Modes.BUILD_MODE) {
+                            NodeButton button = newButton(event.getX(), event.getY());
+                            mButtonList.add(button);
+                        }
                         break;
 
                     case MotionEvent.ACTION_MOVE:
@@ -127,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //
+        // todo: load any data
+        //
+
+        //
+        // execute logic
+        //
+        setMode(DEFAULT_MODE);  // todo: may need changing based on loaded data in the future
 
     }
 
@@ -243,6 +272,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Performs the logical operations for the new mode.
+     * Also makes sure that the appropriate UI changes take place.
+     *
+     * side effects:
+     *      mModes      Changed to newMode
+     *
+     * @param newMode   The new mode
+     */
+    private void setMode(Modes newMode) {
+
+        mMode = newMode;
+
+        // now do the ui
+        switch (mMode) {
+            case BUILD_MODE:
+                disableAllButtons(true);
+                moveModeAllButtons(true);
+                buildModeUI();
+                break;
+
+            case SOLVE_MODE:
+                disableAllButtons(false);
+                moveModeAllButtons(false);
+                solveModeUI();
+                break;
+
+            default:
+                // get their attention!
+                throw new EnumConstantNotPresentException(Modes.class, "Unknown Mode in setMode()");
+        }
+
+    }
+
+    /**
      * Does all the UI for changing to Build mode. No logic is done.
      */
     private void buildModeUI() {
@@ -253,12 +316,14 @@ public class MainActivity extends AppCompatActivity {
 
         mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_on));
         mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
+
+        mHintTv.setText(R.string.build_hint);
     }
 
     /**
      * Does all the UI for Solve mode.
      */
-    private void solveMode() {
+    private void solveModeUI() {
         // Only change the switch if it NOT checked (in Build Mode)
         if (!mMainSwitch.isChecked()) {
             mMainSwitch.setChecked(true);
@@ -266,6 +331,8 @@ public class MainActivity extends AppCompatActivity {
 
         mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
         mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_on));
+
+        mHintTv.setText(R.string.solve_hint);
     }
 
 
@@ -295,6 +362,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button.setXYCenter(x, y);
+
+        switch (mMode) {
+            case BUILD_MODE:
+                button.setDisabled(true);
+                button.setMovable(true);
+                break;
+
+            case SOLVE_MODE:
+                button.setDisabled(false);
+                button.setMovable(false);
+                break;
+        }
 
         mPlayArea.addView(button);
 

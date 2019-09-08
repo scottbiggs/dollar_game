@@ -5,6 +5,10 @@
     <string name="mode_build">Build</string>
     <string name="mode_solve">Solve</string>
 
+    <string name="build_hint">Tap to add nodes</string>
+
+    <string name="solve_hint">Move $ around to eliminate all debts</string>
+
     <!-- menu items -->
     <string name="load">load</string>
     <string name="save">save</string>
