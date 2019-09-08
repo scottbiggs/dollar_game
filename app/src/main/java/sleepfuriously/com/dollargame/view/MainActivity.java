@@ -13,7 +13,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 import android.widget.ToggleButton;
@@ -22,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sleepfuriously.com.dollargame.R;
-import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.AllAngleExpandableButton;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -50,7 +52,15 @@ public class MainActivity extends AppCompatActivity {
     /** holds all the buttons */
     private List<NodeButton> mButtonList = new ArrayList<>(); // todo: make this work with GRaph class
 
+    // todo: just for testing!
     ToggleButton mTestToggle;
+
+    /** This switch toggles between build and play mode */
+    private Switch mMainSwitch;
+
+    /** Textviews that spell out BUILD or SOLVE at the top of the screen */
+    private TextView mBuildTv, mSolveTv;
+
 
     //------------------------
     //  data
@@ -69,6 +79,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mMainSwitch = findViewById(R.id.main_switch);
+        mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    solveMode();
+                }
+                else {
+                    buildModeUI();
+                }
+            }
+        });
+
+        mBuildTv = findViewById(R.id.build_tv);
+        mSolveTv = findViewById(R.id.solve_tv);
+
+        // todo: for testing!
         mTestToggle = findViewById(R.id.test_toggle);
         mTestToggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,17 +243,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Does all the UI for changing to Build mode.
+     * Does all the UI for changing to Build mode. No logic is done.
      */
-    private void buildMode() {
-        // todo
+    private void buildModeUI() {
+        // Only change the switch if it IS checked (in Solve Mode)
+        if (mMainSwitch.isChecked()) {
+            mMainSwitch.setChecked(false);
+        }
+
+        mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_on));
+        mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
     }
 
     /**
      * Does all the UI for Solve mode.
      */
     private void solveMode() {
-        // todo
+        // Only change the switch if it NOT checked (in Build Mode)
+        if (!mMainSwitch.isChecked()) {
+            mMainSwitch.setChecked(true);
+        }
+
+        mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
+        mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_on));
     }
 
 

@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="textcolor_on">#000</color>     <!-- black -->
     <color name="textcolor_ghosted">#7D8080</color>
     <color name="light_gray">#bbb</color>
 </resources>

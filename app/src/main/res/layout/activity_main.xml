@@ -19,7 +19,7 @@
         android:fontFamily="@font/designer_block"
         android:text="@string/mode_build"
         android:textSize="30sp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/textcolor_on"
         app:layout_constraintBaseline_toBaselineOf="@+id/main_switch"
         app:layout_constraintEnd_toStartOf="@+id/main_switch" />
 
