@@ -19,12 +19,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
-import android.widget.ToggleButton;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout mPlayArea;
 
     /** holds all the buttons */
-    private List<NodeButton> mButtonList = new ArrayList<>(); // todo: make this work with GRaph class
+    private NodeButtonGraph mGraph = new NodeButtonGraph();
 
     // todo: just for testing!
 //    ToggleButton mTestToggle;
@@ -258,15 +256,15 @@ public class MainActivity extends AppCompatActivity {
 
     /** Disables or enables ALL buttons */
     private void disableAllButtons(boolean disable) {
-        for (NodeButton button : mButtonList) {
-            button.setDisabled(disable);
+        for (Object button : mGraph) {
+            ((NodeButton)button).setDisabled(disable);
         }
     }
 
     /** mostly for testing */
     private void moveModeAllButtons(boolean enableMoveMode) {
-        for (NodeButton button : mButtonList) {
-            button.setMovable(enableMoveMode);
+        for (Object button : mGraph) {
+            ((NodeButton)button).setMovable(enableMoveMode);
         }
     }
 
@@ -375,7 +373,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mPlayArea.addView(button);
-        mButtonList.add(button);
+        try {
+            mGraph.addNode(mGraph.getUniqueNodeId(), button);
+        }
+        catch (GraphNodeDuplicateIdException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
 
         return button;
     }

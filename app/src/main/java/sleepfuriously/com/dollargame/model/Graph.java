@@ -30,7 +30,7 @@ import java.util.Map;
  *
  *		- Use the graph as you like.
  */
-class Graph<T> {
+public class Graph<T> {
 
     //-----------------------
     //	constants
@@ -48,8 +48,7 @@ class Graph<T> {
      * In this case, a node is a key-value pair of an id and any data
      * associated with it.
      */
-    private HashMap<Integer, T> mNodes = new HashMap<>();
-//	private List<Integer> mNodes = new ArrayList<>();
+    protected HashMap<Integer, T> mNodes = new HashMap<>();
 
     /**
      * Used when traversing the graph so that we don't get caught in
@@ -90,6 +89,20 @@ class Graph<T> {
     //-----------------------
     //	methods
     //-----------------------
+
+    /**
+     * Returns an id that is guaranteed to be unique from any node already
+     * in the Graph.
+     *
+     * O(n)
+     */
+    public int getUniqueNodeId() {
+        int id = 0;
+        while (mNodes.get(id) != null) {
+            id++;
+        }
+        return id;
+    }
 
     /**
      * Add a new node to this graph.
