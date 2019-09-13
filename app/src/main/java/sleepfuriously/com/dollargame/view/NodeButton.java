@@ -43,6 +43,18 @@ public class NodeButton extends AllAngleExpandableButton {
             R.drawable.ic_take_money
     };
 
+    private int[] mButtonBuildNormalDrawables = {
+            R.drawable.build_circle_normal,
+            R.drawable.ic_give_money,
+            R.drawable.ic_take_money
+    };
+
+    private int[] mButtonSolveNormalDrawables = {
+            R.drawable.solve_circle_normal,
+            R.drawable.ic_give_money,
+            R.drawable.ic_take_money
+    };
+
 
     //---------------------
     //  methods
@@ -102,7 +114,8 @@ public class NodeButton extends AllAngleExpandableButton {
 
         List<ButtonData> buttons = new ArrayList<>();
 
-        int[] drawablesArray = disabled ? mButtonDisabledDrawables : mButtonDrawables;
+//        int[] drawablesArray = disabled ? mButtonDisabledDrawables : mButtonDrawables;
+        int[] drawablesArray = disabled ? mButtonBuildNormalDrawables : mButtonSolveNormalDrawables;
 
         for (int i = 0; i < drawablesArray.length; i++) {
             ButtonData aButton;

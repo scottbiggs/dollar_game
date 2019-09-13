@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private List<NodeButton> mButtonList = new ArrayList<>(); // todo: make this work with GRaph class
 
     // todo: just for testing!
-    ToggleButton mTestToggle;
+//    ToggleButton mTestToggle;
 
     /** This switch toggles between build and play mode */
     private Switch mMainSwitch;
@@ -135,8 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         // only build a new button if we're in build mode
                         if (mMode == Modes.BUILD_MODE) {
-                            NodeButton button = newButton(event.getX(), event.getY());
-                            mButtonList.add(button);
+                            newButton(event.getX(), event.getY());
                         }
                         break;
 
@@ -347,17 +346,17 @@ public class MainActivity extends AppCompatActivity {
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
             public void onButtonClicked(int index) {
-
+                Log.d(TAG, "click! index = " + index);
             }
 
             @Override
             public void onExpand() {
-
+                Log.d(TAG, "expanding...");
             }
 
             @Override
             public void onCollapse() {
-
+                Log.d(TAG, "...collapsing");
             }
         });
 
@@ -376,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mPlayArea.addView(button);
+        mButtonList.add(button);
 
         return button;
     }

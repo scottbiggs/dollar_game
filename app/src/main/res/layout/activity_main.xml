@@ -37,7 +37,7 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
@@ -58,32 +58,37 @@
 
     <FrameLayout
         android:id="@+id/play_area_fl"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:background="@color/draw_area_bg"
         app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
-        app:layout_constraintTop_toBottomOf="@+id/main_switch"
-        >
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_switch">
 
     </FrameLayout>
 
     <TextView
         android:id="@+id/bottom_hint_tv"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="hints go here"
         android:textSize="18sp"
         android:minHeight="40dp"
+        android:padding="8dp"
+        android:gravity="center"
+        android:textColor="@color/textcolor_normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="111dp" />
+        />
 
-    <ToggleButton
-        android:id="@+id/test_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"
-        app:layout_constraintEnd_toEndOf="parent" />
+<!--    <ToggleButton-->
+<!--        android:id="@+id/test_toggle"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
 </android.support.constraint.ConstraintLayout>

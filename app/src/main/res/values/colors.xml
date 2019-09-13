@@ -4,7 +4,17 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <!-- text colors -->
+    <color name="textcolor_normal">#111</color>
     <color name="textcolor_on">#000</color>     <!-- black -->
     <color name="textcolor_ghosted">#7D8080</color>
+
+    <!-- backgrounds -->
     <color name="draw_area_bg">#bbb</color>
+
+    <!-- button border colors -->
+    <color name="button_build_border_normal">#675613</color>
+
+    <color name="button_solve_border_normal">#1B2895</color>
+
 </resources>
