@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 
 
 import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
@@ -57,8 +58,9 @@ public class MainActivity extends AppCompatActivity {
     /** The play are of the game */
     private FrameLayout mPlayArea;
 
-    /** holds all the buttons */
-    private NodeButtonGraph mGraph = new NodeButtonGraph();
+    /** holds all the buttons and their connections */
+//    private NodeButtonGraph mGraph = new NodeButtonGraph<NodeButton>();
+    private Graph mGraph = new Graph<NodeButton>();
 
     // todo: just for testing!
 //    ToggleButton mTestToggle;

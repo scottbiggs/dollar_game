@@ -1,12 +1,14 @@
 package sleepfuriously.com.dollargame.model;
 
 
+import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
+
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * todo: use Templates to make the data more generic
@@ -30,7 +32,9 @@ import java.util.Map;
  *
  *		- Use the graph as you like.
  */
-public class Graph<T> {
+@SuppressWarnings("ALL")
+public class Graph<T>
+        implements Iterable<T> {
 
     //-----------------------
     //	constants
@@ -48,7 +52,8 @@ public class Graph<T> {
      * In this case, a node is a key-value pair of an id and any data
      * associated with it.
      */
-    protected HashMap<Integer, T> mNodes = new HashMap<>();
+    @SuppressLint("UseSparseArrays")
+    private HashMap<Integer, T> mNodes = new HashMap<>();
 
     /**
      * Used when traversing the graph so that we don't get caught in
@@ -138,7 +143,7 @@ public class Graph<T> {
      *
      *	@param	weight	The weight of this edge.
      *
-     *	@returns	The total number of edges AFTER this has been added.
+     *	@return	The total number of edges AFTER this has been added.
      */
     public int addEdge(int startNodeId, int endNodeId, int weight) {
         Edge edge = new Edge();
@@ -535,7 +540,7 @@ public class Graph<T> {
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //	classes
+    //  classes & class-bearing variables
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     /**
@@ -546,6 +551,30 @@ public class Graph<T> {
         public int startNodeId;
         public int endNodeId;
         public int weight = 0;
+    }
+
+
+    @NonNull
+    @Override
+    public Iterator iterator() {
+
+        return (Iterator) new Iterator() {
+
+            private Set<Integer> keySet = mNodes.keySet();
+            private Iterator<Integer> keySetIterator = keySet.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return keySetIterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                int key = keySetIterator.next();
+                return mNodes.get(key);
+            }
+        };
+
     }
 
 }
