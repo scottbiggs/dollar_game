@@ -82,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
     /** true = solve mode, false = build mode */
     private Modes mMode = DEFAULT_MODE;
 
+    /** true => in the process of connecting two nodes */
+    private boolean mConnecting = false;
+
+    /** The id of the starting node in a connection */
+    private int mStartNodeId;
 
     //------------------------
     //  methods
@@ -127,23 +132,12 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        // todo: check to see if this is over a button. If so, mark this button
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        // only build a new button if we're in build mode
-                        if (mMode == Modes.BUILD_MODE) {
-                            newButton(event.getX(), event.getY());
-                        }
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        // todo: draw lines if necessary
-                        break;
-                }
-                return true;
+                // only build a new button if we're in build mode
+                if ((event.getAction() == MotionEvent.ACTION_UP) &&
+                    (mMode == Modes.BUILD_MODE)) {
+                        newButton(event.getX(), event.getY());
+                    }
+                return true;    // event consumed
             }
         });
 
@@ -340,13 +334,29 @@ public class MainActivity extends AppCompatActivity {
      */
     private NodeButton newButton(float x, float y) {
 
-        NodeButton button = new NodeButton(this);
+        final NodeButton button = new NodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final int id = mGraph.getUniqueNodeId();
+
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
             public void onButtonClicked(int index) {
                 Log.d(TAG, "click! index = " + index);
+
+//                if (mConnecting) {
+//                    // todo: end connection sequence
+//                }
+//                else {
+//                    // initiate a new edge
+//                    mConnecting = true;
+//                    mStartNodeId = id;
+//
+//                    button.setHighlighted(true);
+//                    button.invalidate();
+//                    // todo: start connections sequence
+//                }
             }
 
             @Override
@@ -375,8 +385,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mPlayArea.addView(button);
+
         try {
-            mGraph.addNode(mGraph.getUniqueNodeId(), button);
+            mGraph.addNode(id, button);
         }
         catch (GraphNodeDuplicateIdException e) {
             e.printStackTrace();

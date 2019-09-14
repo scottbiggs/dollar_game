@@ -2,6 +2,7 @@ package sleepfuriously.com.dollargame.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 //import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton;
 //import com.fangxu.allangleexpandablebutton.ButtonData;
@@ -49,11 +50,20 @@ public class NodeButton extends AllAngleExpandableButton {
             R.drawable.ic_take_money
     };
 
+    private int[] mButtonBuildHighlitDrawables = {
+            R.drawable.red_circle,
+            R.drawable.ic_give_money,
+            R.drawable.ic_take_money
+    };
+
     private int[] mButtonSolveNormalDrawables = {
             R.drawable.solve_circle_normal,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
     };
+
+    /** current highlight state of this button */
+    private boolean mHighlighted = false;
 
 
     //---------------------
@@ -81,7 +91,7 @@ public class NodeButton extends AllAngleExpandableButton {
         mCtx = ctx;
 
         // create the buttons
-        final List<ButtonData> buttons = setButtonImageData(ctx, false);
+        final List<ButtonData> buttons = setButtonImageData(ctx, mButtonBuildNormalDrawables, "N");
 
         // make the buttons go left/right
         setStartAngle(0);
@@ -104,29 +114,26 @@ public class NodeButton extends AllAngleExpandableButton {
      * Note: I'm pretty sure that you need to call setButtonDatas() after
      * this for it to work.
      *
-     * @param ctx
+     * @param ctx   always needed
      *
-     * @param disabled  When TRUE, use the disabled version of the button.
+     * @param imageArray    An array of drawable ids. The first will be the main button.
+     *
+     * @param title     Text used for the first drawable (main button). Use null if no
+     *                  text is needed.
      *
      * todo:  This is inefficient if I'm just changing ONE drawable!  Take the time to do it right!
      */
-    private List<ButtonData> setButtonImageData(Context ctx, boolean disabled) {
+    private List<ButtonData> setButtonImageData(Context ctx, int[] imageArray, String title) {
 
         List<ButtonData> buttons = new ArrayList<>();
 
-//        int[] drawablesArray = disabled ? mButtonDisabledDrawables : mButtonDrawables;
-        int[] drawablesArray = disabled ? mButtonBuildNormalDrawables : mButtonSolveNormalDrawables;
-
-        for (int i = 0; i < drawablesArray.length; i++) {
+        for (int i = 0; i < imageArray.length; i++) {
             ButtonData aButton;
-            if (i == 0) {
-                // I'm adding a message to the first button
-                aButton = ButtonData.buildIconAndTextButton(ctx, drawablesArray[0], 0, "yo");
-//                // you can also change the message directly
-//                aButton.setText("hi");
+            if ((i == 0) && (title != null)) {
+                aButton = ButtonData.buildIconAndTextButton(ctx, imageArray[i], 0, title);
             }
             else {
-                aButton = ButtonData.buildIconButton(ctx, drawablesArray[i], 0);
+                aButton = ButtonData.buildIconButton(ctx, imageArray[i], 0);
             }
 
             buttons.add(aButton);
@@ -155,14 +162,27 @@ public class NodeButton extends AllAngleExpandableButton {
      *                      False enables it (of course).
      */
     public void setDisabled(boolean disabled) {
-        // only do any work if we have to!
         if (mDisabled == disabled) {
+            Log.e(TAG, "setting disabled to " + disabled + " twice!");
+            return;
+        }
+        mDisabled = disabled;
+    }
+
+
+    public boolean isHighlighted() {
+        return mHighlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        if (mHighlighted == highlighted) {
+            Log.e(TAG, "setting highlighted to " + highlighted + " twice!");
             return;
         }
 
-        mDisabled = disabled;
+        mHighlighted = highlighted;
 
-        List<ButtonData> buttons = setButtonImageData(mCtx, disabled);
+        List<ButtonData> buttons = setButtonImageData(mCtx, mButtonBuildHighlitDrawables, "H");
         setButtonDatas(buttons);
         invalidate();
     }

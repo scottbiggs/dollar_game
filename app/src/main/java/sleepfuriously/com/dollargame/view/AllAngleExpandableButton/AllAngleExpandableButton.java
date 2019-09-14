@@ -100,10 +100,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     /** the disabled state of this button */
     protected boolean mDisabled = false;
 
-    /** current highlight state of this button */
-    private boolean mHighlighted = false;
-
-
     private Bitmap mainShadowBitmap = null;
     private Bitmap subShadowBitmap = null;
     Matrix shadowMatrix;
@@ -446,7 +442,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             setX(event.getRawX() + mMoveDiffX);
             setY(event.getRawY() + mMoveDiffY);
             mMoving = false;
-            
+
             // reestablish our button's rectangle
             getGlobalVisibleRect(rawButtonRect);
             rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
@@ -1052,16 +1048,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     public void setMovable(boolean movable) {
         mMovable = movable;
-    }
-
-    public boolean isHighlighted() {
-        return mHighlighted;
-    }
-
-    public void setHighlighted(boolean highlighted) {
-        // todo
-
-        mHighlighted = highlighted;
     }
 
 
