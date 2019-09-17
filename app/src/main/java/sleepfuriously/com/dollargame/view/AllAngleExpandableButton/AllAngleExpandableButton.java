@@ -121,6 +121,8 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private int pressTmpColor;
     private boolean pressInButton;
 
+    private PointF mCenter;
+
     protected QuickClickChecker checker;
     private int checkThreshold;
 
@@ -195,6 +197,8 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         rawButtonRect = new Rect();
         rawButtonRectF = new RectF();
         shadowMatrix = new Matrix();
+
+        mCenter = new PointF();
 
         initViewTreeObserver();
         initAnimators();
@@ -792,10 +796,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
      */
     public void setXYCenter(float x, float y) {
         float offset = getMainButtonSizePx() / 2f;
+        mCenter.set(x - offset, y - offset);
         setX(x - offset);
         setY(y - offset);
     }
 
+    /** Returns the center of this view */
+    public PointF getCenter() {
+        return mCenter;
+    }
 
     private int getLighterColor(int color) {
         float[] hsv = new float[3];
