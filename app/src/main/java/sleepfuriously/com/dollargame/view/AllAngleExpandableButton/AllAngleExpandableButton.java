@@ -66,6 +66,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private static final int DEFAULT_MASK_BACKGROUND_COLOR = Color.TRANSPARENT;
     private static final int DEFAULT_BLUR_RADIUS = 10;
 
+    /**
+     * The amount of pixels a finger can slip around and
+     * still be considered a click and not a move
+     */
+    private static final float CLICK_SLOP = 3f;
+
+    /** Number of milliseconds between a click and a move. */
+    private static final long CLICK_MILLIS_THRESHOLD = 100L;
+
     private boolean expanded = false;
 
     //attributes can be set in xml
@@ -95,7 +104,13 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     /** Indicates if the button is actually in the process of being moved */
     private static boolean mMoving = false;
+    /** screen coordinates of the beginning of a move */
+    private float mMoveStartX, mMoveStartY;
+    /** ??? difference between screen and view coords ??? */
     private float mMoveDiffX, mMoveDiffY;
+
+    /** System time when a touch event starts on this button */
+    private long mStartMillis = 0L;
 
     /** the disabled state of this button */
     protected boolean mDisabled = false;
@@ -368,7 +383,9 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         pressPointF.set(event.getRawX(), event.getRawY());
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (checker.isQuick()) {
@@ -409,7 +426,12 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     return true;
                 }
 
-                if (!mDisabled) {
+                if (mDisabled) {
+                    // pass the event on to higher level
+                    buttonEventListener.onDisabledClick();
+                }
+
+                else {
                     if (!isPointInRectF(pressPointF, rawButtonRectF)) {
                         return true;    // event consumed
                     }
@@ -426,8 +448,10 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
      */
     private void startMove(MotionEvent event) {
         mMoving = true;
-        mMoveDiffX = getX() - event.getRawX();
-        mMoveDiffY = getY() - event.getRawY();
+        mMoveStartX = event.getRawX();
+        mMoveStartY = event.getRawY();
+        mMoveDiffX = getX() - mMoveStartX;
+        mMoveDiffY = getY() - mMoveStartY;
     }
 
     private void continueMove(MotionEvent event) {
@@ -438,17 +462,62 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
     private void finishMove(MotionEvent event) {
-        if (mMoving) {
-            setX(event.getRawX() + mMoveDiffX);
-            setY(event.getRawY() + mMoveDiffY);
-            mMoving = false;
 
-            // reestablish our button's rectangle
-            getGlobalVisibleRect(rawButtonRect);
-            rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
+        if (mMoving) {
+            if (isRealMove(event)) {
+                setX(event.getRawX() + mMoveDiffX);
+                setY(event.getRawY() + mMoveDiffY);
+
+                // reestablish our button's rectangle
+                getGlobalVisibleRect(rawButtonRect);
+                rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
+            }
+            else {
+                // Not enough movement to consider this a move. Let's treat this as
+                // a button click.
+                // todo: pass through click event
+                buttonEventListener.onDisabledClick();
+
+                // reset the button's location (just in case it moved a little)
+                setX(mMoveStartX + mMoveDiffX);
+                setY(mMoveStartY + mMoveDiffY);
+            }
+            mMoving = false;
         }
     }
 
+    /**
+     * Determines if the user's finger has moved enough to consider this a real
+     * move event, or if this is just slight shuddering of a finger that happens
+     * during a button click.
+     *
+     * @param event     The current event that finalized the move (should be an
+     *                  ACTION_UP event).  We'll need the coordinates.
+     *
+     * @return  TRUE iff the current location is sufficiently far enough away from
+     *          the original ACTION_DOWN event to qualify as a move.
+     *
+     * todo: may need to use the time as well (moves take a lot longer than clicks)
+     */
+    private boolean isRealMove(MotionEvent event) {
+
+        float currentX = event.getRawX();
+        float currentY = event.getRawY();
+
+        // check not enough movement
+        if ((Math.abs(currentX - mMoveStartX) < CLICK_SLOP) &&
+            (Math.abs(currentY - mMoveStartY) < CLICK_SLOP)) {
+            return false;
+        }
+
+        // check not enough time
+        long currentMillis = System.currentTimeMillis();
+        if (currentMillis - mStartMillis < CLICK_MILLIS_THRESHOLD) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * used for update press effect when finger move

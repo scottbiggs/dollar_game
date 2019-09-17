@@ -1,6 +1,7 @@
 package sleepfuriously.com.dollargame.view;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -132,9 +133,10 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // only build a new button if we're in build mode
+                // only build a new button if we're in build mode and not currently connecting
                 if ((event.getAction() == MotionEvent.ACTION_UP) &&
-                    (mMode == Modes.BUILD_MODE)) {
+                    (mMode == Modes.BUILD_MODE) &&
+                    (!mConnecting)) {
                         newButton(event.getX(), event.getY());
                     }
                 return true;    // event consumed
@@ -344,19 +346,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onButtonClicked(int index) {
                 Log.d(TAG, "click! index = " + index);
-
-//                if (mConnecting) {
-//                    // todo: end connection sequence
-//                }
-//                else {
-//                    // initiate a new edge
-//                    mConnecting = true;
-//                    mStartNodeId = id;
-//
-//                    button.setHighlighted(true);
-//                    button.invalidate();
-//                    // todo: start connections sequence
-//                }
             }
 
             @Override
@@ -367,6 +356,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCollapse() {
                 Log.d(TAG, "...collapsing");
+            }
+
+            // A connection click
+            @Override
+            public void onDisabledClick() {
+                if (mConnecting) {
+                    // completing a connection
+                    connectButtons(mStartNodeId, id);
+                    mConnecting = false;
+                }
+
+                else {
+                    // beginning a connection
+                    mConnecting = true;
+                    mStartNodeId = id;
+                    button.setHighlighted(true);
+                    button.invalidate();
+                }
+            }
+
+            @Override
+            public void onMoved(PointF oldLoc, PointF newLoc) {
+                // todo: update all connections
             }
         });
 
@@ -397,7 +409,29 @@ public class MainActivity extends AppCompatActivity {
         return button;
     }
 
+    /**
+     * Does the logic and graphics of connecting two buttons.
+     *
+     * side effects:
+     *      mGraph      Will reflect the new connection
+     *
+     * @param startButtonId     The beginning button (node)
+     *
+     * @param endButtonId       Desitnation button (node)
+     */
+    private void connectButtons(int startButtonId, int endButtonId) {
+        Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
 
+        // update our data
+        mGraph.addEdge(startButtonId, endButtonId);
+
+        // turn off highlighting
+        NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
+
+        startButton.setHighlighted(false);
+
+        // todo: draw the line
+    }
 
 
 }

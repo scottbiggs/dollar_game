@@ -182,7 +182,14 @@ public class NodeButton extends AllAngleExpandableButton {
 
         mHighlighted = highlighted;
 
-        List<ButtonData> buttons = setButtonImageData(mCtx, mButtonBuildHighlitDrawables, "H");
+        List<ButtonData> buttons;
+        if (highlighted) {
+            buttons = setButtonImageData(mCtx, mButtonBuildHighlitDrawables, "H");
+        }
+        else {
+            buttons = setButtonImageData(mCtx, mButtonBuildNormalDrawables, "N");
+        }
+
         setButtonDatas(buttons);
         invalidate();
     }
