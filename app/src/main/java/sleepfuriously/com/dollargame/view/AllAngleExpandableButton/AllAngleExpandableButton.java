@@ -47,7 +47,7 @@ import sleepfuriously.com.dollargame.R;
 public class AllAngleExpandableButton extends View implements ValueAnimator.AnimatorUpdateListener {
     private List<ButtonData> buttonDatas;
     private Map<ButtonData, RectF> buttonRects;
-    private ButtonEventListener buttonEventListener;
+    protected ButtonEventListener buttonEventListener;
 
     private static final int BUTTON_SHADOW_COLOR = 0xff000000;
     private static final int BUTTON_SHADOW_ALPHA = 32;
@@ -65,15 +65,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private static final int DEFAULT_BUTTON_TEXT_COLOR = Color.BLACK;
     private static final int DEFAULT_MASK_BACKGROUND_COLOR = Color.TRANSPARENT;
     private static final int DEFAULT_BLUR_RADIUS = 10;
-
-    /**
-     * The amount of pixels a finger can slip around and
-     * still be considered a click and not a move
-     */
-    private static final float CLICK_SLOP = 3f;
-
-    /** Number of milliseconds between a click and a move. */
-    private static final long CLICK_MILLIS_THRESHOLD = 100L;
 
     private boolean expanded = false;
 
@@ -97,23 +88,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private int rippleColor = Integer.MIN_VALUE;
     private boolean blurBackground;
     private float blurRadius;
-
-    /** When TRUE, this button is in movable mode */
-//    private static boolean mMovable = true;
-    private static boolean mMovable = false;
-
-    /** Indicates if the button is actually in the process of being moved */
-    private static boolean mMoving = false;
-    /** screen coordinates of the beginning of a move */
-    private float mMoveStartX, mMoveStartY;
-    /** ??? difference between screen and view coords ??? */
-    private float mMoveDiffX, mMoveDiffY;
-
-    /** System time when a touch event starts on this button */
-    private long mStartMillis = 0L;
-
-    /** the disabled state of this button */
-    protected boolean mDisabled = false;
 
     private Bitmap mainShadowBitmap = null;
     private Bitmap subShadowBitmap = null;
@@ -142,12 +116,12 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private ObjectAnimator blurAnimator;
     private Animator.AnimatorListener blurListener;
     private PointF pressPointF;
-    private Rect rawButtonRect; //act as the param of getGlobalVisibleRect(Rect rect) method
-    private RectF rawButtonRectF;
+    protected Rect rawButtonRect; //act as the param of getGlobalVisibleRect(Rect rect) method
+    protected RectF rawButtonRectF;
     private int pressTmpColor;
     private boolean pressInButton;
 
-    private QuickClickChecker checker;
+    protected QuickClickChecker checker;
     private int checkThreshold;
 
     //store ripple effect params
@@ -173,7 +147,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         init(context, attrs);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    protected void init(Context context, AttributeSet attrs) {
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
@@ -201,9 +175,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         rippleColor = ta.getColor(R.styleable.AllAngleExpandableButton_aebRippleColor, rippleColor);
         blurBackground = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebBlurBackground, false);
         blurRadius = ta.getFloat(R.styleable.AllAngleExpandableButton_aebBlurRadius, DEFAULT_BLUR_RADIUS);
-
-//        mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, true);
-        mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, false);
 
         ta.recycle();
 
@@ -392,132 +363,28 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     return false;
                 }
 
-                // if we're in movable mode, initiate move
-                if (mMovable) {
-                    startMove(event);
-                    return true;    // event consumed
+                pressInButton = true;
+                boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
+                if (executeActionUp) {
+                    updatePressState(0, true);
                 }
-                else {
-                    if (!mDisabled) {
-                        pressInButton = true;
-                        boolean executeActionUp = !animating && buttonDatas != null && !buttonDatas.isEmpty();
-                        if (executeActionUp) {
-                            updatePressState(0, true);
-                        }
-                        return executeActionUp;
-                    }
-                    return true;
-                }
+                return executeActionUp;
 
             case MotionEvent.ACTION_MOVE:
-                if (mMovable && mMoving) {
-                    continueMove(event);
-                    return true;
-                }
-
-                if (!mDisabled) {
-                    updatePressPosition(0, rawButtonRectF);
-                }
+                updatePressPosition(0, rawButtonRectF);
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (mMovable && mMoving) {
-                    finishMove(event);
-                    return true;
+                if (!isPointInRectF(pressPointF, rawButtonRectF)) {
+                    return true;    // event consumed
                 }
-
-                if (mDisabled) {
-                    // pass the event on to higher level
-                    buttonEventListener.onDisabledClick();
-                }
-
-                else {
-                    if (!isPointInRectF(pressPointF, rawButtonRectF)) {
-                        return true;    // event consumed
-                    }
-                    updatePressState(0, false);
-                    expand();
-                }
+                updatePressState(0, false);
+                expand();
                 return true;
         }
         return super.onTouchEvent(event);
     }
 
-    /**
-     * Begins a move of the button.  Assumes that the button CAN move!
-     */
-    private void startMove(MotionEvent event) {
-        mMoving = true;
-        mMoveStartX = event.getRawX();
-        mMoveStartY = event.getRawY();
-        mMoveDiffX = getX() - mMoveStartX;
-        mMoveDiffY = getY() - mMoveStartY;
-    }
-
-    private void continueMove(MotionEvent event) {
-        if (mMoving) {
-            setX(event.getRawX() + mMoveDiffX);
-            setY(event.getRawY() + mMoveDiffY);
-        }
-    }
-
-    private void finishMove(MotionEvent event) {
-
-        if (mMoving) {
-            if (isRealMove(event)) {
-                setX(event.getRawX() + mMoveDiffX);
-                setY(event.getRawY() + mMoveDiffY);
-
-                // reestablish our button's rectangle
-                getGlobalVisibleRect(rawButtonRect);
-                rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
-            }
-            else {
-                // Not enough movement to consider this a move. Let's treat this as
-                // a button click.
-                // todo: pass through click event
-                buttonEventListener.onDisabledClick();
-
-                // reset the button's location (just in case it moved a little)
-                setX(mMoveStartX + mMoveDiffX);
-                setY(mMoveStartY + mMoveDiffY);
-            }
-            mMoving = false;
-        }
-    }
-
-    /**
-     * Determines if the user's finger has moved enough to consider this a real
-     * move event, or if this is just slight shuddering of a finger that happens
-     * during a button click.
-     *
-     * @param event     The current event that finalized the move (should be an
-     *                  ACTION_UP event).  We'll need the coordinates.
-     *
-     * @return  TRUE iff the current location is sufficiently far enough away from
-     *          the original ACTION_DOWN event to qualify as a move.
-     *
-     * todo: may need to use the time as well (moves take a lot longer than clicks)
-     */
-    private boolean isRealMove(MotionEvent event) {
-
-        float currentX = event.getRawX();
-        float currentY = event.getRawY();
-
-        // check not enough movement
-        if ((Math.abs(currentX - mMoveStartX) < CLICK_SLOP) &&
-            (Math.abs(currentY - mMoveStartY) < CLICK_SLOP)) {
-            return false;
-        }
-
-        // check not enough time
-        long currentMillis = System.currentTimeMillis();
-        if (currentMillis - mStartMillis < CLICK_MILLIS_THRESHOLD) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * used for update press effect when finger move
@@ -915,7 +782,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
     private void initButtonInfo() {
-        ViewGroup root = (ViewGroup) getRootView();
         getGlobalVisibleRect(rawButtonRect);
         rawButtonRectF.set(rawButtonRect.left, rawButtonRect.top, rawButtonRect.right, rawButtonRect.bottom);
     }
@@ -1109,14 +975,6 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
     public void setBlurRadius(float blurRadius) {
         this.blurRadius = blurRadius;
-    }
-
-    public boolean isMovable() {
-        return mMovable;
-    }
-
-    public void setMovable(boolean movable) {
-        mMovable = movable;
     }
 
 
