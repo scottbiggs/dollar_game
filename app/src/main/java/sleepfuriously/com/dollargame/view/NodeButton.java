@@ -344,8 +344,6 @@ public class NodeButton extends AllAngleExpandableButton {
      *
      * @return  TRUE iff the current location is sufficiently far enough away from
      *          the original ACTION_DOWN event to qualify as a move.
-     *
-     * todo: may need to use the time as well (moves take a lot longer than clicks)
      */
     private boolean isRealMove(MotionEvent event) {
 

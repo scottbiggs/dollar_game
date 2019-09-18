@@ -296,6 +296,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         }
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public AllAngleExpandableButton setButtonDatas(List<ButtonData> buttonDatas) {
         if (buttonDatas == null || buttonDatas.isEmpty()) {
             return this;
@@ -1016,7 +1017,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             /**
              * the members are set by getMoveX() and getMoveY() of {@link AngleCalculator}
              */
-            public ExpandMoveCoordinate(float moveX, float moveY) {
+            ExpandMoveCoordinate(float moveX, float moveY) {
                 this.moveX = moveX;
                 this.moveY = moveY;
             }

@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * todo: use Templates to make the data more generic
- *
  * Library for directed and undirected graphs.
  * Note that this uses lists for its data, so it may
  * not be as fast as it could be.

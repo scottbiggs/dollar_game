@@ -25,6 +25,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
     //  constants
     //--------------------------
 
+    @SuppressWarnings("unused")
     private static final String TAG = PlayAreaFrameLayout.class.getSimpleName();
 
     //--------------------------
@@ -155,6 +156,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
      * of the same point, this will probably fail (but that's a rather
      * rare situation).
      */
+    @Deprecated // seems to have problems--needs testing
     public void updateLines(PointF origPoint, PointF newPoint) {
         for (int i = 0; i < mLines.size(); i++) {
             Line line = mLines.get(i);
@@ -176,6 +178,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
     //  classes
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    @SuppressWarnings("WeakerAccess")
     private class Line {
         public PointF start, end;
 

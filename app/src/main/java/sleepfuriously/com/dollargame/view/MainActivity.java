@@ -26,7 +26,6 @@ import android.widget.ToggleButton;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-import sleepfuriously.com.dollargame.model.Node;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private Graph mGraph = new Graph<NodeButton>(false);
 
     // todo: just for testing!
-    ToggleButton mTestToggle;
+//    ToggleButton mTestToggle;
 
     /** This switch toggles between build and play mode */
     private Switch mMainSwitch;
@@ -119,16 +118,16 @@ public class MainActivity extends AppCompatActivity {
         mSolveTv = findViewById(R.id.solve_tv);
 
         // todo: for testing!
-        mTestToggle = findViewById(R.id.test_toggle);
-        mTestToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                disableAllButtons(mTestToggle.isChecked());
-//                moveModeAllButtons(mTestToggle.isChecked());
-                mPlayArea.setDrawLines(!mPlayArea.getDrawLines());
-                mPlayArea.invalidate();
-            }
-        });
+//        mTestToggle = findViewById(R.id.test_toggle);
+//        mTestToggle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                disableAllButtons(mTestToggle.isChecked());
+////                moveModeAllButtons(mTestToggle.isChecked());
+//                mPlayArea.setDrawLines(!mPlayArea.getDrawLines());
+//                mPlayArea.invalidate();
+//            }
+//        });
 
         mHintTv = findViewById(R.id.bottom_hint_tv);
 
@@ -234,22 +233,27 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.build_about:
                 // todo
+                Log.d(TAG, "menu option: about");
                 break;
 
             case R.id.build_help:
                 // todo
+                Log.d(TAG, "menu option: help");
                 break;
 
             case R.id.build_load:
                 // todo
+                Log.d(TAG, "menu option: load");
                 break;
 
             case R.id.build_share:
                 // todo
+                Log.d(TAG, "menu option: share");
                 break;
 
             case R.id.build_solve:
                 // todo
+                Log.d(TAG, "menu option: solve");
                 break;
 
             default:
