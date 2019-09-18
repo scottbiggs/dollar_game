@@ -17,4 +17,7 @@
 
     <color name="button_solve_border_normal">#1B2895</color>
 
+    <!-- line colors -->
+    <color name="line_color_normal">#000</color>
+
 </resources>

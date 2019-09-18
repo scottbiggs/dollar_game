@@ -56,7 +56,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <FrameLayout
+    <sleepfuriously.com.dollargame.view.PlayAreaFrameLayout
         android:id="@+id/play_area_fl"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -67,7 +67,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_switch">
 
-    </FrameLayout>
+    </sleepfuriously.com.dollargame.view.PlayAreaFrameLayout>
 
     <TextView
         android:id="@+id/bottom_hint_tv"
@@ -84,11 +84,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-<!--    <ToggleButton-->
-<!--        android:id="@+id/test_toggle"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+    <ToggleButton
+        android:id="@+id/test_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

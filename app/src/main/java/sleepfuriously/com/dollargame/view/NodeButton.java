@@ -3,6 +3,7 @@ package sleepfuriously.com.dollargame.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -82,8 +83,12 @@ public class NodeButton extends AllAngleExpandableButton {
     private static boolean mMoving = false;
     /** screen coordinates of the beginning of a move */
     private float mMoveStartX, mMoveStartY;
+
     /** ??? difference between screen and view coords ??? */
     private float mMoveDiffX, mMoveDiffY;
+
+    /** position of the last known coord for this button */
+    private float mMoveLastX, mMoveLastY;
 
     /** System time when a touch event starts on this button */
     private long mStartMillis = 0L;
@@ -258,7 +263,6 @@ public class NodeButton extends AllAngleExpandableButton {
                         // pass the event on to higher level
                         buttonEventListener.onDisabledClick();
                     }
-
                     break;
             }
 
@@ -275,14 +279,26 @@ public class NodeButton extends AllAngleExpandableButton {
         mMoving = true;
         mMoveStartX = event.getRawX();
         mMoveStartY = event.getRawY();
+
+        mMoveLastX = getX();
+        mMoveLastY = getY();
+
         mMoveDiffX = getX() - mMoveStartX;
         mMoveDiffY = getY() - mMoveStartY;
+
     }
 
     private void continueMove(MotionEvent event) {
         if (mMoving) {
             setX(event.getRawX() + mMoveDiffX);
             setY(event.getRawY() + mMoveDiffY);
+
+            PointF lastPos = new PointF(mMoveLastX, mMoveLastY);
+            PointF currentPos = new PointF(event.getX(), event.getY());
+            buttonEventListener.onMoved(lastPos, currentPos);
+
+            mMoveLastX = event.getX();
+            mMoveLastY = event.getY();
         }
     }
 
@@ -292,6 +308,13 @@ public class NodeButton extends AllAngleExpandableButton {
             if (isRealMove(event)) {
                 setX(event.getRawX() + mMoveDiffX);
                 setY(event.getRawY() + mMoveDiffY);
+
+                PointF lastPos = new PointF(mMoveLastX, mMoveLastY);
+                PointF currentPos = new PointF(event.getX(), event.getY());
+                buttonEventListener.onMoved(lastPos, currentPos);
+
+                mMoveLastX = event.getX();
+                mMoveLastY = event.getY();
 
                 // reestablish our button's rectangle
                 getGlobalVisibleRect(rawButtonRect);

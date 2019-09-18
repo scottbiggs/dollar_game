@@ -1,0 +1,188 @@
+package sleepfuriously.com.dollargame.view;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PointF;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.widget.FrameLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import sleepfuriously.com.dollargame.R;
+
+
+/**
+ * Created on 2019-09-17.
+ */
+public class PlayAreaFrameLayout extends FrameLayout {
+
+    //--------------------------
+    //  constants
+    //--------------------------
+
+    private static final String TAG = PlayAreaFrameLayout.class.getSimpleName();
+
+    //--------------------------
+    //  data
+    //--------------------------
+
+    /** When true, draw lines during onDraw() */
+    private boolean mDrawLines = true;
+
+    /** list of lines to draw */
+    private List<Line> mLines;
+
+    /** Paint for drawing the lines that connect various nodes */
+    private Paint mLinePaint;
+
+    private Context mCtx;
+
+    //--------------------------
+    //  methods
+    //--------------------------
+
+    public PlayAreaFrameLayout(@NonNull Context ctx) {
+        super(ctx);
+        init(ctx, null);
+    }
+
+    public PlayAreaFrameLayout(@NonNull Context ctx, @Nullable AttributeSet attrs) {
+        super(ctx, attrs);
+        init(ctx, attrs);
+    }
+
+    public PlayAreaFrameLayout(@NonNull Context ctx, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(ctx, attrs, defStyleAttr);
+        init(ctx, attrs);
+    }
+
+
+    private void init(@NonNull Context ctx, @Nullable AttributeSet attrs) {
+
+        mCtx = ctx;
+
+        mLines = new ArrayList<>();
+        mLinePaint = new Paint();
+
+        int color = mCtx.getResources().getColor(R.color.line_color_normal); // old
+        mLinePaint.setColor(color);
+        mLinePaint.setAntiAlias(false);
+        mLinePaint.setStrokeWidth(7f);
+    }
+
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        drawLines(canvas);
+    }
+
+
+    /**
+     * Draws all the lines for this class.
+     *
+     * preconditions:
+     *      mLines      Holds the lines to draw
+     *
+     *      mLinePaint  initialized correctly
+     */
+    private void drawLines(Canvas canvas) {
+        if (!mDrawLines) {
+            return;
+        }
+
+        for (int i = 0; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+            canvas.drawLine(line.start.x, line.start.y,
+                            line.end.x, line.end.y,
+                            mLinePaint);
+        }
+
+    }
+
+    /**
+     * Turns line drawing on or off.  Start or stop drawing
+     * all the lines in the list of lines.
+     *
+     * See {@link #addLine(PointF, PointF)}
+     *
+     * @param drawLinesOn   TRUE --> yes, draw the lines
+     *                      FALSE --> do not draw the lines
+     */
+    public void setDrawLines(boolean drawLinesOn) {
+        mDrawLines = drawLinesOn;
+    }
+
+    /**
+     * Returns whether this class is currently drawing lines or not
+     * as a setting.
+     *
+     * Don't confuse this with having 0 lines to draw (which won't do
+     * anything).  Thus there are 2 reasons this class may not draw
+     * any lines.
+     */
+    public boolean getDrawLines() {
+        return mDrawLines;
+    }
+
+    /**
+     * Adds the given line to the line list.
+     *
+     * NOTE: this does not automatically turn the line draw on.
+     * You gotta call {@link #setDrawLines(boolean)} yourself.
+     */
+    public void addLine(PointF start, PointF end) {
+        Line line = new Line(start, end);
+        mLines.add(line);
+    }
+
+    /** Removes all the lines from the line list */
+    public void removeAllLines() {
+        mLines.clear();
+    }
+
+    /**
+     * Searches through the list, finding every occurrance of the
+     * origPoint, and replaces it with the newPoint.
+     *
+     * Assumes that all occurrances of a origPoint ARE IN FACT references
+     * to the same point.  So if you have a graph with multiple uses
+     * of the same point, this will probably fail (but that's a rather
+     * rare situation).
+     */
+    public void updateLines(PointF origPoint, PointF newPoint) {
+        for (int i = 0; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+            if (line.start.equals(origPoint.x, origPoint.y)) {
+                line.start = newPoint;
+                mLines.remove(i--);
+                mLines.add(line);
+            }
+            else if (line.end.equals(origPoint.x, origPoint.y)) {
+                line.end = newPoint;
+                mLines.remove(i--);
+                mLines.add(line);
+            }
+        }
+    }
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  classes
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private class Line {
+        public PointF start, end;
+
+        Line (PointF _start, PointF _end) {
+            start = _start;
+            end = _end;
+        }
+    }
+
+}

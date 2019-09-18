@@ -3,6 +3,7 @@ package sleepfuriously.com.dollargame.model;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.List;
 import java.util.Set;
@@ -133,8 +134,7 @@ public class Graph<T>
     }
 
     /**
-     * Adds an edge to this class.  Doesn't check for redundancies,
-     * so be careful!
+     * Adds an edge to this class.  Does not allow duplicate edges!
      *
      *	@param	startNodeId	The first the starting node (not relevant
      *						for non-directed graphs).
@@ -144,8 +144,14 @@ public class Graph<T>
      *	@param	weight	The weight of this edge.
      *
      *	@return	The total number of edges AFTER this has been added.
+     *          -1 if this is a duplicate edge.
      */
     public int addEdge(int startNodeId, int endNodeId, int weight) {
+        if (getEdgeIndex(startNodeId, endNodeId) != -1) {
+            Log.e(TAG, "Tried to add duplicate edge!");
+            return -1;
+        }
+
         Edge edge = new Edge();
         edge.startNodeId = startNodeId;
         edge.endNodeId = endNodeId;
@@ -154,6 +160,35 @@ public class Graph<T>
         mEdges.add(edge);
         return mEdges.size();
     }
+
+    /**
+     * Finds the edge index with the given start and end nodes.
+     * If not found, returns -1;<br>
+     * <br>
+     * Also useful just to see if an edge exists.<br>
+     * <br>
+     * Relies on {@link #mDirected} to determine if direction
+     * matters.<br>
+     * <br>
+     * O(n)
+     */
+    public int getEdgeIndex(int startNodeId, int endNodeId) {
+        for (int i = 0; i < mEdges.size(); i++) {
+            Edge edge = mEdges.get(i);
+            if ((startNodeId == edge.startNodeId) &&
+                (endNodeId == edge.endNodeId)) {
+                return i;
+            }
+            if (!mDirected) {
+                if ((startNodeId == edge.endNodeId) &&
+                        (endNodeId == edge.startNodeId)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
 
     /**
      *	Just like AddEdge, but without any weight.
@@ -503,6 +538,12 @@ public class Graph<T>
         return removed;
     }
 
+    /** Returns the edge at the given index */
+    public Edge getEdge(int index) {
+        return mEdges.get(index);
+    }
+
+
     /**
      *	Prints the contents of this graph to a string.
      *
@@ -547,7 +588,7 @@ public class Graph<T>
      * Defines an edge of the graph. Very simple class meant to
      * only be used within the Graph class.
      */
-    private class Edge {
+    public class Edge {
         public int startNodeId;
         public int endNodeId;
         public int weight = 0;

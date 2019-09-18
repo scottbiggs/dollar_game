@@ -20,11 +20,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
+import android.widget.ToggleButton;
 
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
+import sleepfuriously.com.dollargame.model.Node;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -57,14 +59,13 @@ public class MainActivity extends AppCompatActivity {
     //------------------------
 
     /** The play are of the game */
-    private FrameLayout mPlayArea;
+    private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-//    private NodeButtonGraph mGraph = new NodeButtonGraph<NodeButton>();
-    private Graph mGraph = new Graph<NodeButton>();
+    private Graph mGraph = new Graph<NodeButton>(false);
 
     // todo: just for testing!
-//    ToggleButton mTestToggle;
+    ToggleButton mTestToggle;
 
     /** This switch toggles between build and play mode */
     private Switch mMainSwitch;
@@ -117,15 +118,17 @@ public class MainActivity extends AppCompatActivity {
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
 
-//        // todo: for testing!
-//        mTestToggle = findViewById(R.id.test_toggle);
-//        mTestToggle.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+        // todo: for testing!
+        mTestToggle = findViewById(R.id.test_toggle);
+        mTestToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 //                disableAllButtons(mTestToggle.isChecked());
 //                moveModeAllButtons(mTestToggle.isChecked());
-//            }
-//        });
+                mPlayArea.setDrawLines(!mPlayArea.getDrawLines());
+                mPlayArea.invalidate();
+            }
+        });
 
         mHintTv = findViewById(R.id.bottom_hint_tv);
 
@@ -230,18 +233,23 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.build_about:
+                // todo
                 break;
 
             case R.id.build_help:
+                // todo
                 break;
 
             case R.id.build_load:
+                // todo
                 break;
 
             case R.id.build_share:
+                // todo
                 break;
 
             case R.id.build_solve:
+                // todo
                 break;
 
             default:
@@ -334,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Adds a button to the given coords.
      */
+    @SuppressWarnings("UnusedReturnValue")
     private NodeButton newButton(float x, float y) {
 
         final NodeButton button = new NodeButton(this);
@@ -378,7 +387,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onMoved(PointF oldLoc, PointF newLoc) {
-                // todo: update all connections
+//                mPlayArea.updateLines(oldLoc, newLoc);
+                // remove and rebuild the line data
+                mPlayArea.removeAllLines();
+                for (int i = 0; i < mGraph.numEdges(); i++) {
+                    Graph.Edge edge = mGraph.getEdge(i);
+                    NodeButton startNode = (NodeButton) mGraph.getNodeData(edge.startNodeId);
+                    NodeButton endNode = (NodeButton) mGraph.getNodeData(edge.endNodeId);
+
+                    PointF startp = startNode.getCenter();
+                    PointF endp = endNode.getCenter();
+                    mPlayArea.addLine(startp, endp);
+                }
+                mPlayArea.invalidate();
             }
         });
 
@@ -399,6 +420,7 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.addView(button);
 
         try {
+            //noinspection unchecked
             mGraph.addNode(id, button);
         }
         catch (GraphNodeDuplicateIdException e) {
@@ -422,15 +444,26 @@ public class MainActivity extends AppCompatActivity {
     private void connectButtons(int startButtonId, int endButtonId) {
         Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
 
-        // update our data
-        mGraph.addEdge(startButtonId, endButtonId);
-
-        // turn off highlighting
         NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
+        NodeButton endButton = (NodeButton) mGraph.getNodeData(endButtonId);
 
         startButton.setHighlighted(false);
 
-        // todo: draw the line
+        // cannot connect to yourself!
+        if (startButtonId == endButtonId) {
+            Log.v(TAG, "Attempting to connect a button to itself--aborted.");
+            startButton.setHighlighted(false);
+            return;
+        }
+
+        // update our data
+        mGraph.addEdge(startButtonId, endButtonId);
+
+        // tell the playarea to draw the line
+        PointF start = startButton.getCenter();
+        PointF end = endButton.getCenter();
+        mPlayArea.addLine(start, end);
+        mPlayArea.invalidate();
     }
 
 
