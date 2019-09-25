@@ -1,5 +1,7 @@
 package sleepfuriously.com.dollargame.view;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Typeface;
@@ -15,12 +17,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
-import android.widget.ToggleButton;
 
 
 import sleepfuriously.com.dollargame.R;
@@ -51,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
 
     /** start in build mode */
     private static final Modes DEFAULT_MODE = Modes.BUILD_MODE;
+
+    /**
+     * Min and max times allowed for a proper double click.
+     * The 2nd click must be within this window.
+     */
+    private static final long
+            DOUBLE_CLICK_MIN_TIME = 25,
+            DOUBLE_CLICK_MAX_TIME = 750;
 
 
     //------------------------
@@ -88,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
     /** The id of the starting node in a connection */
     private int mStartNodeId;
+
+    /** System time of the last known disabled click. Used to determine double clicks. */
+    private long mDoubleClickStart = 0L;
 
     //------------------------
     //  methods
@@ -353,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        final int id = mGraph.getUniqueNodeId();
+        final int graphId = mGraph.getUniqueNodeId();
 
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
@@ -373,19 +386,41 @@ public class MainActivity extends AppCompatActivity {
 
             // A connection click
             @Override
-            public void onDisabledClick() {
-                if (mConnecting) {
-                    // completing a connection
-                    connectButtons(mStartNodeId, id);
+            public void onDisabledClick(int clickedId) {
+
+                long millisSinceLastClick = System.currentTimeMillis() - mDoubleClickStart;
+                Log.d(TAG, "onDisabledClick(), millis = " + millisSinceLastClick);
+
+                if ((millisSinceLastClick <= DOUBLE_CLICK_MAX_TIME) &&
+                    (millisSinceLastClick >= DOUBLE_CLICK_MIN_TIME) &&
+                    (graphId == clickedId)) {
+                    // reset click settings and start the dialog
+                    Log.d(TAG, "double click!");
                     mConnecting = false;
+                    mDoubleClickStart = 0L;
+                    startDollarAmountDialog(button);
+                    button.setHighlighted(false);
+                    button.invalidate();
+                }
+
+                else if (mConnecting) {
+                    Log.d(TAG, "...attempting to finish a connection");
+                    // completing a connection
+                    connectButtons(mStartNodeId, graphId);
+
+                    // reset to prevent double clicks
+                    mConnecting = false;
+                    mDoubleClickStart = 0L;
                 }
 
                 else {
                     // beginning a connection
+                    Log.d(TAG, "beginning a connection...");
                     mConnecting = true;
-                    mStartNodeId = id;
+                    mStartNodeId = graphId;
                     button.setHighlighted(true);
                     button.invalidate();
+                    mDoubleClickStart = System.currentTimeMillis(); // for detecting double clicks
                 }
             }
 
@@ -408,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button.setXYCenter(x, y);
+        button.setId(graphId);  // essential to distinguish this button
 
         switch (mMode) {
             case BUILD_MODE:
@@ -425,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             //noinspection unchecked
-            mGraph.addNode(id, button);
+            mGraph.addNode(graphId, button);
         }
         catch (GraphNodeDuplicateIdException e) {
             e.printStackTrace();
@@ -434,6 +470,30 @@ public class MainActivity extends AppCompatActivity {
 
         return button;
     }
+
+    /**
+     * Throws up a dialog for the user to enter a dollar amount for a node.
+     */
+    private void startDollarAmountDialog(final NodeButton button) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.dollar_dialog_title);
+        builder.setMessage(R.string.dollar_dialog_msg);
+
+        // add an EditText to the dialog for input
+        final EditText et = new EditText(this);
+        builder.setView(et);
+
+        builder.setPositiveButton(R.string.positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Change the displayed amount in the button
+                String str = et.getText().toString();
+                button.setText(str);
+            }
+        });
+    }
+
 
     /**
      * Does the logic and graphics of connecting two buttons.

@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Dollar Game</string>
 
+    <!-- general -->
+    <string name="positive_button">ok</string>
+    <string name="cancel_button">cancel</string>
+
     <!-- main modes -->
     <string name="mode_build">Build</string>
     <string name="mode_solve">Solve</string>
@@ -21,6 +25,10 @@
     <string name="exit">exit</string>
     <string name="genus_label">genus:</string>
     <string name="count_label">count:</string>
+
+    <!-- get dollar amount dialog -->
+    <string name="dollar_dialog_title">dollar amount</string>
+    <string name="dollar_dialog_msg">Enter the number of dollars for this node.</string>
 
     <!-- credits -->
     <string name="credits_title">credits</string>

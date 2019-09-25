@@ -18,8 +18,10 @@ public interface ButtonEventListener {
     /**
      * When DISABLED, this button will behave like a regular View.
      * This signals that the user touched AND released the button.
+     *
+     * @param   id  The id of the button that was clicked.
      */
-    void onDisabledClick();
+    void onDisabledClick(int id);
 
     /**
      * The button has been moved (only happens when DISABLED).

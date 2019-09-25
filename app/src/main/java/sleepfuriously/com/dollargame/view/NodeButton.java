@@ -45,28 +45,28 @@ public class NodeButton extends AllAngleExpandableButton {
     private static final
         int[] BUTTON_DRAWABLES_NORMAL = {
             R.drawable.black_circle,
-            R.drawable.ic_give_money,
-            R.drawable.ic_take_money
+            R.drawable.butt_give_money,
+            R.drawable.butt_take_money
         },
         BUTTON_DRAWABLES_RED = {
             R.drawable.red_circle,
-            R.drawable.ic_give_money,
-            R.drawable.ic_take_money
+            R.drawable.butt_give_money,
+            R.drawable.butt_take_money
         },
         BUTTON_DRAWABLES_BUILD_NORMAL = {
             R.drawable.build_circle_normal,
-            R.drawable.ic_give_money,
-            R.drawable.ic_take_money
+            R.drawable.butt_give_money,
+            R.drawable.butt_take_money
         },
         BUTTON_DRAWABLES_BUILD_HIGHIGHT = {
             R.drawable.red_circle,
-            R.drawable.ic_give_money,
-            R.drawable.ic_take_money
+            R.drawable.butt_give_money,
+            R.drawable.butt_take_money
         },
         BUTTON_DRAWABLES_SOLVE_NORMAL = {
             R.drawable.solve_circle_normal,
-            R.drawable.ic_give_money,
-            R.drawable.ic_take_money
+            R.drawable.butt_give_money,
+            R.drawable.butt_take_money
         };
 
 
@@ -99,6 +99,9 @@ public class NodeButton extends AllAngleExpandableButton {
 
     /** current highlight state of this button */
     private boolean mHighlighted = false;
+
+    /** Remembers the last image array assigned to this node button */
+    private int[] mLastImageArray = null;
 
 
     //---------------------
@@ -166,6 +169,7 @@ public class NodeButton extends AllAngleExpandableButton {
      */
     private List<ButtonData> setButtonImageData(Context ctx, int[] imageArray, String title) {
 
+        mLastImageArray = imageArray;
         List<ButtonData> buttons = new ArrayList<>();
 
         for (int i = 0; i < imageArray.length; i++) {
@@ -181,6 +185,17 @@ public class NodeButton extends AllAngleExpandableButton {
         }
 
         return buttons;
+    }
+
+    /**
+     * Sets the text of the main button to the given string.  Uses the last set of images
+     * supplied to this button.<br>
+     * <br>
+     * Note: this won't work unless the button already has a set of
+     * images assigned to it via {@link #setButtonImageData(Context, int[], String)}.
+     */
+    public void setText(String str) {
+        setButtonImageData(mCtx, mLastImageArray, str);
     }
 
 
@@ -261,7 +276,7 @@ public class NodeButton extends AllAngleExpandableButton {
                     }
                     if (mDisabled) {
                         // pass the event on to higher level
-                        buttonEventListener.onDisabledClick();
+                        buttonEventListener.onDisabledClick(getId());
                     }
                     break;
             }
@@ -324,7 +339,7 @@ public class NodeButton extends AllAngleExpandableButton {
                 // Not enough movement to consider this a move. Let's treat this as
                 // a button click.
                 // todo: pass through click event
-                buttonEventListener.onDisabledClick();
+                buttonEventListener.onDisabledClick(getId());
 
                 // reset the button's location (just in case it moved a little)
                 setX(mMoveStartX + mMoveDiffX);
