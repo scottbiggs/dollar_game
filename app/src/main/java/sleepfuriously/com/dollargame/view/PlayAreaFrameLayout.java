@@ -142,10 +142,33 @@ public class PlayAreaFrameLayout extends FrameLayout {
         mLines.add(line);
     }
 
+    /**
+     * Removes the given line from the line draw list.
+     * Order of the points doesn't matter.
+     *
+     * Will spit out an error message if the line can't be found.
+     */
+    public void removeLine(PointF a, PointF b) {
+        int i = 0;
+        for (; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+            if ((line.start.equals(a) && line.end.equals(b)) ||
+                (line.start.equals(b) && line.end.equals(a))) {
+                break;
+            }
+        }
+
+        // line was found, remove it
+        if (i < mLines.size()) {
+            mLines.remove(i);
+        }
+    }
+
     /** Removes all the lines from the line list */
     public void removeAllLines() {
         mLines.clear();
     }
+
 
     /**
      * Searches through the list, finding every occurrance of the

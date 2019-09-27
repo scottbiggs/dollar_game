@@ -29,6 +29,7 @@ import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
+import sleepfuriously.com.dollargame.view.NodeButton.Modes;
 
 
 /**
@@ -46,13 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
 
-    /** The different game modes. These are the highest level of logic for the game. */
-    enum Modes {
-        BUILD_MODE, SOLVE_MODE
-    }
-
     /** start in build mode */
-    private static final Modes DEFAULT_MODE = Modes.BUILD_MODE;
+    private static final NodeButton.Modes DEFAULT_MODE = NodeButton.Modes.BUILD_MODE;
 
     /**
      * Min and max times allowed for a proper double click.
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 //        mTestToggle.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-////                disableAllButtons(mTestToggle.isChecked());
+////                setAllButtonModes(mTestToggle.isChecked());
 ////                moveModeAllButtons(mTestToggle.isChecked());
 //                mPlayArea.setDrawLines(!mPlayArea.getDrawLines());
 //                mPlayArea.invalidate();
@@ -277,20 +273,6 @@ public class MainActivity extends AppCompatActivity {
         return true;   // end processing (consumed completely)
     }
 
-    /** Disables or enables ALL buttons */
-    private void disableAllButtons(boolean disable) {
-        for (Object button : mGraph) {
-            ((NodeButton)button).setDisabled(disable);
-        }
-    }
-
-    /** mostly for testing */
-    private void moveModeAllButtons(boolean enableMoveMode) {
-        for (Object button : mGraph) {
-            ((NodeButton)button).setMovable(enableMoveMode);
-        }
-    }
-
     /**
      * Performs the logical operations for the new mode.
      * Also makes sure that the appropriate UI changes take place.
@@ -301,29 +283,12 @@ public class MainActivity extends AppCompatActivity {
      * @param newMode   The new mode
      */
     private void setMode(Modes newMode) {
-
         mMode = newMode;
-
-        // now do the ui
-        switch (mMode) {
-            case BUILD_MODE:
-                disableAllButtons(true);
-                moveModeAllButtons(true);
-                buildModeUI();
-                break;
-
-            case SOLVE_MODE:
-                disableAllButtons(false);
-                moveModeAllButtons(false);
-                solveModeUI();
-                break;
-
-            default:
-                // get their attention!
-                throw new EnumConstantNotPresentException(Modes.class, "Unknown Mode in setMode()");
+        for (Object button : mGraph) {
+            ((NodeButton)button).setMode(mMode);
         }
-
     }
+
 
     /**
      * Does all the UI for changing to Build mode. No logic is done.
@@ -419,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
                     mConnecting = true;
                     mStartNodeId = graphId;
                     button.setHighlighted(true);
-                    button.invalidate();
+                    button.invalidate(); // todo: redundant--setHighlighted calls invalidate()
                     mDoubleClickStart = System.currentTimeMillis(); // for detecting double clicks
                 }
             }
@@ -445,18 +410,7 @@ public class MainActivity extends AppCompatActivity {
         button.setXYCenter(x, y);
         button.setId(graphId);  // essential to distinguish this button
 
-        switch (mMode) {
-            case BUILD_MODE:
-                button.setDisabled(true);
-                button.setMovable(true);
-                break;
-
-            case SOLVE_MODE:
-                button.setDisabled(false);
-                button.setMovable(false);
-                break;
-        }
-
+        button.setMode(mMode);
         mPlayArea.addView(button);
 
         try {
@@ -498,6 +452,9 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Does the logic and graphics of connecting two buttons.
      *
+     * NOTE: Trying to make a connection that already exists will REMOVE
+     * that connection.
+     *
      * side effects:
      *      mGraph      Will reflect the new connection
      *
@@ -520,13 +477,22 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // update our data
-        mGraph.addEdge(startButtonId, endButtonId);
-
-        // tell the playarea to draw the line
+        // Draw locations for the two buttons
         PointF start = startButton.getCenter();
         PointF end = endButton.getCenter();
-        mPlayArea.addLine(start, end);
+
+        // Adding or removing a connection?
+        if (mGraph.isAdjacent(startButtonId, endButtonId)) {
+            // remove the connection
+            mGraph.removeEdge(startButtonId, endButtonId);
+            mPlayArea.removeLine(start, end);
+        }
+        else {
+            mGraph.addEdge(startButtonId, endButtonId);
+            mPlayArea.addLine(start, end);
+        }
+
+        // tell the playarea to redraw
         mPlayArea.invalidate();
     }
 

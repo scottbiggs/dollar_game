@@ -29,6 +29,11 @@ public class NodeButton extends AllAngleExpandableButton {
 
     private static final String TAG = NodeButton.class.getSimpleName();
 
+    /** The different game modes. These are the highest level of logic for the game. */
+    enum Modes {
+        BUILD_MODE, SOLVE_MODE
+    }
+
     /** default for buttons: are they movable or not? */
     protected static final boolean DEFAULT_MOVABLE = false;
 
@@ -93,9 +98,6 @@ public class NodeButton extends AllAngleExpandableButton {
     /** System time when a touch event starts on this button */
     private long mStartMillis = 0L;
 
-    /** the disabled state of this button */
-    protected boolean mDisabled = false;
-
 
     /** current highlight state of this button */
     private boolean mHighlighted = false;
@@ -103,6 +105,8 @@ public class NodeButton extends AllAngleExpandableButton {
     /** Remembers the last image array assigned to this node button */
     private int[] mLastImageArray = null;
 
+    /** The current mode of this button */
+    private Modes mMode = Modes.BUILD_MODE;
 
     //---------------------
     //  methods
@@ -142,7 +146,8 @@ public class NodeButton extends AllAngleExpandableButton {
 
         @SuppressLint("CustomViewStyleable")
         TypedArray ta = ctx.obtainStyledAttributes(attrs, R.styleable.AllAngleExpandableButton);
-        mMovable = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, DEFAULT_MOVABLE);
+        mMode = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebMovable, DEFAULT_MOVABLE) ?
+                Modes.BUILD_MODE : Modes.SOLVE_MODE;
         ta.recycle();
     }
 
@@ -199,30 +204,16 @@ public class NodeButton extends AllAngleExpandableButton {
     }
 
 
-    /**
-     * Returns if this button is currently disabled.
-     * Disabled buttons do NOT do their fancy button animation. They may
-     * move (if movement is enabled) and change highlight/color.
-     */
-    public boolean isDisabled() {
-        return mDisabled;
+    public Modes getMode() {
+        return mMode;
     }
 
-    /**
-     * Disable or enable the button.  Only enabled buttons (default) will do
-     * their fancy animations with secondary buttons.
-     *
-     * Disabled buttons still may move and do their highlights/color changes.
-     *
-     * @param   disabled    True means that this button will be DISABLED.
-     *                      False enables it (of course).
-     */
-    public void setDisabled(boolean disabled) {
-        if (mDisabled == disabled) {
-            Log.e(TAG, "setting disabled to " + disabled + " twice!");
+    public void setMode(Modes newMode) {
+        if (mMode == newMode) {
+            Log.e(TAG, "Already in " + mMode + " mode!");
             return;
         }
-        mDisabled = disabled;
+        mMode = newMode;
     }
 
 
@@ -237,6 +228,8 @@ public class NodeButton extends AllAngleExpandableButton {
         }
 
         mHighlighted = highlighted;
+
+        // todo: the highlighted needs to be dependent on the current mode
 
         List<ButtonData> buttons;
         if (highlighted) {
@@ -256,33 +249,57 @@ public class NodeButton extends AllAngleExpandableButton {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (mMovable) {
+        // todo: this needs to first act on the current mode, then parse the event
+
+        if (mMode == Modes.BUILD_MODE) {
+
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if (checker.isQuick()) {
+                        // todo: I can use this as a double click test!
                         return false;
                     }
-                    startMove(event);
-                    return true;    // event consumed
+
+                    if (mHighlighted) {
+                        // clicking on a highlighted button turns it off
+                        // and resets the button to normal
+                        setHighlighted(false);
+                        if (mMoving) {
+                            Log.e(TAG, "Error: trying to move while highlighted!");
+                        }
+                    }
+                    else {
+                        // on move if not highlighted
+                        startMove(event);
+                    }
+                    return true;
 
                 case MotionEvent.ACTION_MOVE:
                     continueMove(event);
                     return true;
 
                 case MotionEvent.ACTION_UP:
-                    if (mMovable && mMoving) {
+                    if (mHighlighted) {
+                        // turn off highlighting if clicked on again
+                        setHighlighted(false);
+                        return true;
+                    }
+                    else if (mMoving) {
                         finishMove(event);
                         return true;
                     }
-                    if (mDisabled) {
-                        // pass the event on to higher level
-                        buttonEventListener.onDisabledClick(getId());
-                    }
+//                    if (mDisabled) {
+//                        // pass the event on to higher level
+//                        buttonEventListener.onDisabledClick(getId());
+//                    }
                     break;
             }
-
+            return false;
         }
-        return super.onTouchEvent(event);
+
+        else {
+            return super.onTouchEvent(event);
+        }
 
     }
 
@@ -379,16 +396,6 @@ public class NodeButton extends AllAngleExpandableButton {
 
         return true;
     }
-
-
-    public boolean isMovable() {
-        return mMovable;
-    }
-
-    public void setMovable(boolean movable) {
-        mMovable = movable;
-    }
-
 
 
 
