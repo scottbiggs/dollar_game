@@ -20,7 +20,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
-import android.widget.ToggleButton;
 
 
 import sleepfuriously.com.dollargame.R;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-    private Graph mGraph = new Graph<NodeButton>(false);
+    private Graph mGraph = new Graph<NodeButtonOLD>(false);
 
     // todo: just for testing!
 //    ToggleButton mTestToggle;
@@ -267,14 +266,14 @@ public class MainActivity extends AppCompatActivity {
     /** Disables or enables ALL buttons */
     private void disableAllButtons(boolean disable) {
         for (Object button : mGraph) {
-            ((NodeButton)button).setDisabled(disable);
+            ((NodeButtonOLD)button).setDisabled(disable);
         }
     }
 
     /** mostly for testing */
     private void moveModeAllButtons(boolean enableMoveMode) {
         for (Object button : mGraph) {
-            ((NodeButton)button).setMovable(enableMoveMode);
+            ((NodeButtonOLD)button).setMovable(enableMoveMode);
         }
     }
 
@@ -347,9 +346,9 @@ public class MainActivity extends AppCompatActivity {
      * Adds a button to the given coords.
      */
     @SuppressWarnings("UnusedReturnValue")
-    private NodeButton newButton(float x, float y) {
+    private NodeButtonOLD newButton(float x, float y) {
 
-        final NodeButton button = new NodeButton(this);
+        final NodeButtonOLD button = new NodeButtonOLD(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -396,8 +395,8 @@ public class MainActivity extends AppCompatActivity {
                 mPlayArea.removeAllLines();
                 for (int i = 0; i < mGraph.numEdges(); i++) {
                     Graph.Edge edge = mGraph.getEdge(i);
-                    NodeButton startNode = (NodeButton) mGraph.getNodeData(edge.startNodeId);
-                    NodeButton endNode = (NodeButton) mGraph.getNodeData(edge.endNodeId);
+                    NodeButtonOLD startNode = (NodeButtonOLD) mGraph.getNodeData(edge.startNodeId);
+                    NodeButtonOLD endNode = (NodeButtonOLD) mGraph.getNodeData(edge.endNodeId);
 
                     PointF startp = startNode.getCenter();
                     PointF endp = endNode.getCenter();
@@ -448,8 +447,8 @@ public class MainActivity extends AppCompatActivity {
     private void connectButtons(int startButtonId, int endButtonId) {
         Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
 
-        NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
-        NodeButton endButton = (NodeButton) mGraph.getNodeData(endButtonId);
+        NodeButtonOLD startButton = (NodeButtonOLD) mGraph.getNodeData(startButtonId);
+        NodeButtonOLD endButton = (NodeButtonOLD) mGraph.getNodeData(endButtonId);
 
         startButton.setHighlighted(false);
 

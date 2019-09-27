@@ -21,13 +21,13 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
 /**
  * Created on 2019-08-06.
  */
-public class NodeButton extends AllAngleExpandableButton {
+public class NodeButtonOLD extends AllAngleExpandableButton {
 
     //---------------------
     //  constants
     //---------------------
 
-    private static final String TAG = NodeButton.class.getSimpleName();
+    private static final String TAG = NodeButtonOLD.class.getSimpleName();
 
     /** default for buttons: are they movable or not? */
     protected static final boolean DEFAULT_MOVABLE = false;
@@ -105,17 +105,17 @@ public class NodeButton extends AllAngleExpandableButton {
     //  methods
     //---------------------
 
-    public NodeButton(Context ctx) {
+    public NodeButtonOLD(Context ctx) {
         super(ctx);
         init(ctx, null);
     }
 
-    public NodeButton(Context ctx, AttributeSet attrs) {
+    public NodeButtonOLD(Context ctx, AttributeSet attrs) {
         super(ctx, attrs);
         init(ctx, attrs);
     }
 
-    public NodeButton(Context ctx, AttributeSet attrs, int defStyleAttr) {
+    public NodeButtonOLD(Context ctx, AttributeSet attrs, int defStyleAttr) {
         super(ctx, attrs, defStyleAttr);
         init(ctx, attrs);
     }
