@@ -25,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
+import sleepfuriously.com.dollargame.view.NodeButton.Modes;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -35,6 +36,12 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventLi
  */
 public class MainActivity extends AppCompatActivity {
 
+    //============================================
+    // general todo & other ideas
+    //      have a button to randomly assign numbers to the buttsons
+    //      have an icon for if the graph is connected or not
+    //
+    //============================================
 
     //------------------------
     //  constants
@@ -42,11 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-
-    /** The different game modes. These are the highest level of logic for the game. */
-    enum Modes {
-        BUILD_MODE, SOLVE_MODE
-    }
 
     /** start in build mode */
     private static final Modes DEFAULT_MODE = Modes.BUILD_MODE;
@@ -60,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-    private Graph mGraph = new Graph<NodeButtonOLD>(false);
+//    private Graph mGraph = new Graph<NodeButtonOLD>(false);
+    private Graph mGraph = new Graph<NodeButton>(false);
 
     // todo: just for testing!
 //    ToggleButton mTestToggle;
@@ -263,19 +266,33 @@ public class MainActivity extends AppCompatActivity {
         return true;   // end processing (consumed completely)
     }
 
-    /** Disables or enables ALL buttons */
-    private void disableAllButtons(boolean disable) {
+//    /** Disables or enables ALL buttons */
+//    private void disableAllButtons(boolean disable) {
+//        for (Object button : mGraph) {
+//            ((NodeButtonOLD)button).setDisabled(disable);
+//        }
+//    }
+
+//    /** mostly for testing */
+//    private void moveModeAllButtons(boolean enableMoveMode) {
+//        for (Object button : mGraph) {
+//            ((NodeButtonOLD)button).setMovable(enableMoveMode);
+//        }
+//    }
+
+    private void setAllButtonsBuild() {
         for (Object button : mGraph) {
-            ((NodeButtonOLD)button).setDisabled(disable);
+            ((NodeButton)button).setMode(Modes.BUILD_MODE);
         }
     }
 
-    /** mostly for testing */
-    private void moveModeAllButtons(boolean enableMoveMode) {
+    private void setAllButtonsSolve() {
         for (Object button : mGraph) {
-            ((NodeButtonOLD)button).setMovable(enableMoveMode);
+            ((NodeButton)button).setMode(Modes.SOLVE_MODE);
         }
     }
+
+
 
     /**
      * Performs the logical operations for the new mode.
@@ -293,14 +310,16 @@ public class MainActivity extends AppCompatActivity {
         // now do the ui
         switch (mMode) {
             case BUILD_MODE:
-                disableAllButtons(true);
-                moveModeAllButtons(true);
+                setAllButtonsBuild();
+//                disableAllButtons(true);
+//                moveModeAllButtons(true);
                 buildModeUI();
                 break;
 
             case SOLVE_MODE:
-                disableAllButtons(false);
-                moveModeAllButtons(false);
+                setAllButtonsSolve();
+//                disableAllButtons(false);
+//                moveModeAllButtons(false);
                 solveModeUI();
                 break;
 
@@ -346,9 +365,11 @@ public class MainActivity extends AppCompatActivity {
      * Adds a button to the given coords.
      */
     @SuppressWarnings("UnusedReturnValue")
-    private NodeButtonOLD newButton(float x, float y) {
+//    private NodeButtonOLD newButton(float x, float y) {
+    private NodeButton newButton(float x, float y) {
 
-        final NodeButtonOLD button = new NodeButtonOLD(this);
+//        final NodeButtonOLD button = new NodeButtonOLD(this);
+        final NodeButton button = new NodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -383,8 +404,9 @@ public class MainActivity extends AppCompatActivity {
                     // beginning a connection
                     mConnecting = true;
                     mStartNodeId = id;
-                    button.setHighlighted(true);
-                    button.invalidate();
+                    button.setHighlight(NodeButton.HighlightTypes.CONNECT);
+//                    button.setHighlighted(true);
+                    button.invalidate();    // todo: is this necessary?
                 }
             }
 
@@ -395,8 +417,10 @@ public class MainActivity extends AppCompatActivity {
                 mPlayArea.removeAllLines();
                 for (int i = 0; i < mGraph.numEdges(); i++) {
                     Graph.Edge edge = mGraph.getEdge(i);
-                    NodeButtonOLD startNode = (NodeButtonOLD) mGraph.getNodeData(edge.startNodeId);
-                    NodeButtonOLD endNode = (NodeButtonOLD) mGraph.getNodeData(edge.endNodeId);
+//                    NodeButtonOLD startNode = (NodeButtonOLD) mGraph.getNodeData(edge.startNodeId);
+                    NodeButton startNode = (NodeButton) mGraph.getNodeData(edge.startNodeId);
+//                    NodeButtonOLD endNode = (NodeButtonOLD) mGraph.getNodeData(edge.endNodeId);
+                    NodeButton endNode = (NodeButton) mGraph.getNodeData(edge.endNodeId);
 
                     PointF startp = startNode.getCenter();
                     PointF endp = endNode.getCenter();
@@ -410,13 +434,15 @@ public class MainActivity extends AppCompatActivity {
 
         switch (mMode) {
             case BUILD_MODE:
-                button.setDisabled(true);
-                button.setMovable(true);
+//                button.setDisabled(true);
+//                button.setMovable(true);
+                button.setMode(Modes.BUILD_MODE);
                 break;
 
             case SOLVE_MODE:
-                button.setDisabled(false);
-                button.setMovable(false);
+//                button.setDisabled(false);
+//                button.setMovable(false);
+                button.setMode(Modes.SOLVE_MODE);
                 break;
         }
 
@@ -447,15 +473,19 @@ public class MainActivity extends AppCompatActivity {
     private void connectButtons(int startButtonId, int endButtonId) {
         Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
 
-        NodeButtonOLD startButton = (NodeButtonOLD) mGraph.getNodeData(startButtonId);
-        NodeButtonOLD endButton = (NodeButtonOLD) mGraph.getNodeData(endButtonId);
+//        NodeButtonOLD startButton = (NodeButtonOLD) mGraph.getNodeData(startButtonId);
+        NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
+//        NodeButtonOLD endButton = (NodeButtonOLD) mGraph.getNodeData(endButtonId);
+        NodeButton endButton = (NodeButton) mGraph.getNodeData(endButtonId);
 
-        startButton.setHighlighted(false);
+//        startButton.setHighlighted(false);
+        startButton.setHighlight(NodeButton.HighlightTypes.NORMAL);
 
         // cannot connect to yourself!
         if (startButtonId == endButtonId) {
             Log.v(TAG, "Attempting to connect a button to itself--aborted.");
-            startButton.setHighlighted(false);
+//            startButton.setHighlighted(false);
+//            startButton.setHighlight(NodeButton.HighlightTypes.NORMAL);   // looks redundant
             return;
         }
 

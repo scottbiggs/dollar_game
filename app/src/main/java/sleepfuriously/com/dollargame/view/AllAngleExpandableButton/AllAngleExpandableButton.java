@@ -1282,7 +1282,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             float distanceY = pressY - centerY;
             float pressToCenterDistance = (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
             if (pressToCenterDistance > radius) {
-                //press out of the button black_circle
+                //press out of the button circle_solve_normal
                 return;
             }
             allAngleExpandableButton.rippleInfo.pressX = pressX;

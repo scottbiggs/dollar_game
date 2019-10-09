@@ -44,27 +44,27 @@ public class NodeButtonOLD extends AllAngleExpandableButton {
     /** Holds drawables for the buttons */
     private static final
         int[] BUTTON_DRAWABLES_NORMAL = {
-            R.drawable.black_circle,
+            R.drawable.circle_solve_normal,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
         },
         BUTTON_DRAWABLES_RED = {
-            R.drawable.red_circle,
+            R.drawable.circle_build_problem,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
         },
         BUTTON_DRAWABLES_BUILD_NORMAL = {
-            R.drawable.build_circle_normal,
+            R.drawable.circle_build_normal,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
         },
         BUTTON_DRAWABLES_BUILD_HIGHIGHT = {
-            R.drawable.red_circle,
+            R.drawable.circle_build_problem,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
         },
         BUTTON_DRAWABLES_SOLVE_NORMAL = {
-            R.drawable.solve_circle_normal,
+            R.drawable.circle_black,
             R.drawable.ic_give_money,
             R.drawable.ic_take_money
         };
