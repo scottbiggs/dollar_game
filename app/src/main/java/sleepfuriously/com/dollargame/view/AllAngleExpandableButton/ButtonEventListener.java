@@ -10,7 +10,7 @@ public interface ButtonEventListener {
     /**
      * @param index button index, count from startAngle to endAngle, value is 1 to expandButtonCount
      */
-    void onButtonClicked(int index);
+    void onPopupButtonClicked(int index);
 
     void onExpand();
     void onCollapse();
@@ -22,7 +22,9 @@ public interface ButtonEventListener {
     void onDisabledClick();
 
     /**
-     * The button has been moved (only happens when DISABLED).
+     * The button has been moved (only happens when the button Mode is BUILD_MODE
+     * and the HightlightType is NORMAL).
+     *
      * This is merely to let you know that it is at a new position.
      *
      * @param oldLoc    The old location of the button

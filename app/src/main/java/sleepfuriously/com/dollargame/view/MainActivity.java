@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
 
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
-            public void onButtonClicked(int index) {
+            public void onPopupButtonClicked(int index) {
                 Log.d(TAG, "click! index = " + index);
             }
 
@@ -471,7 +471,14 @@ public class MainActivity extends AppCompatActivity {
      * @param endButtonId       Desitnation button (node)
      */
     private void connectButtons(int startButtonId, int endButtonId) {
+
         Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
+
+        // cannot connect to yourself!
+        if (startButtonId == endButtonId) {
+            Log.v(TAG, "Attempting to connect a button to itself--aborted.");
+            return;
+        }
 
 //        NodeButtonOLD startButton = (NodeButtonOLD) mGraph.getNodeData(startButtonId);
         NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
@@ -481,22 +488,27 @@ public class MainActivity extends AppCompatActivity {
 //        startButton.setHighlighted(false);
         startButton.setHighlight(NodeButton.HighlightTypes.NORMAL);
 
-        // cannot connect to yourself!
-        if (startButtonId == endButtonId) {
-            Log.v(TAG, "Attempting to connect a button to itself--aborted.");
-//            startButton.setHighlighted(false);
-//            startButton.setHighlight(NodeButton.HighlightTypes.NORMAL);   // looks redundant
-            return;
-        }
-
-        // update our data
-        mGraph.addEdge(startButtonId, endButtonId);
-
-        // tell the playarea to draw the line
         PointF start = startButton.getCenter();
         PointF end = endButton.getCenter();
-        mPlayArea.addLine(start, end);
-        mPlayArea.invalidate();
+
+        // Does this node already exist?  If so, remove it.
+        if (mGraph.getEdgeIndex(startButtonId, endButtonId) != -1) {
+            Log.v(TAG, "Removing edge ( " + startButtonId + " - " + endButtonId + " )");
+
+            // remove from graph
+            mGraph.removeEdge(startButtonId, endButtonId);
+
+            // remove from play area
+            mPlayArea.removeLine(start, end);
+            mPlayArea.invalidate();
+        }
+        else {
+            // add this new line to the graph and the play area
+            mGraph.addEdge(startButtonId, endButtonId);
+
+            mPlayArea.addLine(start, end);
+            mPlayArea.invalidate();
+        }
     }
 
 

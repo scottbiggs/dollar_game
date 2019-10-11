@@ -142,6 +142,21 @@ public class PlayAreaFrameLayout extends FrameLayout {
         mLines.add(line);
     }
 
+    public void removeLine(PointF start, PointF end) {
+        // find the line...
+        for (int i = 0; i < mLines.size(); i++) {
+            Line line = mLines.get(i);
+
+            // Remove the line if the the two endpoints match (assuming
+            // undirected graph).
+            if ((line.start.equals(start) && line.end.equals(end)) ||
+                (line.start.equals(end) && line.end.equals(start))) {
+                mLines.remove(i);
+                break;
+            }
+        }
+    }
+
     /** Removes all the lines from the line list */
     public void removeAllLines() {
         mLines.clear();

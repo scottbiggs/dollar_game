@@ -73,9 +73,19 @@ public class NodeButton extends AllAngleExpandableButton {
 
     private Context mCtx;
 
-    private Modes mCurrentMode;
+    /** The mode of all buttons (hence static) */
+    private static Modes sCurrentMode;
 
     private HighlightTypes mCurrentHighlight;
+
+    /**
+     * Denotes whether all buttons are movable or not. Defaults to FALSE.
+     *
+     * Note:
+     *  This is changed not directly, but indirectly when the mode
+     *  or the HighlightType is changed in any button.
+     */
+    private static boolean sMovable = false;
 
     /** Indicates if the button is actually in the process of being moved */
     private boolean mMoving = false;
@@ -118,14 +128,16 @@ public class NodeButton extends AllAngleExpandableButton {
      *                  Logcat if newMode is the same as the current mode.
      */
     public void setMode(Modes newMode) {
-        if (mCurrentMode == newMode) {
+        if (sCurrentMode == newMode) {
             Log.e(TAG, "error:  setMode( " + newMode + " ) is redundant.");
         }
-        mCurrentMode = newMode;
+        sCurrentMode = newMode;
+        sMovable = (sCurrentMode == Modes.BUILD_MODE) ? true : false;   // not movable when solving
     }
 
+
     public Modes getMode() {
-        return mCurrentMode;
+        return sCurrentMode;
     }
 
     /** Sets the text of this button to the given String. */
@@ -147,13 +159,22 @@ public class NodeButton extends AllAngleExpandableButton {
             throw new IllegalArgumentException();
         }
 
-        if ((mCurrentMode == Modes.SOLVE_MODE) && (newHighlightType == HighlightTypes.CONNECT)) {
+        if ((sCurrentMode == Modes.SOLVE_MODE) && (newHighlightType == HighlightTypes.CONNECT)) {
             Log.e(TAG, "Non-sense highlight type in setHighlight()! Cannot do a CONNECT highlight in SOLVE_MODE!");
             throw new IllegalArgumentException();
         }
 
         // Set the new highlight and make the drawable changes.
         mCurrentHighlight = newHighlightType;
+
+        if ((mCurrentHighlight == HighlightTypes.NORMAL) &&
+            (sCurrentMode == Modes.BUILD_MODE)) {
+            sMovable = true;
+        }
+        else {
+            sMovable = false;
+        }
+
         List<ButtonData> buttonData = getButtonImages(mCtx);
         setButtonDatas(buttonData);
         invalidate();   // todo: test to see if this is necessary!
@@ -169,44 +190,76 @@ public class NodeButton extends AllAngleExpandableButton {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (mCurrentMode == Modes.BUILD_MODE) {
+        boolean retVal;
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
+        switch (sCurrentMode) {
+            case BUILD_MODE:
+                retVal = onTouchEventBuildMode(event);
+                break;
+
+            case SOLVE_MODE:
+                retVal = onTouchEventSolveMode(event);
+                break;
+
+            default:
+                retVal = false;
+                break;
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Handles touch events when in BUILD mode.
+     *
+     * @return  TRUE means that the event was fully consumed.
+     */
+    private boolean onTouchEventBuildMode(MotionEvent event) {
+
+        boolean retVal = false; // default is pass event on
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
 //                        if (checker.isQuick()) {  // todo: not sure this is needed, so I turned it off
 //                            return false;
 //                        }
+
+                // only move if the button is in normal mode
+                if (sMovable && mCurrentHighlight == HighlightTypes.NORMAL) {
                     startMove(event);
-                    return true;
+                    retVal = true;
+                }
 
-                case MotionEvent.ACTION_MOVE:
-                    if (mMoving) {
-                        continueMove(event);
-                        return true;
-                    }
-                    break;
+                break;
 
-                case MotionEvent.ACTION_UP:
-                    if (mMoving) {
-                        finishMove(event);
-                        return true;
-                    }
-            }
+            case MotionEvent.ACTION_MOVE:
+                if (mMoving) {
+                    continueMove(event);
+                    retVal = true;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+                if (mMoving) {
+                    finishMove(event);
+                    retVal = true;
+                }
         }
 
-        else if (mCurrentMode == Modes.SOLVE_MODE) {
-            // pass the event on to higher level
-            buttonEventListener.onDisabledClick();
-        }
-
-        else {
-            Log.e(TAG, "Unhandled mode in NodeButton.onTouchEvent()!");
-        }
-
-//        return super.onTouchEvent(event);
-        return true;    // todo: not sure about this
+        return  retVal;
     }
 
+    /**
+     * Handles touch events when in SOLVE mode.
+     *
+     * @return  TRUE means that the event was fully consumed.
+     */
+    private boolean onTouchEventSolveMode(MotionEvent event) {
+
+        // pass the event on to higher level
+        buttonEventListener.onDisabledClick();
+        return false;
+    }
 
     //-------------------------------
     //  protected methods
@@ -221,9 +274,10 @@ public class NodeButton extends AllAngleExpandableButton {
 
         mCtx = ctx;
 
-        mCurrentMode = Modes.BUILD_MODE;
+        sCurrentMode = Modes.BUILD_MODE;
         mCurrentHighlight = HighlightTypes.NORMAL;
 
+        sMovable = true;
         mMoving = false;
 
         // create the buttons, based on the current state
@@ -256,7 +310,7 @@ public class NodeButton extends AllAngleExpandableButton {
     private List<ButtonData> getButtonImages(Context ctx) {
 
         List<ButtonData> buttonData = null;
-        switch (mCurrentMode) {
+        switch (sCurrentMode) {
 
             case BUILD_MODE:
                 switch (mCurrentHighlight) {
