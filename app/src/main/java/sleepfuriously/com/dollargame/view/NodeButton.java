@@ -16,6 +16,7 @@ import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
 /**
  * Created on 2019-09-26.
  */
+@Deprecated
 public class NodeButton extends AllAngleExpandableButton {
 
     //-------------------------------
@@ -190,7 +191,7 @@ public class NodeButton extends AllAngleExpandableButton {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        boolean retVal;
+        boolean retVal = false;
 
         switch (sCurrentMode) {
             case BUILD_MODE:
@@ -198,11 +199,8 @@ public class NodeButton extends AllAngleExpandableButton {
                 break;
 
             case SOLVE_MODE:
-                retVal = onTouchEventSolveMode(event);
-                break;
-
-            default:
-                retVal = false;
+/*                retVal = onTouchEventSolveMode(event);
+ */
                 break;
         }
 
@@ -214,6 +212,7 @@ public class NodeButton extends AllAngleExpandableButton {
      *
      * @return  TRUE means that the event was fully consumed.
      */
+    @SuppressWarnings("DuplicateBranchesInSwitch")
     private boolean onTouchEventBuildMode(MotionEvent event) {
 
         boolean retVal = false; // default is pass event on
@@ -226,7 +225,8 @@ public class NodeButton extends AllAngleExpandableButton {
 
                 // only move if the button is in normal mode
                 if (sMovable && mCurrentHighlight == HighlightTypes.NORMAL) {
-                    startMove(event);
+/*                    startMove(event);
+ */
                     retVal = true;
                 }
 
@@ -234,14 +234,16 @@ public class NodeButton extends AllAngleExpandableButton {
 
             case MotionEvent.ACTION_MOVE:
                 if (mMoving) {
-                    continueMove(event);
+/*                    continueMove(event);
+ */
                     retVal = true;
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
                 if (mMoving) {
-                    finishMove(event);
+/*                    finishMove(event);
+ */
                     retVal = true;
                 }
         }
@@ -254,12 +256,14 @@ public class NodeButton extends AllAngleExpandableButton {
      *
      * @return  TRUE means that the event was fully consumed.
      */
+/*
     private boolean onTouchEventSolveMode(MotionEvent event) {
 
         // pass the event on to higher level
         buttonEventListener.onDisabledClick();
         return false;
     }
+*/
 
     //-------------------------------
     //  protected methods
@@ -383,6 +387,7 @@ public class NodeButton extends AllAngleExpandableButton {
     /**
      * Begins a move of the button.  Assumes that the button CAN move!
      */
+/*
     private void startMove(MotionEvent event) {
         mMoving = true;
         mMoveStartX = event.getRawX();
@@ -395,7 +400,9 @@ public class NodeButton extends AllAngleExpandableButton {
         mMoveDiffY = getY() - mMoveStartY;
 
     }
+*/
 
+/*
     private void continueMove(MotionEvent event) {
         if (mMoving) {
             setX(event.getRawX() + mMoveDiffX);
@@ -409,7 +416,9 @@ public class NodeButton extends AllAngleExpandableButton {
             mMoveLastY = event.getY();
         }
     }
+*/
 
+/*
     private void finishMove(MotionEvent event) {
 
         if (mMoving) {
@@ -441,6 +450,7 @@ public class NodeButton extends AllAngleExpandableButton {
             mMoving = false;
         }
     }
+*/
 
     /**
      * Determines if the user's finger has moved enough to consider this a real

@@ -1125,12 +1125,13 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             clickIndex = 0;
         }
 
-        private void onButtonPressed() {
+        protected void onButtonPressed() {
             if (allAngleExpandableButton.buttonEventListener != null) {
                 if (clickIndex > 0) {
                     allAngleExpandableButton.buttonEventListener.onPopupButtonClicked(clickIndex);
                 }
             }
+
             if (allAngleExpandableButton.isSelectionMode) {
                 if (clickIndex > 0) {
                     ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(clickIndex);

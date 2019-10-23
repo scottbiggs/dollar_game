@@ -8,7 +8,12 @@ import android.view.MotionEvent;
  */
 public interface ButtonEventListener {
     /**
-     * @param index button index, count from startAngle to endAngle, value is 1 to expandButtonCount
+     * When the user clicks on one of the popup buttons, this is fired.<br>
+     * <br>
+     * Note: The popup buttons are enabled ONLY if RAW mode is turned OFF.
+     *
+     * @param index     button index, count from startAngle to endAngle,
+     *                  value is 1 to expandButtonCount
      */
     void onPopupButtonClicked(int index);
 
@@ -16,21 +21,11 @@ public interface ButtonEventListener {
     void onCollapse();
 
     /**
-     * When DISABLED, this button will behave like a regular View.
-     * This signals that the user touched AND released the button.
+     * A touch event has happened with the button (actually, just passed
+     * along from the View to here).  It's up to the caller to handle it.<br>
+     * <br>
+     * NOTE:  This will ONLY fire is RAW mode is turned ON.
      */
-    void onDisabledClick();
-
-    /**
-     * The button has been moved (only happens when the button Mode is BUILD_MODE
-     * and the HightlightType is NORMAL).
-     *
-     * This is merely to let you know that it is at a new position.
-     *
-     * @param oldLoc    The old location of the button
-     *
-     * @param newLoc    The new location of the button
-     */
-    void onMoved(PointF oldLoc, PointF newLoc);
+//    void onTouch(MotionEvent event);
 
 }

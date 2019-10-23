@@ -50,6 +50,14 @@ public class ButtonData implements Cloneable{
         return buttonData;
     }
 
+    public static ButtonData buildIconButton(Context ctx, Drawable drawable, float iconPaddingDp) {
+        ButtonData buttonData = new ButtonData(ButtonType.ICON);
+        buttonData.buttonType = ButtonType.ICON;
+        buttonData.iconPaddingDp = iconPaddingDp;
+        buttonData.icon = drawable;
+        return buttonData;
+    }
+
     public static ButtonData buildIconAndTextButton(Context ctx, int iconResId, float iconPaddingDp,
                                                     String... text) {
         ButtonData buttonData = new ButtonData(ButtonType.BOTH);
@@ -58,6 +66,18 @@ public class ButtonData implements Cloneable{
 
         buttonData.iconPaddingDp = iconPaddingDp;
         buttonData.setIconResId(ctx, iconResId);
+
+        return buttonData;
+    }
+
+    public static ButtonData buildIconAndTextButton(Context ctx, Drawable drawable, float iconPaddingDp,
+                                                    String... text) {
+        ButtonData buttonData = new ButtonData(ButtonType.BOTH);
+        buttonData.buttonType = ButtonType.BOTH;
+        buttonData.setText(text);
+
+        buttonData.iconPaddingDp = iconPaddingDp;
+        buttonData.setIcon(drawable);
 
         return buttonData;
     }

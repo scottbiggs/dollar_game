@@ -25,7 +25,7 @@ import android.support.v7.widget.Toolbar;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-import sleepfuriously.com.dollargame.view.NodeButton.Modes;
+//import sleepfuriously.com.dollargame.view.NodeButton.Modes;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 
 
@@ -49,10 +49,15 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    /** start in build (raw) mode */
+    private static final DumbNodeButton.DumbNodeButtonModes DEFAULT_MODE
+            = DumbNodeButton.DumbNodeButtonModes.RAW;
 
-    /** start in build mode */
-    private static final Modes DEFAULT_MODE = Modes.BUILD_MODE;
+    /** Number of milliseconds between a click and a move. */
+    private static final long CLICK_MILLIS_THRESHOLD = 100L;
 
+    /** The amount of pixels a finger can slip around and still be considered a click and not a move */
+    private static final float CLICK_SLOP = 3f;
 
     //------------------------
     //  widgets
@@ -62,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-//    private Graph mGraph = new Graph<NodeButtonOLD>(false);
-    private Graph mGraph = new Graph<NodeButton>(false);
+//    private Graph mGraph = new Graph<NodeButton>(false);
+    private Graph mGraph = new Graph<DumbNodeButton>(false);
 
     // todo: just for testing!
 //    ToggleButton mTestToggle;
@@ -82,14 +87,27 @@ public class MainActivity extends AppCompatActivity {
     //  data
     //------------------------
 
-    /** true = solve mode, false = build mode */
-    private Modes mMode = DEFAULT_MODE;
+    /** current mode (raw = build mode, button = solve) */
+    private DumbNodeButton.DumbNodeButtonModes mMode = DEFAULT_MODE;
 
     /** true => in the process of connecting two nodes */
     private boolean mConnecting = false;
 
     /** The id of the starting node in a connection */
     private int mStartNodeId;
+
+    /** true means that we're in the process of moving a button */
+    private boolean mMoving = false;
+
+    /** The previous location of a moving button. only valid when mMoving = true */
+    private PointF mMovingLastPos;
+
+    /** The original location of the button when a move is started */
+    private PointF mMovingStartPos;
+
+    /** the timestamp of when the move started. needed to differentiate moves from clicks */
+    private long mMovingStartTime;
+
 
     //------------------------
     //  methods
@@ -112,24 +130,27 @@ public class MainActivity extends AppCompatActivity {
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setMode(buttonView.isChecked() ? Modes.SOLVE_MODE : Modes.BUILD_MODE);
+                setMode(buttonView.isChecked()
+                        ? DumbNodeButton.DumbNodeButtonModes.BUTTON
+                        : DumbNodeButton.DumbNodeButtonModes.RAW);
             }
         });
 
+        if (savedInstanceState == null) {
+            mMainSwitch.setChecked(mMode == DumbNodeButton.DumbNodeButtonModes.BUTTON
+                                        ? true : false);
+        }
+        else {
+            // Use the saved state of the main switch to correctly set
+            // the mode!
+            mMode = mMainSwitch.isChecked()
+                    ? DumbNodeButton.DumbNodeButtonModes.BUTTON
+                    : DumbNodeButton.DumbNodeButtonModes.RAW;
+        }
+
+
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
-
-        // todo: for testing!
-//        mTestToggle = findViewById(R.id.test_toggle);
-//        mTestToggle.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                disableAllButtons(mTestToggle.isChecked());
-////                moveModeAllButtons(mTestToggle.isChecked());
-//                mPlayArea.setDrawLines(!mPlayArea.getDrawLines());
-//                mPlayArea.invalidate();
-//            }
-//        });
 
         mHintTv = findViewById(R.id.bottom_hint_tv);
 
@@ -137,26 +158,20 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // only build a new button if we're in build mode and not currently connecting
+
+                // only build a new button if we're in build (raw) mode and not currently connecting
                 if ((event.getAction() == MotionEvent.ACTION_UP) &&
-                    (mMode == Modes.BUILD_MODE) &&
-                    (!mConnecting)) {
+                    (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) &&
+                    !mConnecting) {
                         newButton(event.getX(), event.getY());
                     }
                 return true;    // event consumed
             }
         });
 
-        //
-        // todo: load any data
-        //
-
-        //
-        // execute logic
-        //
-        setMode(DEFAULT_MODE);  // todo: may need changing based on loaded data in the future
 
     }
+
 
     @Override
     protected void onResume() {
@@ -164,6 +179,14 @@ public class MainActivity extends AppCompatActivity {
 
         // turn off status and navigation bar (top and bottom)
         fullScreenStickyImmersive();
+
+        // Make sure the UI is properly set for the current mode.
+        if (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) {
+            buildModeUI();
+        }
+        else {
+            solveModeUI();
+        }
     }
 
 
@@ -282,13 +305,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAllButtonsBuild() {
         for (Object button : mGraph) {
-            ((NodeButton)button).setMode(Modes.BUILD_MODE);
+            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.RAW);
         }
     }
 
     private void setAllButtonsSolve() {
         for (Object button : mGraph) {
-            ((NodeButton)button).setMode(Modes.SOLVE_MODE);
+            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.BUTTON);
         }
     }
 
@@ -303,29 +326,29 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param newMode   The new mode
      */
-    private void setMode(Modes newMode) {
+    private void setMode(DumbNodeButton.DumbNodeButtonModes newMode) {
 
+        if (mMode == newMode) {
+            Log.e(TAG, "setMode(), trying to change to same mode! (mMode = " + mMode + " )");
+            return;
+        }
         mMode = newMode;
 
         // now do the ui
         switch (mMode) {
-            case BUILD_MODE:
+            case RAW:   // build mode
                 setAllButtonsBuild();
-//                disableAllButtons(true);
-//                moveModeAllButtons(true);
                 buildModeUI();
                 break;
 
-            case SOLVE_MODE:
+            case BUTTON:    // solve
                 setAllButtonsSolve();
-//                disableAllButtons(false);
-//                moveModeAllButtons(false);
                 solveModeUI();
                 break;
 
             default:
                 // get their attention!
-                throw new EnumConstantNotPresentException(Modes.class, "Unknown Mode in setMode()");
+                throw new EnumConstantNotPresentException(DumbNodeButton.DumbNodeButtonModes.class, "Unknown Mode in setMode()");
         }
 
     }
@@ -362,34 +385,66 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Adds a button to the given coords.
+     * Adds a button to the given coords.  Should only be called
+     * when in Build mode.
      */
-    @SuppressWarnings("UnusedReturnValue")
-//    private NodeButtonOLD newButton(float x, float y) {
-    private NodeButton newButton(float x, float y) {
+    private DumbNodeButton newButton(float x, float y) {
 
-//        final NodeButtonOLD button = new NodeButtonOLD(this);
-        final NodeButton button = new NodeButton(this);
+        final DumbNodeButton button = new DumbNodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final int id = mGraph.getUniqueNodeId();
+        button.setXYCenter(x, y);
 
-        button.setButtonEventListener(new ButtonEventListener() {
+        button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {
             @Override
             public void onPopupButtonClicked(int index) {
                 Log.d(TAG, "click! index = " + index);
             }
 
             @Override
-            public void onExpand() {
-                Log.d(TAG, "expanding...");
-            }
+            public void onTouch(MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d(TAG, "action down");
+                        startMove(button);
+                        break;
 
-            @Override
-            public void onCollapse() {
-                Log.d(TAG, "...collapsing");
+                    case MotionEvent.ACTION_MOVE:
+                        continueMove(button, event);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        Log.d(TAG, "action up");
+                        if (isRealMove(event)) {
+                            finishMove(button);
+                        }
+                        else {
+                            // not a move, it's a click. start connecting
+                            // todo: initate a connection
+                        }
+                        break;
+                }
             }
+        });
+/*
+        button.setButtonEventListener(new ButtonEventListener() {
+//            @Override
+//            public void onPopupButtonClicked(int index) {
+//                Log.d(TAG, "click! index = " + index);
+//            }
+
+//            @Override
+//            public void onExpand() {
+//                Log.d(TAG, "expanding...");
+//            }
+//
+//            @Override
+//            public void onCollapse() {
+//                Log.d(TAG, "...collapsing");
+//            }
 
             // A connection click
             @Override
@@ -429,22 +484,7 @@ public class MainActivity extends AppCompatActivity {
                 mPlayArea.invalidate();
             }
         });
-
-        button.setXYCenter(x, y);
-
-        switch (mMode) {
-            case BUILD_MODE:
-//                button.setDisabled(true);
-//                button.setMovable(true);
-                button.setMode(Modes.BUILD_MODE);
-                break;
-
-            case SOLVE_MODE:
-//                button.setDisabled(false);
-//                button.setMovable(false);
-                button.setMode(Modes.SOLVE_MODE);
-                break;
-        }
+*/
 
         mPlayArea.addView(button);
 
@@ -459,6 +499,57 @@ public class MainActivity extends AppCompatActivity {
 
         return button;
     }
+
+
+    /**
+     * Does the preparations for moving a button.  Additional prep
+     * needs to be done as this could be just a click instead of
+     * a move.
+     *
+     * @param button
+      */
+    private void startMove(DumbNodeButton button) {
+        mMoving = true;
+        mMovingLastPos = new PointF(button.getX(), button.getY());
+        mMovingStartPos = new PointF(mMovingLastPos.x, mMovingLastPos.y);
+        mMovingStartTime = System.currentTimeMillis();
+    }
+
+    private void continueMove(DumbNodeButton button, MotionEvent event) {
+        if (!mMoving) {
+            Log.e(TAG, "continueMove() while mMoving == false! Aborting!");
+            return;
+        }
+
+        // Only bother if there has been an actual move
+        if (isRealMove(event)) {
+            PointF newLoc = new PointF(button.getX(), button.getY());
+
+            // todo: undraw the last lines
+
+            // todo: draw the new lines
+
+            mMovingLastPos = newLoc;
+        }
+
+    }
+
+    private void finishMove(DumbNodeButton button) {
+        if (!mMoving) {
+            Log.e(TAG, "finishMove() while mMoving == false! Aborting!");
+            return;
+        }
+
+        PointF newLoc = new PointF(button.getX(), button.getY());
+
+        // todo: undraw the last lines
+
+        // todo: draw the new lines
+
+        mMoving = false;
+        mMovingLastPos = null;
+    }
+
 
     /**
      * Does the logic and graphics of connecting two buttons.
@@ -511,5 +602,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Determines if the user's finger has moved enough to consider this a real
+     * move event, or if this is just slight shuddering of a finger that happens
+     * during a button click.
+     *
+     * @param event     The current event that finalized the move (should be an
+     *                  ACTION_UP event).  We'll need the coordinates.
+     *
+     * @return  TRUE iff the current location is sufficiently far enough away from
+     *          the original ACTION_DOWN event to qualify as a move.
+     */
+    private boolean isRealMove(MotionEvent event) {
+
+        float currentX = event.getRawX();
+        float currentY = event.getRawY();
+
+        // check not enough movement
+        if ((Math.abs(currentX - mMovingLastPos.x) < CLICK_SLOP) &&
+                (Math.abs(currentY - mMovingLastPos.y) < CLICK_SLOP)) {
+            return false;
+        }
+
+        // check not enough time
+        long currentMillis = System.currentTimeMillis();
+        if (currentMillis - mMovingStartTime < CLICK_MILLIS_THRESHOLD) {
+            return false;
+        }
+
+        return true;
+    }
 
 }
