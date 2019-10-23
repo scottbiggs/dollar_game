@@ -1,6 +1,7 @@
 package sleepfuriously.com.dollargame.view;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
@@ -181,6 +182,16 @@ public class DumbNodeButton extends AllAngleExpandableButton
         return super.onTouchEvent(event);
     }
 
+    /**
+     * Similar to <code>setXYCenter(x, y)</code>, except this uses
+     * screen coordinates.
+     *
+     * @param screenLoc     The location for the center of this button
+     *                      in screen coordinates.
+     */
+    public void setXYCenterRaw(PointF screenLoc) {
+        PointF center = getCenter();
+    }
 
     //---------------------------------
     //  protected methods

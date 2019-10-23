@@ -2,6 +2,7 @@ package sleepfuriously.com.dollargame.view;
 
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -93,21 +94,29 @@ public class MainActivity extends AppCompatActivity {
     /** true => in the process of connecting two nodes */
     private boolean mConnecting = false;
 
-    /** The id of the starting node in a connection */
+    /** The id of the starting node in a connection or when moving */
     private int mStartNodeId;
 
     /** true means that we're in the process of moving a button */
     private boolean mMoving = false;
 
-    /** The previous location of a moving button. only valid when mMoving = true */
+    /**
+     * The previous location of a moving node in coords relative to play area.
+     * Only valid when mMoving = true.
+     */
     private PointF mMovingLastPos;
 
-    /** The original location of the button when a move is started */
+    /**
+     * The original location of the button when a move is started.
+     * In play area coords.
+     */
     private PointF mMovingStartPos;
 
     /** the timestamp of when the move started. needed to differentiate moves from clicks */
     private long mMovingStartTime;
 
+    /** difference calculation between relative and screen coords. needed for some moving calculations */
+    private float mMoveDiffX, mMoveDiffY;
 
     //------------------------
     //  methods
@@ -163,7 +172,16 @@ public class MainActivity extends AppCompatActivity {
                 if ((event.getAction() == MotionEvent.ACTION_UP) &&
                     (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) &&
                     !mConnecting) {
-                        newButton(event.getX(), event.getY());
+                        PointF touchLoc = new PointF(event.getX(), event.getY());
+
+                        // todo: testing
+                        PointF rawLoc = new PointF(event.getRawX(), event.getRawY());
+                        float testX = rawLoc.x + mPlayArea.getLeft();
+                        float testY = rawLoc.y + mPlayArea.getTop();
+                        Log.d (TAG, "relative = " + touchLoc + ", raw = " + rawLoc +
+                                ", and calculated = " + testX + ", " + testY);
+
+                        newButton(touchLoc);
                     }
                 return true;    // event consumed
             }
@@ -387,15 +405,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Adds a button to the given coords.  Should only be called
      * when in Build mode.
+     *
+     * side effects:
+     *  mGraph      Will have this button added to it
+     *
+     *  UI          Will have a new button drawn at the given location
+     *
+     * @param   relativeToParentLoc The location to center the button around.  This'll probably
+     *                              be where the user touched the screen.
+     *                              NOTE: this uses RELATIVE COORDINATES (to the parent)!
      */
-    private DumbNodeButton newButton(float x, float y) {
+    private void newButton(PointF relativeToParentLoc) {
 
         final DumbNodeButton button = new DumbNodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final int id = mGraph.getUniqueNodeId();
-        button.setXYCenter(x, y);
+        button.setXYCenter(relativeToParentLoc.x, relativeToParentLoc.y);
 
         button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {
             @Override
@@ -409,17 +436,17 @@ public class MainActivity extends AppCompatActivity {
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         Log.d(TAG, "action down");
-                        startMove(button);
+                        startMove(event, button);
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        continueMove(button, event);
+                        continueMove(event, button);
                         break;
 
                     case MotionEvent.ACTION_UP:
                         Log.d(TAG, "action up");
                         if (isRealMove(event)) {
-                            finishMove(button);
+                            finishMove(event, button);
                         }
                         else {
                             // not a move, it's a click. start connecting
@@ -496,8 +523,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             throw new RuntimeException();
         }
-
-        return button;
     }
 
 
@@ -508,14 +533,22 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param button
       */
-    private void startMove(DumbNodeButton button) {
+    private void startMove(MotionEvent event, DumbNodeButton button) {
         mMoving = true;
-        mMovingLastPos = new PointF(button.getX(), button.getY());
+//        mMovingLastPos = new PointF(button.getX(), button.getY());      // gets position relative to button!!!
+//        mMovingLastPos = new PointF(event.getX(), event.getY());
+        mMovingLastPos = new PointF(event.getRawX(), event.getRawY());
         mMovingStartPos = new PointF(mMovingLastPos.x, mMovingLastPos.y);
+
+        // needed to convert coordinate systems
+        mMoveDiffX = button.getX() - mMovingStartPos.x;
+        mMoveDiffY = button.getY() - mMovingStartPos.y;
+
         mMovingStartTime = System.currentTimeMillis();
+        mStartNodeId = button.getId();
     }
 
-    private void continueMove(DumbNodeButton button, MotionEvent event) {
+    private void continueMove(MotionEvent event, DumbNodeButton button) {
         if (!mMoving) {
             Log.e(TAG, "continueMove() while mMoving == false! Aborting!");
             return;
@@ -523,28 +556,59 @@ public class MainActivity extends AppCompatActivity {
 
         // Only bother if there has been an actual move
         if (isRealMove(event)) {
-            PointF newLoc = new PointF(button.getX(), button.getY());
+            // Note that newLoc maintains its relationship to the PART of the
+            // node that was touched. So if we press on the bottom left corner,
+            // we'll continue to move the button by the bottom left corner.
+            PointF newLoc = new PointF(event.getRawX() + mMoveDiffX,
+                                       event.getRawY() + mMoveDiffY);
+            Log.d(TAG, "newLoc = " + newLoc);
 
-            // todo: undraw the last lines
+            // for calculating the bounding box, we need to get the entire box
+            // of the node's view and make sure that THAT is within the play area.
 
-            // todo: draw the new lines
+            // Check to make sure we're in bounds
+            Rect playAreaRect = new Rect();
+            mPlayArea.getDrawingRect(playAreaRect);
 
-            mMovingLastPos = newLoc;
+            Rect nodeRect = new Rect();
+            button.getDrawingRect(nodeRect);
+
+            // convert the nodeRect to play area coords
+            nodeRect.offset((int)newLoc.x, (int)newLoc.y);
+
+            if (playAreaRect.contains(nodeRect)) {
+                // todo: undraw the last lines
+
+                // todo: draw the new lines
+
+                // todo: draw the button
+
+                button.setX(newLoc.x);
+                button.setY(newLoc.y);
+
+                mMovingLastPos = newLoc;
+
+            }
+            else {
+                Log.d(TAG, "nope");
+            }
         }
-
     }
 
-    private void finishMove(DumbNodeButton button) {
+    private void finishMove(MotionEvent event, DumbNodeButton button) {
         if (!mMoving) {
             Log.e(TAG, "finishMove() while mMoving == false! Aborting!");
             return;
         }
 
-        PointF newLoc = new PointF(button.getX(), button.getY());
+//        PointF newLoc = new PointF(button.getX(), button.getY());   // gets point relative to button (left center of button???)
+        PointF newLoc = new PointF(event.getX(), event.getY());
 
         // todo: undraw the last lines
 
         // todo: draw the new lines
+
+        // todo: draw the button in its new location
 
         mMoving = false;
         mMovingLastPos = null;
@@ -616,22 +680,23 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean isRealMove(MotionEvent event) {
 
-        float currentX = event.getRawX();
-        float currentY = event.getRawY();
+        boolean retval = true;
+//        PointF currentPos = new PointF(event.getRawX(), event.getRawY());   // gets point relative to SCREEN!
+        PointF currentPos = new PointF(event.getX(), event.getY());
 
         // check not enough movement
-        if ((Math.abs(currentX - mMovingLastPos.x) < CLICK_SLOP) &&
-                (Math.abs(currentY - mMovingLastPos.y) < CLICK_SLOP)) {
-            return false;
+        if ((Math.abs(currentPos.x - mMovingLastPos.x) < CLICK_SLOP) &&
+                (Math.abs(currentPos.y - mMovingLastPos.y) < CLICK_SLOP)) {
+            retval = false;
         }
 
         // check not enough time
         long currentMillis = System.currentTimeMillis();
         if (currentMillis - mMovingStartTime < CLICK_MILLIS_THRESHOLD) {
-            return false;
+            retval = false;
         }
 
-        return true;
+        return retval;
     }
 
 }

@@ -790,11 +790,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     /**
      * Sets the location of this button, using the center of the button as the
      * coordinate location (instead of the top left as usual).
+     *
+     * NOTE that the input coords are relative to the parent, not the screen.
      */
-    public void setXYCenter(float x, float y) {
-        float offset = getMainButtonSizePx() / 2f;
-        setX(x - offset);
-        setY(y - offset);
+    public void setXYCenter(float parentX, float parentY) {
+        measure(0,0);     // forces view to measure itself
+        float offset = getMeasuredWidth() / 2f; // need to get the MEASURED width, not getWidth()
+
+        setX(parentX - offset);
+        setY(parentY - offset);
     }
 
     /** Returns the center of this view */
