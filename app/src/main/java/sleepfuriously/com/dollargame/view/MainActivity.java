@@ -26,8 +26,7 @@ import android.support.v7.widget.Toolbar;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-//import sleepfuriously.com.dollargame.view.NodeButton.Modes;
-import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
+import sleepfuriously.com.dollargame.view.buttons.DumbNodeButton;
 
 
 /**

@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.dollargame.view.buttons;
 
 import android.content.Context;
 import android.graphics.PointF;
@@ -49,7 +49,7 @@ public class DumbNodeButton extends AllAngleExpandableButton
      * RAW - No fancy stuff--behaves just like a View, but passes
      *       the UI events through DumbNodeButtonListener.onTouch(event).
      */
-    enum DumbNodeButtonModes {
+    public enum DumbNodeButtonModes {
         RAW, BUTTON
     }
 
