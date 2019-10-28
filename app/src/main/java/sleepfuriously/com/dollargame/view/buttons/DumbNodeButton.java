@@ -200,7 +200,8 @@ public class DumbNodeButton extends AllAngleExpandableButton
     private void initialize(Context ctx, AttributeSet attrs) {
         Log.d(TAG, "initialzie()");
 
-        mCtx = ctx;mCurrentMode = DEFAULT_MODE;
+        mCtx = ctx;
+        mCurrentMode = DEFAULT_MODE;
         setOutlineColor(DEFAULT_OUTLINE_COLOR);
 
     }

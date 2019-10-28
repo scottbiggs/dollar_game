@@ -2,7 +2,6 @@ package sleepfuriously.com.dollargame.view;
 
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,7 +25,9 @@ import android.support.v7.widget.Toolbar;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-import sleepfuriously.com.dollargame.view.buttons.DumbNodeButton;
+import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
+import sleepfuriously.com.dollargame.view.buttons.NodeButton;
+//import sleepfuriously.com.dollargame.view.buttons.DumbNodeButton;
 
 
 /**
@@ -50,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /** start in build (raw) mode */
-    private static final DumbNodeButton.DumbNodeButtonModes DEFAULT_MODE
-            = DumbNodeButton.DumbNodeButtonModes.RAW;
+//    private static final DumbNodeButton.DumbNodeButtonModes DEFAULT_MODE
+//            = DumbNodeButton.DumbNodeButtonModes.RAW;
 
     /** Number of milliseconds between a click and a move. */
     private static final long CLICK_MILLIS_THRESHOLD = 100L;
@@ -67,10 +68,9 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-    private Graph mGraph = new Graph<DumbNodeButton>(false);
+//    private Graph mGraph = new Graph<DumbNodeButton>(false);
+    private Graph mGraph = new Graph<MovableNodeButton>(false);
 
-    // todo: just for testing!
-//    ToggleButton mTestToggle;
 
     /** This switch toggles between build and play mode */
     private Switch mMainSwitch;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     //------------------------
 
     /** current mode (raw = build mode, button = solve) */
-    private DumbNodeButton.DumbNodeButtonModes mMode = DEFAULT_MODE;
+//    private DumbNodeButton.DumbNodeButtonModes mMode = DEFAULT_MODE;
 
     /** true => in the process of connecting two nodes */
     private boolean mConnecting = false;
@@ -139,23 +139,25 @@ public class MainActivity extends AppCompatActivity {
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setMode(buttonView.isChecked()
-                        ? DumbNodeButton.DumbNodeButtonModes.BUTTON
-                        : DumbNodeButton.DumbNodeButtonModes.RAW);
+                // todo: use this to restore any modes for the buttons
+//                setMode(buttonView.isChecked()
+//                        ? DumbNodeButton.DumbNodeButtonModes.BUTTON
+//                        : DumbNodeButton.DumbNodeButtonModes.RAW);
             }
         });
 
-        if (savedInstanceState == null) {
-            mMainSwitch.setChecked(mMode == DumbNodeButton.DumbNodeButtonModes.BUTTON
-                                        ? true : false);
-        }
-        else {
-            // Use the saved state of the main switch to correctly set
-            // the mode!
-            mMode = mMainSwitch.isChecked()
-                    ? DumbNodeButton.DumbNodeButtonModes.BUTTON
-                    : DumbNodeButton.DumbNodeButtonModes.RAW;
-        }
+//        if (savedInstanceState == null) {
+//            // todo: use this to restore any modes for the buttons
+//            mMainSwitch.setChecked(mMode == DumbNodeButton.DumbNodeButtonModes.BUTTON
+//                                        ? true : false);
+//        }
+//        else {
+//            // Use the saved state of the main switch to correctly set
+//            // the mode!
+//            mMode = mMainSwitch.isChecked()
+//                    ? DumbNodeButton.DumbNodeButtonModes.BUTTON
+//                    : DumbNodeButton.DumbNodeButtonModes.RAW;
+//        }
 
 
         mBuildTv = findViewById(R.id.build_tv);
@@ -164,13 +166,14 @@ public class MainActivity extends AppCompatActivity {
         mHintTv = findViewById(R.id.bottom_hint_tv);
 
         mPlayArea = findViewById(R.id.play_area_fl);
+
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent playAreaEvent) {
 
                 // only build a new button if we're in build (raw) mode and not currently connecting
                 if ((playAreaEvent.getAction() == MotionEvent.ACTION_UP) &&
-                    (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) &&
+//                    (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) &&
                     !mConnecting) {
                         PointF touchLoc = new PointF(playAreaEvent.getX(), playAreaEvent.getY());
 
@@ -199,12 +202,13 @@ public class MainActivity extends AppCompatActivity {
         fullScreenStickyImmersive();
 
         // Make sure the UI is properly set for the current mode.
-        if (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) {
-            buildModeUI();
-        }
-        else {
-            solveModeUI();
-        }
+        // todo:
+//        if (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) {
+//            buildModeUI();
+//        }
+//        else {
+//            solveModeUI();
+//        }
     }
 
 
@@ -322,15 +326,17 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void setAllButtonsBuild() {
-        for (Object button : mGraph) {
-            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.RAW);
-        }
+        // todo
+//        for (Object button : mGraph) {
+//            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.RAW);
+//        }
     }
 
     private void setAllButtonsSolve() {
-        for (Object button : mGraph) {
-            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.BUTTON);
-        }
+        // todo
+//        for (Object button : mGraph) {
+//            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.BUTTON);
+//        }
     }
 
 
@@ -344,32 +350,33 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param newMode   The new mode
      */
-    private void setMode(DumbNodeButton.DumbNodeButtonModes newMode) {
-
-        if (mMode == newMode) {
-            Log.e(TAG, "setMode(), trying to change to same mode! (mMode = " + mMode + " )");
-            return;
-        }
-        mMode = newMode;
-
-        // now do the ui
-        switch (mMode) {
-            case RAW:   // build mode
-                setAllButtonsBuild();
-                buildModeUI();
-                break;
-
-            case BUTTON:    // solve
-                setAllButtonsSolve();
-                solveModeUI();
-                break;
-
-            default:
-                // get their attention!
-                throw new EnumConstantNotPresentException(DumbNodeButton.DumbNodeButtonModes.class, "Unknown Mode in setMode()");
-        }
-
-    }
+    // todo
+//    private void setMode(DumbNodeButton.DumbNodeButtonModes newMode) {
+//
+//        if (mMode == newMode) {
+//            Log.e(TAG, "setMode(), trying to change to same mode! (mMode = " + mMode + " )");
+//            return;
+//        }
+//        mMode = newMode;
+//
+//        // now do the ui
+//        switch (mMode) {
+//            case RAW:   // build mode
+//                setAllButtonsBuild();
+//                buildModeUI();
+//                break;
+//
+//            case BUTTON:    // solve
+//                setAllButtonsSolve();
+//                solveModeUI();
+//                break;
+//
+//            default:
+//                // get their attention!
+//                throw new EnumConstantNotPresentException(DumbNodeButton.DumbNodeButtonModes.class, "Unknown Mode in setMode()");
+//        }
+//
+//    }
 
     /**
      * Does all the UI for changing to Build mode. No logic is done.
@@ -417,52 +424,66 @@ public class MainActivity extends AppCompatActivity {
      */
     private void newButton(PointF relativeToParentLoc) {
 
-        final DumbNodeButton button = new DumbNodeButton(this);
+        final MovableNodeButton button = new MovableNodeButton(this);
+//        final DumbNodeButton button = new DumbNodeButton(this);
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final int id = mGraph.getUniqueNodeId();
         button.setXYCenter(relativeToParentLoc.x, relativeToParentLoc.y);
 
-        button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {
+        button.setOnMoveListener(new MovableNodeButton.OnMoveListener() {
             @Override
-            public void onPopupButtonClicked(int index) {
-                Log.d(TAG, "click! index = " + index);
+            public void movingTo(float diffX, float diffY) {
+                Log.d(TAG, "moving to " + diffX + ", " + diffY);
             }
 
             @Override
-            public void onTouch(MotionEvent buttonEvent) {
-                int action = buttonEvent.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        Log.d(TAG, "action down");
-
-//                        startMove(buttonEvent, button);
-
-                        // convert to play area coords.
-                        float x = buttonEvent.getRawX() - mPlayArea.getLeft();
-                        float y = buttonEvent.getRawY() - mPlayArea.getTop();
-                        PointF playAreaPos = new PointF(x, y);
-                        startMovePlayAreaPos(playAreaPos, button);
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        continueMove(buttonEvent, button);
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        Log.d(TAG, "action up");
-                        if (isRealMove(buttonEvent)) {
-                            finishMove(buttonEvent, button);
-                        }
-                        else {
-                            // not a move, it's a click. start connecting
-                            startConnection(buttonEvent, button);
-                        }
-                        break;
-                }
+            public void moveEnded() {
+                Log.d(TAG, "move ended");
             }
         });
+//        button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {
+//            @Override
+//            public void onPopupButtonClicked(int index) {
+//                Log.d(TAG, "click! index = " + index);
+//            }
+//
+//            @Override
+//            public void onTouch(MotionEvent buttonEvent) {
+//                int action = buttonEvent.getAction();
+//                switch (action) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        Log.d(TAG, "action down");
+//
+////                        startMove(buttonEvent, button);
+//
+//                        // convert to play area coords.
+//                        float x = buttonEvent.getRawX() - mPlayArea.getLeft();
+//                        float y = buttonEvent.getRawY() - mPlayArea.getTop();
+//                        PointF playAreaPos = new PointF(x, y);
+//                        startMovePlayAreaPos(playAreaPos, button);
+//                        break;
+//
+//                    case MotionEvent.ACTION_MOVE:
+//                        continueMove(buttonEvent, button);
+//                        break;
+//
+//                    case MotionEvent.ACTION_UP:
+//                        Log.d(TAG, "action up");
+//                        if (isRealMove(buttonEvent)) {
+//                            finishMove(buttonEvent, button);
+//                        }
+//                        else {
+//                            // not a move, it's a click. start connecting
+//                            startConnection(buttonEvent, button);
+//                        }
+//                        break;
+//                }
+//            }
+//        });
+
+
 /*
         button.setButtonEventListener(new ButtonEventListener() {
 //            @Override
@@ -543,104 +564,104 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param button    The button that signaled the event.
       */
-    private void startMove(MotionEvent buttonEvent, DumbNodeButton button) {
-        mMoving = true;
-        mMovingLastPos = new PointF(buttonEvent.getX(), buttonEvent.getY());
-        mMovingStartPos = new PointF(mMovingLastPos.x, mMovingLastPos.y);
+//    private void startMove(MotionEvent buttonEvent, DumbNodeButton button) {
+//        mMoving = true;
+//        mMovingLastPos = new PointF(buttonEvent.getX(), buttonEvent.getY());
+//        mMovingStartPos = new PointF(mMovingLastPos.x, mMovingLastPos.y);
+//
+//        // needed to convert coordinate systems
+//        mMoveDiffX = button.getX() - mMovingStartPos.x;
+//        mMoveDiffY = button.getY() - mMovingStartPos.y;
+//
+//        mMovingStartTime = System.currentTimeMillis();
+//        mStartNodeId = button.getId();
+//    }
 
-        // needed to convert coordinate systems
-        mMoveDiffX = button.getX() - mMovingStartPos.x;
-        mMoveDiffY = button.getY() - mMovingStartPos.y;
+//    private void startMovePlayAreaPos(PointF playAreaPos, DumbNodeButton button) {
+//        mMoving = true;
+//        mMovingLastPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
+//        mMovingStartPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
+//
+//        mMovingStartTime = System.currentTimeMillis();
+//        mStartNodeId = button.getId();
+//    }
 
-        mMovingStartTime = System.currentTimeMillis();
-        mStartNodeId = button.getId();
-    }
-
-    private void startMovePlayAreaPos(PointF playAreaPos, DumbNodeButton button) {
-        mMoving = true;
-        mMovingLastPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
-        mMovingStartPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
-
-        mMovingStartTime = System.currentTimeMillis();
-        mStartNodeId = button.getId();
-    }
-
-    /**
-     * Call this to when an ACTION_MOVE event takes place for a button.  The app
-     * should already be in a moving-a-button state (by calling {@link #startMove(MotionEvent, DumbNodeButton)}).
-     *
-     * @param buttonEvent   The MOVE event for the button in question. Note that this
-     *                      means the coordinates will be relative to the Button.
-     *
-     * @param button    The DumbNodeButton that is being moved.
-     */
-    private void continueMove(MotionEvent buttonEvent, DumbNodeButton button) {
-        if (!mMoving) {
-            Log.e(TAG, "continueMove() while mMoving == false! Aborting!");
-            return;
-        }
-
-        // Only bother if there has been an actual move
-        if (isRealMove(buttonEvent)) {
-            // Note that newLoc maintains its relationship to the PART of the
-            // node that was touched. So if we press on the bottom left corner,
-            // we'll continue to move the button by the bottom left corner.
-            PointF newLoc = new PointF(buttonEvent.getRawX() + mMoveDiffX,
-                                       buttonEvent.getRawY() + mMoveDiffY);
-            Log.d(TAG, "newLoc = " + newLoc);
-
-            // for calculating the bounding box, we need to get the entire box
-            // of the node's view and make sure that THAT is within the play area.
-
-            // Check to make sure we're in bounds
-            Rect playAreaRect = new Rect();
-            mPlayArea.getDrawingRect(playAreaRect);
-
-            Rect nodeRect = new Rect();
-            button.getDrawingRect(nodeRect);
-
-            // convert the nodeRect to play area coords
-            nodeRect.offset((int)newLoc.x, (int)newLoc.y);
-
-            if (playAreaRect.contains(nodeRect)) {
-                // todo: undraw the last lines
-
-                // todo: draw the new lines
-
-                // todo: draw the button
-
-                button.setX(newLoc.x);
-                button.setY(newLoc.y);
-
-                mMovingLastPos = newLoc;
-
-            }
-            else {
-                Log.d(TAG, "nope");
-            }
-        }
-    }
+//    /**
+//     * Call this to when an ACTION_MOVE event takes place for a button.  The app
+//     * should already be in a moving-a-button state (by calling {@link #startMove(MotionEvent, DumbNodeButton)}).
+//     *
+//     * @param buttonEvent   The MOVE event for the button in question. Note that this
+//     *                      means the coordinates will be relative to the Button.
+//     *
+//     * @param button    The DumbNodeButton that is being moved.
+//     */
+//    private void continueMove(MotionEvent buttonEvent, DumbNodeButton button) {
+//        if (!mMoving) {
+//            Log.e(TAG, "continueMove() while mMoving == false! Aborting!");
+//            return;
+//        }
+//
+//        // Only bother if there has been an actual move
+//        if (isRealMove(buttonEvent)) {
+//            // Note that newLoc maintains its relationship to the PART of the
+//            // node that was touched. So if we press on the bottom left corner,
+//            // we'll continue to move the button by the bottom left corner.
+//            PointF newLoc = new PointF(buttonEvent.getRawX() + mMoveDiffX,
+//                                       buttonEvent.getRawY() + mMoveDiffY);
+//            Log.d(TAG, "newLoc = " + newLoc);
+//
+//            // for calculating the bounding box, we need to get the entire box
+//            // of the node's view and make sure that THAT is within the play area.
+//
+//            // Check to make sure we're in bounds
+//            Rect playAreaRect = new Rect();
+//            mPlayArea.getDrawingRect(playAreaRect);
+//
+//            Rect nodeRect = new Rect();
+//            button.getDrawingRect(nodeRect);
+//
+//            // convert the nodeRect to play area coords
+//            nodeRect.offset((int)newLoc.x, (int)newLoc.y);
+//
+//            if (playAreaRect.contains(nodeRect)) {
+//                // todo: undraw the last lines
+//
+//                // todo: draw the new lines
+//
+//                // todo: draw the button
+//
+//                button.setX(newLoc.x);
+//                button.setY(newLoc.y);
+//
+//                mMovingLastPos = newLoc;
+//
+//            }
+//            else {
+//                Log.d(TAG, "nope");
+//            }
+//        }
+//    }
 
 
 
-    private void finishMove(MotionEvent buttonEvent, DumbNodeButton button) {
-        if (!mMoving) {
-            Log.e(TAG, "finishMove() while mMoving == false! Aborting!");
-            return;
-        }
-
-//        PointF newLoc = new PointF(button.getX(), button.getY());   // gets point relative to button (left center of button???)
-        PointF newLoc = new PointF(buttonEvent.getX(), buttonEvent.getY());
-
-        // todo: undraw the last lines
-
-        // todo: draw the new lines
-
-        // todo: draw the button in its new location
-
-        mMoving = false;
-        mMovingLastPos = null;
-    }
+//    private void finishMove(MotionEvent buttonEvent, DumbNodeButton button) {
+//        if (!mMoving) {
+//            Log.e(TAG, "finishMove() while mMoving == false! Aborting!");
+//            return;
+//        }
+//
+////        PointF newLoc = new PointF(button.getX(), button.getY());   // gets point relative to button (left center of button???)
+//        PointF newLoc = new PointF(buttonEvent.getX(), buttonEvent.getY());
+//
+//        // todo: undraw the last lines
+//
+//        // todo: draw the new lines
+//
+//        // todo: draw the button in its new location
+//
+//        mMoving = false;
+//        mMovingLastPos = null;
+//    }
 
     /**
      * Call this to initiate a node connection.
@@ -651,15 +672,16 @@ public class MainActivity extends AppCompatActivity {
      * @param button    The button that starts the connection.  This will
      *                  be highlighted.
      */
-    private void startConnection(MotionEvent buttonEvent, DumbNodeButton button) {
-        Log.d(TAG, "startConnection()");
-
-        mConnecting = true;
-        mStartNodeId = button.getId();
-
-        button.setOutlineColor(R.color.button_build_border_connect);
-        button.invalidate();    // todo: is this necessary?
-    }
+    // todo
+//    private void startConnection(MotionEvent buttonEvent, DumbNodeButton button) {
+//        Log.d(TAG, "startConnection()");
+//
+//        mConnecting = true;
+//        mStartNodeId = button.getId();
+//
+//        button.setOutlineColor(R.color.button_build_border_connect);
+//        button.invalidate();    // todo: is this necessary?
+//    }
 
     /**
      * Does the logic and graphics of connecting two buttons.
@@ -681,13 +703,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-//        NodeButtonOLD startButton = (NodeButtonOLD) mGraph.getNodeData(startButtonId);
-        NodeButton startButton = (NodeButton) mGraph.getNodeData(startButtonId);
-//        NodeButtonOLD endButton = (NodeButtonOLD) mGraph.getNodeData(endButtonId);
-        NodeButton endButton = (NodeButton) mGraph.getNodeData(endButtonId);
+        MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(startButtonId);
+        MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(endButtonId);
 
 //        startButton.setHighlighted(false);
-        startButton.setHighlight(NodeButton.HighlightTypes.NORMAL);
+        startButton.setOutlineColor(R.color.button_build_border_connect);
 
         PointF start = startButton.getCenter();
         PointF end = endButton.getCenter();
@@ -724,25 +744,25 @@ public class MainActivity extends AppCompatActivity {
      * @return  TRUE iff the current location is sufficiently far enough away from
      *          the original ACTION_DOWN event to qualify as a move.
      */
-    private boolean isRealMove(MotionEvent event) {
-
-        boolean retval = true;
-//        PointF currentPos = new PointF(event.getRawX(), event.getRawY());   // gets point relative to SCREEN!
-        PointF currentPos = new PointF(event.getX(), event.getY());
-
-        // check not enough movement
-        if ((Math.abs(currentPos.x - mMovingLastPos.x) < CLICK_SLOP) &&
-                (Math.abs(currentPos.y - mMovingLastPos.y) < CLICK_SLOP)) {
-            retval = false;
-        }
-
-        // check not enough time
-        long currentMillis = System.currentTimeMillis();
-        if (currentMillis - mMovingStartTime < CLICK_MILLIS_THRESHOLD) {
-            retval = false;
-        }
-
-        return retval;
-    }
+//    private boolean isRealMove(MotionEvent event) {
+//
+//        boolean retval = true;
+////        PointF currentPos = new PointF(event.getRawX(), event.getRawY());   // gets point relative to SCREEN!
+//        PointF currentPos = new PointF(event.getX(), event.getY());
+//
+//        // check not enough movement
+//        if ((Math.abs(currentPos.x - mMovingLastPos.x) < CLICK_SLOP) &&
+//                (Math.abs(currentPos.y - mMovingLastPos.y) < CLICK_SLOP)) {
+//            retval = false;
+//        }
+//
+//        // check not enough time
+//        long currentMillis = System.currentTimeMillis();
+//        if (currentMillis - mMovingStartTime < CLICK_MILLIS_THRESHOLD) {
+//            retval = false;
+//        }
+//
+//        return retval;
+//    }
 
 }
