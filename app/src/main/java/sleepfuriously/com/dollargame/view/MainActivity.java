@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private static final long CLICK_MILLIS_THRESHOLD = 100L;
 
     /** The amount of pixels a finger can slip around and still be considered a click and not a move */
-    private static final float CLICK_SLOP = 3f;
+    private static final float CLICK_SLOP = 5f;
 
     //------------------------
     //  widgets
@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-//    private Graph mGraph = new Graph<NodeButton>(false);
     private Graph mGraph = new Graph<DumbNodeButton>(false);
 
     // todo: just for testing!
@@ -105,12 +104,14 @@ public class MainActivity extends AppCompatActivity {
      * Only valid when mMoving = true.
      */
     private PointF mMovingLastPos;
+    private PointF mMovingLastPlayAreaPos;
 
     /**
      * The original location of the button when a move is started.
      * In play area coords.
      */
     private PointF mMovingStartPos;
+    private PointF mMovingStartPlayAreaPos;
 
     /** the timestamp of when the move started. needed to differentiate moves from clicks */
     private long mMovingStartTime;
@@ -166,16 +167,16 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea = findViewById(R.id.play_area_fl);
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public boolean onTouch(View v, MotionEvent playAreaEvent) {
 
                 // only build a new button if we're in build (raw) mode and not currently connecting
-                if ((event.getAction() == MotionEvent.ACTION_UP) &&
+                if ((playAreaEvent.getAction() == MotionEvent.ACTION_UP) &&
                     (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) &&
                     !mConnecting) {
-                        PointF touchLoc = new PointF(event.getX(), event.getY());
+                        PointF touchLoc = new PointF(playAreaEvent.getX(), playAreaEvent.getY());
 
                         // todo: testing
-                        PointF rawLoc = new PointF(event.getRawX(), event.getRawY());
+                        PointF rawLoc = new PointF(playAreaEvent.getRawX(), playAreaEvent.getRawY());
                         float testX = rawLoc.x + mPlayArea.getLeft();
                         float testY = rawLoc.y + mPlayArea.getTop();
                         Log.d (TAG, "relative = " + touchLoc + ", raw = " + rawLoc +
@@ -431,26 +432,33 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTouch(MotionEvent event) {
-                int action = event.getAction();
+            public void onTouch(MotionEvent buttonEvent) {
+                int action = buttonEvent.getAction();
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         Log.d(TAG, "action down");
-                        startMove(event, button);
+
+//                        startMove(buttonEvent, button);
+
+                        // convert to play area coords.
+                        float x = buttonEvent.getRawX() - mPlayArea.getLeft();
+                        float y = buttonEvent.getRawY() - mPlayArea.getTop();
+                        PointF playAreaPos = new PointF(x, y);
+                        startMovePlayAreaPos(playAreaPos, button);
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        continueMove(event, button);
+                        continueMove(buttonEvent, button);
                         break;
 
                     case MotionEvent.ACTION_UP:
                         Log.d(TAG, "action up");
-                        if (isRealMove(event)) {
-                            finishMove(event, button);
+                        if (isRealMove(buttonEvent)) {
+                            finishMove(buttonEvent, button);
                         }
                         else {
                             // not a move, it's a click. start connecting
-                            // todo: initate a connection
+                            startConnection(buttonEvent, button);
                         }
                         break;
                 }
@@ -531,13 +539,14 @@ public class MainActivity extends AppCompatActivity {
      * needs to be done as this could be just a click instead of
      * a move.
      *
-     * @param button
+     * @param buttonEvent   The event that started the move.  Note that this means
+     *                      the positions are relative to the button's top left.
+     *
+     * @param button    The button that signaled the event.
       */
-    private void startMove(MotionEvent event, DumbNodeButton button) {
+    private void startMove(MotionEvent buttonEvent, DumbNodeButton button) {
         mMoving = true;
-//        mMovingLastPos = new PointF(button.getX(), button.getY());      // gets position relative to button!!!
-//        mMovingLastPos = new PointF(event.getX(), event.getY());
-        mMovingLastPos = new PointF(event.getRawX(), event.getRawY());
+        mMovingLastPos = new PointF(buttonEvent.getX(), buttonEvent.getY());
         mMovingStartPos = new PointF(mMovingLastPos.x, mMovingLastPos.y);
 
         // needed to convert coordinate systems
@@ -548,19 +557,37 @@ public class MainActivity extends AppCompatActivity {
         mStartNodeId = button.getId();
     }
 
-    private void continueMove(MotionEvent event, DumbNodeButton button) {
+    private void startMovePlayAreaPos(PointF playAreaPos, DumbNodeButton button) {
+        mMoving = true;
+        mMovingLastPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
+        mMovingStartPlayAreaPos = new PointF(playAreaPos.x, playAreaPos.y);
+
+        mMovingStartTime = System.currentTimeMillis();
+        mStartNodeId = button.getId();
+    }
+
+    /**
+     * Call this to when an ACTION_MOVE event takes place for a button.  The app
+     * should already be in a moving-a-button state (by calling {@link #startMove(MotionEvent, DumbNodeButton)}).
+     *
+     * @param buttonEvent   The MOVE event for the button in question. Note that this
+     *                      means the coordinates will be relative to the Button.
+     *
+     * @param button    The DumbNodeButton that is being moved.
+     */
+    private void continueMove(MotionEvent buttonEvent, DumbNodeButton button) {
         if (!mMoving) {
             Log.e(TAG, "continueMove() while mMoving == false! Aborting!");
             return;
         }
 
         // Only bother if there has been an actual move
-        if (isRealMove(event)) {
+        if (isRealMove(buttonEvent)) {
             // Note that newLoc maintains its relationship to the PART of the
             // node that was touched. So if we press on the bottom left corner,
             // we'll continue to move the button by the bottom left corner.
-            PointF newLoc = new PointF(event.getRawX() + mMoveDiffX,
-                                       event.getRawY() + mMoveDiffY);
+            PointF newLoc = new PointF(buttonEvent.getRawX() + mMoveDiffX,
+                                       buttonEvent.getRawY() + mMoveDiffY);
             Log.d(TAG, "newLoc = " + newLoc);
 
             // for calculating the bounding box, we need to get the entire box
@@ -595,14 +622,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void finishMove(MotionEvent event, DumbNodeButton button) {
+
+
+    private void finishMove(MotionEvent buttonEvent, DumbNodeButton button) {
         if (!mMoving) {
             Log.e(TAG, "finishMove() while mMoving == false! Aborting!");
             return;
         }
 
 //        PointF newLoc = new PointF(button.getX(), button.getY());   // gets point relative to button (left center of button???)
-        PointF newLoc = new PointF(event.getX(), event.getY());
+        PointF newLoc = new PointF(buttonEvent.getX(), buttonEvent.getY());
 
         // todo: undraw the last lines
 
@@ -614,6 +643,24 @@ public class MainActivity extends AppCompatActivity {
         mMovingLastPos = null;
     }
 
+    /**
+     * Call this to initiate a node connection.
+     *
+     * @param buttonEvent     The event that caused this connection to start
+     *                        (presumably an ACTION_UP).
+     *
+     * @param button    The button that starts the connection.  This will
+     *                  be highlighted.
+     */
+    private void startConnection(MotionEvent buttonEvent, DumbNodeButton button) {
+        Log.d(TAG, "startConnection()");
+
+        mConnecting = true;
+        mStartNodeId = button.getId();
+
+        button.setOutlineColor(R.color.button_build_border_connect);
+        button.invalidate();    // todo: is this necessary?
+    }
 
     /**
      * Does the logic and graphics of connecting two buttons.
