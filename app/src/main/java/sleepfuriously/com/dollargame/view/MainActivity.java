@@ -72,7 +72,10 @@ public class MainActivity extends AppCompatActivity {
     private Graph mGraph = new Graph<MovableNodeButton>(false);
 
 
-    /** This switch toggles between build and play mode */
+    /**
+     * This switch toggles between build and solve mode. Solve is true (on);
+     * false means build (off).
+     */
     private Switch mMainSwitch;
 
     /** Textviews that spell out BUILD or SOLVE at the top of the screen */
@@ -86,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
     //  data
     //------------------------
 
-    /** current mode (raw = build mode, button = solve) */
-//    private DumbNodeButton.DumbNodeButtonModes mMode = DEFAULT_MODE;
+    /** Reflects the current mode of the app: build or solve */
+    private boolean mBuildMode;
 
     /** true => in the process of connecting two nodes */
     private boolean mConnecting = false;
@@ -127,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mBuildMode = true;   // start in build mode
+
         //
         // setup ui and widgets
         //
@@ -139,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // todo: use this to restore any modes for the buttons
-//                setMode(buttonView.isChecked()
-//                        ? DumbNodeButton.DumbNodeButtonModes.BUTTON
-//                        : DumbNodeButton.DumbNodeButtonModes.RAW);
+                if (isChecked == !mBuildMode) {
+                    Log.e(TAG, "onCheckedChanged() is trying to change the mode to what it already is!");
+                }
+                setMode(!isChecked);
             }
         });
 
@@ -202,13 +207,12 @@ public class MainActivity extends AppCompatActivity {
         fullScreenStickyImmersive();
 
         // Make sure the UI is properly set for the current mode.
-        // todo:
-//        if (mMode == DumbNodeButton.DumbNodeButtonModes.RAW) {
-//            buildModeUI();
-//        }
-//        else {
-//            solveModeUI();
-//        }
+        if (mBuildMode) {
+            buildModeUI();
+        }
+        else {
+            solveModeUI();
+        }
     }
 
 
@@ -311,34 +315,18 @@ public class MainActivity extends AppCompatActivity {
         return true;   // end processing (consumed completely)
     }
 
-//    /** Disables or enables ALL buttons */
-//    private void disableAllButtons(boolean disable) {
-//        for (Object button : mGraph) {
-//            ((NodeButtonOLD)button).setDisabled(disable);
-//        }
-//    }
-
-//    /** mostly for testing */
-//    private void moveModeAllButtons(boolean enableMoveMode) {
-//        for (Object button : mGraph) {
-//            ((NodeButtonOLD)button).setMovable(enableMoveMode);
-//        }
-//    }
 
     private void setAllButtonsBuild() {
-        // todo
-//        for (Object button : mGraph) {
-//            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.RAW);
-//        }
+        for (Object button : mGraph) {
+            ((MovableNodeButton)button).setMovable(true);
+        }
     }
 
     private void setAllButtonsSolve() {
-        // todo
-//        for (Object button : mGraph) {
-//            ((DumbNodeButton)button).setMode(DumbNodeButton.DumbNodeButtonModes.BUTTON);
-//        }
+        for (Object button : mGraph) {
+            ((MovableNodeButton)button).setExpandable(true);
+        }
     }
-
 
 
     /**
@@ -348,35 +336,26 @@ public class MainActivity extends AppCompatActivity {
      * side effects:
      *      mModes      Changed to newMode
      *
-     * @param newMode   The new mode
+     * @param buildMode     The new mode. True means Build mode; false is Solve.
      */
-    // todo
-//    private void setMode(DumbNodeButton.DumbNodeButtonModes newMode) {
-//
-//        if (mMode == newMode) {
-//            Log.e(TAG, "setMode(), trying to change to same mode! (mMode = " + mMode + " )");
-//            return;
-//        }
-//        mMode = newMode;
-//
-//        // now do the ui
-//        switch (mMode) {
-//            case RAW:   // build mode
-//                setAllButtonsBuild();
-//                buildModeUI();
-//                break;
-//
-//            case BUTTON:    // solve
-//                setAllButtonsSolve();
-//                solveModeUI();
-//                break;
-//
-//            default:
-//                // get their attention!
-//                throw new EnumConstantNotPresentException(DumbNodeButton.DumbNodeButtonModes.class, "Unknown Mode in setMode()");
-//        }
-//
-//    }
+    private void setMode(boolean buildMode) {
+
+        if (mBuildMode == buildMode) {
+            Log.e(TAG, "setMode(), trying to change to same mode! (mMode = " + mBuildMode + " )");
+            return;
+        }
+        mBuildMode = buildMode;
+
+        // now do the ui
+        if (mBuildMode) {
+            setAllButtonsBuild();
+            buildModeUI();
+        }
+        else {
+            setAllButtonsSolve();
+            solveModeUI();
+        }
+    }
 
     /**
      * Does all the UI for changing to Build mode. No logic is done.
@@ -435,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
         button.setOnMoveListener(new MovableNodeButton.OnMoveListener() {
             @Override
             public void movingTo(float diffX, float diffY) {
-                Log.d(TAG, "moving to " + diffX + ", " + diffY);
+//                Log.d(TAG, "moving to " + diffX + ", " + diffY);
             }
 
             @Override

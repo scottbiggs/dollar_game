@@ -24,10 +24,20 @@ import static android.view.MotionEvent.ACTION_UP;
  * This should be the final Button for this app.  It moves, it provides
  * expandable sub-buttons, it does everything!<br>
  * <br>
+ * But note that in the current implementation, movable and expandable are mutually exclusive.
+ * If you make the button movable, then it will NOT do expandable buttons (may change this later)
+ * and vice-versa.<br>
+ * <br>
+ * You can make set the movability by calling {@link #setMovable(boolean)} or {@link #setExpandable(boolean)}.<br>
+ * <br>
  * You need to register the {@link OnMoveListener} to get
  * movement events and register the {@link sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener}
  * to get click events.  It's pretty standard, but uses 2 listeners
- * instead of one.
+ * instead of one.<br>
+ * <br>
+ * Aaaaannnd, while a button is movable (not expandable), only callbacks to {@link OnMoveListener}
+ * are called.  And conversely while a button is expandable (not movable), only callbacks to
+ * {@link sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener} occur.
  */
 public class MovableNodeButton extends AllAngleExpandableButton {
 
@@ -52,6 +62,9 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
     /** offsets from the button's view and raw coords */
     private float offsetX, offsetY;
+
+    /** Indicates if this button is movable or not. Note that while movable, expanded buttons are disabled. */
+    private boolean mMovable;
 
     /** true iff the button is in the process of moving */
     private boolean mMoving;
@@ -79,9 +92,42 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     private void initialize(Context ctx, AttributeSet attrs) {
         mCtx = ctx;
         mMoving = false;
+        mMovable = true;
 
         // setup the button itself
         setOutlineColor(R.color.button_build_border_normal);
+    }
+
+    /**
+     * Returns whether or not this button is movable (true) or is locked-down (false).
+     * Note that when a button is movable, it is NOT expandable and vice-versa.
+     */
+    public boolean getMovable() {
+        return mMovable;
+    }
+
+    /**
+     * Sets whether or not this button can be moved.  Use this to lock the button down.
+     * Note that when a button is movable, it is NOT expandable and vice-versa.
+     */
+    public void setMovable(boolean movable) {
+        mMovable = movable;
+    }
+
+    /**
+     * Returns whether this button is expandable (true) or inhibits the expanding buttons (false).
+     * Note that when a button is expandable, it is NOT movable and vice-versa.
+     */
+    public boolean getExpandable() {
+        return !mMovable;
+    }
+
+    /**
+     * Sets whether this button is expandable.  Use this to enable or disable expanding buttons.
+     * Note that when a button is expandable, it is NOT movable and vice-versa.
+     */
+    public void setExpandable(boolean expandable) {
+        mMovable = !expandable;
     }
 
 
@@ -89,46 +135,59 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getAction()) {
-            case ACTION_DOWN:
-                startRawX = event.getRawX();
-                startRawY = event.getRawY();
+        if (mMovable) {
+            switch (event.getAction()) {
+                case ACTION_DOWN:
+                    startRawX = event.getRawX();
+                    startRawY = event.getRawY();
 
-                // save the offset from the click in the button's context vs the raw location
-                offsetX = startRawX - getX();
-                offsetY = startRawY - getY();
-                break;
+                    // save the offset from the click in the button's context vs the raw location
+                    offsetX = startRawX - getX();
+                    offsetY = startRawY - getY();
+                    return true;    // consume event
 
-            case ACTION_MOVE:
-                // only move if we're already movingTo AND the finger has moved enough to
-                // be considered a move.
-                if (mMoving || movedPastThreshold(event)) {
-                    mMoving = true;
+                case ACTION_MOVE:
+                    // only move if we're already movingTo AND the finger has moved enough to
+                    // be considered a move.
+                    if (mMoving || movedPastThreshold(event)) {
+                        mMoving = true;
 
-                    // calc the move differences
-                    float diffX = event.getRawX() - offsetX;
-                    float diffY = event.getRawY() - offsetY;
+                        // calc the move differences
+                        float diffX = event.getRawX() - offsetX;
+                        float diffY = event.getRawY() - offsetY;
 
-                    moveListener.movingTo(diffX, diffY);
+                        moveListener.movingTo(diffX, diffY);
 
-                    animate()
-                            .x(diffX)
-                            .y(diffY)
-                            .setDuration(0)
-                            .start();
-                }
-                break;
+                        animate()
+                                .x(diffX)
+                                .y(diffY)
+                                .setDuration(0)
+                                .start();
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
 
-            case ACTION_UP:
-                if (mMoving) {
-                    mMoving = false;
-                    moveListener.moveEnded();
-                    return true;    // consume this move so click is not
-                    // registered
-                }
+                case ACTION_UP:
+                    if (mMoving) {
+                        mMoving = false;
+                        moveListener.moveEnded();
+                        return true;    // consume this move so click is not
+                        // registered
+                    }
+                    else {
+                        Log.d(TAG, "else!!!");
+                        return false;
+                    }
+            }
+            return true;    // event consumed
         }
 
-        return super.onTouchEvent(event);
+        else {
+            return super.onTouchEvent(event);
+        }
+
     }
 
     @SuppressWarnings("RedundantIfStatement")
@@ -164,6 +223,11 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      */
     public void setOutlineColor(int colorResource) {
         mCurrentHighlightColor = getResources().getColor(colorResource);
+
+        // make the buttons go left/right
+        setStartAngle(0);
+        setEndAngle(180);
+
         setButtonDatas(createButtonImages(mCurrentHighlightColor));
 
         Log.d(TAG, "setOutlineColor()");
