@@ -3,10 +3,15 @@ package sleepfuriously.com.dollargame.view.buttons;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +29,8 @@ import static android.view.MotionEvent.ACTION_UP;
  * This should be the final Button for this app.  It moves, it provides
  * expandable sub-buttons, it does everything!<br>
  * <br>
- * But note that in the current implementation, movable and expandable are mutually exclusive.
- * If you make the button movable, then it will NOT do expandable buttons (may change this later)
- * and vice-versa.<br>
- * <br>
- * You can make set the movability by calling {@link #setMovable(boolean)} or {@link #setExpandable(boolean)}.<br>
+ * There are three modes ({@link Modes} which determine how the button behaves and the UI events it signals.
+ * Depending on the mode, the button can be expandable, movable, or click-only.<br>
  * <br>
  * You need to register the {@link OnMoveListener} to get
  * movement events and register the {@link sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener}
@@ -53,6 +55,30 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     /** The number of milliseconds before a click becomes a long click */
     private static final long MILLIS_FOR_LONG_CLICK = 1000L;
 
+    /**
+     * The modes of this button.  These modes completely determine the behavior of this
+     * button and how it returns UI input to the implementer of the interfaces.<br>
+     * <br>
+     * The following modes are used:<br>
+     * {@link #MOVABLE}<br>
+     * {@link #EXPANDABLE}<br>
+     * {@link #CLICKS_ONLY}
+     */
+    public enum Modes {
+        /**
+         * The button is movable. It registers movement, clicks, and long clicks.
+         * No expanding buttons will display.
+         */
+        MOVABLE,
+        /** Expanding buttons are displayed and will register. No movement will happen. */
+        EXPANDABLE,
+        /** Not movable nor will any expanding buttons will appear. Only registers clicks  and long clicks. */
+        CLICKS_ONLY
+    }
+
+    /** size of the stroke in the main button background */
+    private static final int STROKE_WIDTH = 3;
+
     //-------------------------------
     //  data
     //-------------------------------
@@ -68,8 +94,11 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     /** offsets from the button's view and raw coords */
     private float mOffsetX, mOffsetY;
 
-    /** Indicates if this button is movable or not. Note that while movable, expanded buttons are disabled. */
-    private boolean mMovable;
+    /**
+     * Indicates the current mode of this button.
+     * @see Modes
+     */
+    private Modes mCurrentMode;
 
     /** true iff the button is in the process of moving */
     private boolean mMoving;
@@ -79,6 +108,8 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     /** The actual color of the current highlight */
     private int mCurrentHighlightColor;
 
+    /** background color of the main button */
+    private int mCurrentBackgroundColor;
 
     //-------------------------------
     //  methods
@@ -97,61 +128,82 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     private void initialize(Context ctx, AttributeSet attrs) {
         mCtx = ctx;
         mMoving = false;
-        mMovable = true;
+        mCurrentMode = Modes.MOVABLE;
 
-        // setup the button itself
-        setOutlineColor(R.color.button_build_border_normal);
+        // make the buttons go left/right todo: is this necessary?
+        setStartAngle(0);
+        setEndAngle(180);
+
+        setButtonDatas(createButtonImages());
     }
 
     /**
-     * Returns whether or not this button is movable (true) or is locked-down (false).
-     * Note that when a button is movable, it is NOT expandable and vice-versa.
+     * Returns the current {@link Modes} of this button (all-important!).
      */
-    public boolean getMovable() {
-        return mMovable;
+    public Modes getMode() {
+        return mCurrentMode;
     }
 
     /**
-     * Sets whether or not this button can be moved.  Use this to lock the button down.
-     * Note that when a button is movable, it is NOT expandable and vice-versa.
+     * Sets the current mode of this button. SO IMPORTANT!
+     * @see Modes
      */
-    public void setMovable(boolean movable) {
-        mMovable = movable;
+    public void setMode(Modes newMode) {
+        mCurrentMode = newMode;
     }
 
-    /**
-     * Returns whether this button is expandable (true) or inhibits the expanding buttons (false).
-     * Note that when a button is expandable, it is NOT movable and vice-versa.
-     */
-    public boolean getExpandable() {
-        return !mMovable;
-    }
-
-    /**
-     * Sets whether this button is expandable.  Use this to enable or disable expanding buttons.
-     * Note that when a button is expandable, it is NOT movable and vice-versa.
-     */
-    public void setExpandable(boolean expandable) {
-        mMovable = !expandable;
-    }
 
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (mMovable) {
-            return processMovableTouchEvent(event);
-        }
+        switch (mCurrentMode) {
+            case MOVABLE:
+                return processMovableTouchEvent(event);
 
-        else {
-            return super.onTouchEvent(event);
-        }
+            case EXPANDABLE:
+                return super.onTouchEvent(event);
 
+            case CLICKS_ONLY:
+                return processClickTouchEvent(event);
+
+            default:
+                Log.e(TAG, "unhandled onTouchEvent!");
+                return true;
+        }
     }
 
     /**
-     * Localizes the processing of a touch event when the button is MOVABLE.
+     * Process UI events when in CLICKS_ONLY mode.
+     *
+     * @param event     The original onTouch MotionEvent.
+     *
+     * @return  True - event completely consumed.       todo: currently always returns true!!
+     *          False - continue processing this event down the UI chain.
+     */
+    private boolean processClickTouchEvent(MotionEvent event) {
+
+        if (event.getAction() == ACTION_DOWN) {
+            mClickStartMillis = System.currentTimeMillis();
+        }
+
+        else if (event.getAction() == ACTION_UP) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
+                moveListener.clicked();
+            }
+            else {
+                moveListener.longClicked();
+            }
+        }
+
+        return true;    // consume all events that come here
+    }
+
+
+    /**
+     * Localizes the processing of a touch event while in MOVEABLE mode.
      *
      * @param event     The original onTouch MotionEvent.
      *
@@ -241,38 +293,51 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
 
     /**
+     * Sets the background color of the main button. You need to call
+     * invalidate() after.
+     *
+     * @param resid     The resource id of the color
+     */
+    public void setBackgroundColorResource(int resid) {
+        mCurrentBackgroundColor = getResources().getColor(resid);
+
+        List<ButtonData> buttons = getButtonDatas();
+        ButtonData mainButtonData = buttons.get(0);
+
+        mainButtonData.setBackgroundColor(mCurrentBackgroundColor);
+    }
+
+    /**
      * Sets the color of the main button's outline.
      *
      * @param colorResource     Resource ID of the color to highlight
      *                          the primary button.
      */
+
     public void setOutlineColor(int colorResource) {
-        mCurrentHighlightColor = getResources().getColor(colorResource);
 
-        // make the buttons go left/right
-        setStartAngle(0);
-        setEndAngle(180);
+        Toast.makeText(mCtx, "setOutlineColor() NOT implemented!", Toast.LENGTH_SHORT).show();
 
-        setButtonDatas(createButtonImages(mCurrentHighlightColor));
+        // todo
 
-        Log.d(TAG, "setOutlineColor()");
+//        GradientDrawable gradientDrawable = (GradientDrawable)getBackground();
+//        if (gradientDrawable == null) {
+//            Log.d(TAG, "gradientDrawable is NULL!");
+//            return;
+//        }
+//        gradientDrawable.setStroke(STROKE_WIDTH, mCurrentHighlightColor);
     }
 
     /**
-     * Helper method that creates a list of the appropriate button images
-     * for the current state and outline color.
-     *
-     * @param highlightColor    Color to use for highlighting.
-     *                          Use null to use the default (black).
+     * Helper method that creates a list of the appropriate button images.
      *
      * @return  A list of button images suitable for sending to
      *          <code>setButtonDatas()</code>.
      */
-    private List<ButtonData> createButtonImages(int highlightColor) {
+    private List<ButtonData> createButtonImages() {
+
         // Create a drawable with the correct color
         Drawable highlightDrawable = AppCompatResources.getDrawable(mCtx, R.drawable.circle_black);
-
-        // todo: change color!!!!
 
         List<ButtonData> buttonDataList = new ArrayList<>();
 
