@@ -50,6 +50,8 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     /** The amount that a touch must move to be considered a real move and not just an inadvertant wiggle */
     private static final float MOVE_THRESHOLD = 5f;
 
+    /** The number of milliseconds before a click becomes a long click */
+    private static final long MILLIS_FOR_LONG_CLICK = 1000L;
 
     //-------------------------------
     //  data
@@ -57,11 +59,14 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
     private Context mCtx;
 
+    /** The start time in millis of a click */
+    private long mClickStartMillis;
+
     /** raw coordinates of where a click starts */
-    private float startRawX, startRawY;
+    private float mStartRawX, mStartRawY;
 
     /** offsets from the button's view and raw coords */
-    private float offsetX, offsetY;
+    private float mOffsetX, mOffsetY;
 
     /** Indicates if this button is movable or not. Note that while movable, expanded buttons are disabled. */
     private boolean mMovable;
@@ -136,52 +141,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     public boolean onTouchEvent(MotionEvent event) {
 
         if (mMovable) {
-            switch (event.getAction()) {
-                case ACTION_DOWN:
-                    startRawX = event.getRawX();
-                    startRawY = event.getRawY();
-
-                    // save the offset from the click in the button's context vs the raw location
-                    offsetX = startRawX - getX();
-                    offsetY = startRawY - getY();
-                    return true;    // consume event
-
-                case ACTION_MOVE:
-                    // only move if we're already movingTo AND the finger has moved enough to
-                    // be considered a move.
-                    if (mMoving || movedPastThreshold(event)) {
-                        mMoving = true;
-
-                        // calc the move differences
-                        float diffX = event.getRawX() - offsetX;
-                        float diffY = event.getRawY() - offsetY;
-
-                        moveListener.movingTo(diffX, diffY);
-
-                        animate()
-                                .x(diffX)
-                                .y(diffY)
-                                .setDuration(0)
-                                .start();
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-
-                case ACTION_UP:
-                    if (mMoving) {
-                        mMoving = false;
-                        moveListener.moveEnded();
-                        return true;    // consume this move so click is not
-                        // registered
-                    }
-                    else {
-                        Log.d(TAG, "else!!!");
-                        return false;
-                    }
-            }
-            return true;    // event consumed
+            return processMovableTouchEvent(event);
         }
 
         else {
@@ -190,14 +150,79 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
     }
 
+    /**
+     * Localizes the processing of a touch event when the button is MOVABLE.
+     *
+     * @param event     The original onTouch MotionEvent.
+     *
+     * @return  True - event completely consumed.
+     *          False - continue processing this event down the UI chain.
+     */
+    private boolean processMovableTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+            case ACTION_DOWN:
+                mClickStartMillis = System.currentTimeMillis();
+
+                mStartRawX = event.getRawX();
+                mStartRawY = event.getRawY();
+
+                // save the offset from the click in the button's context vs the raw location
+                mOffsetX = mStartRawX - getX();
+                mOffsetY = mStartRawY - getY();
+                break;
+
+            case ACTION_MOVE:
+                // only move if we're already movingTo AND the finger has moved enough to
+                // be considered a move.
+                if (mMoving || movedPastThreshold(event)) {
+                    mMoving = true;
+
+                    // calc the move differences
+                    float diffX = event.getRawX() - mOffsetX;
+                    float diffY = event.getRawY() - mOffsetY;
+
+                    moveListener.movingTo(diffX, diffY);
+
+                    animate()
+                            .x(diffX)
+                            .y(diffY)
+                            .setDuration(0)
+                            .start();
+                }
+                else {
+                    return false;
+                }
+                break;
+
+            case ACTION_UP:
+                if (mMoving) {
+                    mMoving = false;
+                    moveListener.moveEnded();
+                    // registered
+                }
+                else {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
+                        moveListener.clicked();
+                    }
+                    else {
+                        moveListener.longClicked();
+                    }
+                }
+                break;
+        }
+        return true;    // event consumed
+    }
+
     @SuppressWarnings("RedundantIfStatement")
     private boolean movedPastThreshold(MotionEvent event) {
         float currentX = event.getRawX();
         float currentY = event.getRawY();
 
         // if we're within the threshold, return false (we have NOT moved past the threshold)
-        if ((Math.abs(currentX - startRawX) < MOVE_THRESHOLD) &&
-                (Math.abs(currentY - startRawY) < MOVE_THRESHOLD)) {
+        if ((Math.abs(currentX - mStartRawX) < MOVE_THRESHOLD) &&
+                (Math.abs(currentY - mStartRawY) < MOVE_THRESHOLD)) {
             return false;
         }
 
@@ -291,6 +316,16 @@ public class MovableNodeButton extends AllAngleExpandableButton {
          * Coincides with MotionEvent.ACTION_UP.
          */
         void moveEnded();
+
+        /**
+         * The user has clicked on this button, not moved it.
+         */
+        void clicked();
+
+        /**
+         * User has long-clicked (over a second) a button, but has not moved it.
+         */
+        void longClicked();
     }
 
 }

@@ -411,6 +411,14 @@ public class MainActivity extends AppCompatActivity {
         final int id = mGraph.getUniqueNodeId();
         button.setXYCenter(relativeToParentLoc.x, relativeToParentLoc.y);
 
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "click", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "click listner");
+            }
+        });
+
         button.setOnMoveListener(new MovableNodeButton.OnMoveListener() {
             @Override
             public void movingTo(float diffX, float diffY) {
@@ -420,6 +428,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void moveEnded() {
                 Log.d(TAG, "move ended");
+            }
+
+            @Override
+            public void clicked() {
+                Toast.makeText(getBaseContext(), "click!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void longClicked() {
+                Toast.makeText(getBaseContext(), "LONG click!", Toast.LENGTH_SHORT).show();
             }
         });
 //        button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {

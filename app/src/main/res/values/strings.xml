@@ -5,7 +5,7 @@
     <string name="mode_build">Build</string>
     <string name="mode_solve">Solve</string>
 
-    <string name="build_hint">Tap playfield to add buttons\nDrag button to move\nTap buttons to connect\nDouble tap buttons to add $</string>
+    <string name="build_hint">Tap playfield to add buttons\nDrag button to move\nTap buttons to connect\nLong tap buttons to add $</string>
 
     <string name="solve_hint">Move $ around to eliminate all debts</string>
 
