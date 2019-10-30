@@ -293,8 +293,9 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
 
     /**
-     * Sets the background color of the main button. You need to call
-     * invalidate() after.
+     * Sets the background color of the main button.<br>
+     * <br>
+     * NOTE: You need to call invalidate() after.
      *
      * @param resid     The resource id of the color
      */

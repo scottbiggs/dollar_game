@@ -27,7 +27,6 @@ import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 import sleepfuriously.com.dollargame.view.buttons.NodeButton;
-//import sleepfuriously.com.dollargame.view.buttons.DumbNodeButton;
 
 
 /**
@@ -50,16 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    /** start in build (raw) mode */
-//    private static final DumbNodeButton.DumbNodeButtonModes DEFAULT_MODE
-//            = DumbNodeButton.DumbNodeButtonModes.RAW;
-
-    /** Number of milliseconds between a click and a move. */
-    private static final long CLICK_MILLIS_THRESHOLD = 100L;
-
-    /** The amount of pixels a finger can slip around and still be considered a click and not a move */
-    private static final float CLICK_SLOP = 5f;
-
     //------------------------
     //  widgets
     //------------------------
@@ -68,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private PlayAreaFrameLayout mPlayArea;
 
     /** holds all the buttons and their connections */
-//    private Graph mGraph = new Graph<DumbNodeButton>(false);
     private Graph mGraph = new Graph<MovableNodeButton>(false);
 
 
@@ -130,20 +118,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        if (savedInstanceState == null) {
-//            // todo: use this to restore any modes for the buttons
-//            mMainSwitch.setChecked(mMode == DumbNodeButton.DumbNodeButtonModes.BUTTON
-//                                        ? true : false);
-//        }
-//        else {
-//            // Use the saved state of the main switch to correctly set
-//            // the mode!
-//            mMode = mMainSwitch.isChecked()
-//                    ? DumbNodeButton.DumbNodeButtonModes.BUTTON
-//                    : DumbNodeButton.DumbNodeButtonModes.RAW;
-//        }
-
-
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
 
@@ -161,6 +135,13 @@ public class MainActivity extends AppCompatActivity {
                     if (playAreaEvent.getAction() == MotionEvent.ACTION_UP) {
                         // finish the UI action and reset to non-connecting state
                         mConnecting = false;
+
+                        // reset the start button
+                        MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(mStartNodeId);
+                        startButton.setBackgroundColorResource(getButtonStateColor(startButton));
+                        startButton.invalidate();
+
+                        setAllButtonsBuild();   // allows buttons to be moved again
                         buildModeUI();
                     }
                 }
@@ -303,18 +284,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Changes the mode of all the buttons (nodes) to Build mode (MOVABLE).
+     */
     private void setAllButtonsBuild() {
         for (Object button : mGraph) {
             ((MovableNodeButton)button).setMode(MovableNodeButton.Modes.MOVABLE);
         }
     }
 
+    /**
+     * Changes the nodes to Solve mode (EXPANDABLE).
+     */
     private void setAllButtonsSolve() {
         for (Object button : mGraph) {
             ((MovableNodeButton)button).setMode(MovableNodeButton.Modes.EXPANDABLE);
         }
     }
 
+    /**
+     * Changes all the nodes to NOT movable (CLICKS_ONLY) mode.  Used when
+     * making a connection.
+     */
     private void setAllButtonsConnecting() {
         for (Object button :mGraph) {
             ((MovableNodeButton)button).setMode(MovableNodeButton.Modes.CLICKS_ONLY);
@@ -597,6 +588,7 @@ public class MainActivity extends AppCompatActivity {
         mConnecting = true;
         mStartNodeId = button.getId();
 
+        setAllButtonsConnecting();
         connectUI();
 
         button.setBackgroundColorResource(R.color.button_bg_color_build_connect);
@@ -628,6 +620,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "attempting to disconnected two nodes that are not connected! Aborting!");
             return;
         }
+
+        setAllButtonsBuild();   // this can only happen during the build mode
 
         MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(startButtonId);
         MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(endButtonId);
@@ -672,6 +666,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Attempting to connect nodes that are already connected! Aborting!");
             return;
         }
+
+        setAllButtonsBuild();   // this can only happen during the build mode
 
         MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(startButtonId);
         MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(endButtonId);
