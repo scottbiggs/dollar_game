@@ -2,11 +2,8 @@ package sleepfuriously.com.dollargame.view.buttons;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -184,17 +181,38 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      */
     private boolean processClickTouchEvent(MotionEvent event) {
 
+        Log.d(TAG, "processClickTouchEvent(), ACTION = " + event.getAction());
+
         if (event.getAction() == ACTION_DOWN) {
             mClickStartMillis = System.currentTimeMillis();
+            mStartRawX = event.getRawX();
+            mStartRawY = event.getRawY();
         }
 
         else if (event.getAction() == ACTION_UP) {
+
             long currentTime = System.currentTimeMillis();
-            if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
-                moveListener.clicked();
+
+            // Don't count this as a click if the user has slid their hand around.
+            float currentRawX = event.getRawX();
+            float currentRawY = event.getRawY();
+
+            // Only count clicks that haven't moved around much.  Otherwise it's
+            // not really a click (it's probably a slide or something, which we're
+            // no interested in.
+            if ((Math.abs(currentRawX - mStartRawX) < MOVE_THRESHOLD) &&
+                    (Math.abs(currentRawY - mStartRawY) < MOVE_THRESHOLD)) {
+
+                if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
+                    moveListener.clicked();
+                }
+                else {
+                    moveListener.longClicked();
+                }
             }
+
             else {
-                moveListener.longClicked();
+                Log.d(TAG, "not really a click (probably a move)--ignored.");
             }
         }
 

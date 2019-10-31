@@ -440,7 +440,14 @@ public class MainActivity extends AppCompatActivity {
                     // of the connection and you can't connect to yourself.
                     int endId = button.getId();
 
-                    if (button.getId() != mStartNodeId) {   // can't connect to yourself!
+                    if (endId == mStartNodeId) {
+                        // Can't connect to yourself!
+                        Log.d(TAG, "clicking on yourself");
+                        button.setMode(MovableNodeButton.Modes.MOVABLE);
+                        button.setBackgroundColorResource(getButtonStateColor(button));
+                        button.invalidate();
+                    }
+                    else {
                         if (mGraph.isAdjacent(mStartNodeId, endId)) {
                             // remove this connection
                             disconnectButtons(mStartNodeId, endId);
