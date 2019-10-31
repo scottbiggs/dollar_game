@@ -424,8 +424,8 @@ public class MainActivity extends AppCompatActivity {
         button.setOnMoveListener(new MovableNodeButton.OnMoveListener() {
             @Override
             public void movingTo(float diffX, float diffY) {
-// todo                continueMove(button, diffX, diffY);
-//                Log.d(TAG, "moving to " + diffX + ", " + diffY);
+                continueMove(button, diffX, diffY);
+                Log.d(TAG, "moving to " + diffX + ", " + diffY);
             }
 
             @Override
@@ -583,6 +583,54 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Call this to do the setup for a node (button) move.
+     *
+     * @param button        The MovableNodeButton that will start moving.
+     *
+     * @param buttonEvent   The touch event that signaled the beginning of
+     *                      the move.
+     */
+    private void startMove(MovableNodeButton button, MotionEvent buttonEvent) {
+        // save the start location as LAST location
+        Log.d(TAG, "startMove()");
+    }
+
+
+    /**
+     * Call this to execute the logic and the UI of a node button being moved.
+     * This won't move the button (which can take care of itself), but will do
+     * everything else.
+     *
+     * @param button    The node that is moved.
+     *
+     * @param diffX     The delta between the previous coords and the new coords.
+     *                  In other words, the x-axis will move this many pixels.
+     *
+     * @param diffY     Similar for y-axis
+     */
+    private void continueMove(MovableNodeButton button, float diffX, float diffY) {
+//        PointF diffPoint = new PointF(diffX, diffY);
+//        mPlayArea.updateLines(button.getCenter(), diffPoint);
+
+        // just rebuild, sigh
+        mPlayArea.removeAllLines();
+
+        for (int i = 0; i < mGraph.numEdges(); i++) {
+            Graph.Edge edge = mGraph.getEdge(i);
+
+            MovableNodeButton startbutton = (MovableNodeButton) mGraph.getNodeData(edge.startNodeId);
+            PointF startp = startbutton.getCenter();
+
+            MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(edge.endNodeId);
+            PointF endp = endButton.getCenter();
+
+            mPlayArea.addLine(startp, endp);
+        }
+
+        mPlayArea.invalidate();
+    }
 
     /**
      * Call this to initiate a node connection.

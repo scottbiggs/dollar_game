@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -115,7 +114,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
      * @param drawLinesOn   TRUE --> yes, draw the lines
      *                      FALSE --> do not draw the lines
      */
-    public void setDrawLines(boolean drawLinesOn) {
+    public void setToDrawLines(boolean drawLinesOn) {
         mDrawLines = drawLinesOn;
     }
 
@@ -127,7 +126,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
      * anything).  Thus there are 2 reasons this class may not draw
      * any lines.
      */
-    public boolean getDrawLines() {
+    public boolean getToDrawLines() {
         return mDrawLines;
     }
 
@@ -135,7 +134,7 @@ public class PlayAreaFrameLayout extends FrameLayout {
      * Adds the given line to the line list.
      *
      * NOTE: this does not automatically turn the line draw on.
-     * You gotta call {@link #setDrawLines(boolean)} yourself.
+     * You gotta call {@link #setToDrawLines(boolean)} yourself.
      */
     public void addLine(PointF start, PointF end) {
         Line line = new Line(start, end);
