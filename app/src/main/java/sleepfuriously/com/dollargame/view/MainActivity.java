@@ -506,6 +506,8 @@ public class MainActivity extends AppCompatActivity {
         final TextView dialogAmountTv = inflatedView.findViewById(R.id.dialog_amount);
 
         final SeekBar dialogSeekBar = inflatedView.findViewById(R.id.dialog_seekbar);
+        dialogSeekBar.setProgress(button.getAmount() + seekbarOffset);
+
         dialogSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
