@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -168,6 +169,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ImageView iv = findViewById(R.id.connected_iv);
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tag = (String) v.getTag();
+                String toastStr;
+                if (tag.equals(getString(R.string.connected))) {
+                    toastStr = getString(R.string.connected_toast);
+                }
+                else {
+                    toastStr = getString(R.string.not_connected_toast);
+                }
+                Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 

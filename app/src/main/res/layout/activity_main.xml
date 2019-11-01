@@ -95,6 +95,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"
         app:layout_constraintEnd_toEndOf="parent"
         android:elevation="2dp"
+        android:tag="@string/not_connected"
         />
 
 

@@ -41,6 +41,12 @@
     <string name="dialog_desc">Adjust the dollar amount for this node.</string>
     <string name="dialog_orig_label">previous:</string>
 
+    <!-- connected/disconnected strings -->
+    <string name="not_connected">disconnected</string>
+    <string name="connected">connected</string>
+    <string name="connected_toast">All nodes are connected! You may proceed to solving this puzzle.</string>
+    <string name="not_connected_toast">There are nodes that are not connected to the rest. Connect them to make a solvable puzzle.</string>
+
     <!-- generally useful strings -->
     <string name="dollar_number">$%d</string>   <!-- shows a dollar sign plus an integer -->
 
