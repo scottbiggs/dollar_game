@@ -2,7 +2,6 @@ package sleepfuriously.com.dollargame.view.buttons;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
@@ -44,6 +43,10 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     //  constants
     //-------------------------------
 
+    /** The maximums and minimums for the dollars that can put in a node */
+    public static final int
+        MIN_AMOUNT = -8, MAX_AMOUNT = 8;
+
     private static final String TAG = MovableNodeButton.class.getSimpleName();
 
     /** The amount that a touch must move to be considered a real move and not just an inadvertant wiggle */
@@ -81,6 +84,9 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     //-------------------------------
 
     private Context mCtx;
+
+    /** The number of dollars this button currently holds */
+    private int mAmount;
 
     /** The start time in millis of a click */
     private long mClickStartMillis;
@@ -127,11 +133,13 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         mMoving = false;
         mCurrentMode = Modes.MOVABLE;
 
-        // make the buttons go left/right todo: is this necessary?
+        mAmount = 0;
+
+        // make the buttons go left/right
         setStartAngle(0);
         setEndAngle(180);
 
-        setButtonDatas(createButtonImages());
+        setButtonDatas(createButtonImages(mAmount));
     }
 
     /**
@@ -149,7 +157,24 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         mCurrentMode = newMode;
     }
 
+    /**
+     * Returns the amount that is currently displayed.
+     */
+    public int getAmount() {
+        return mAmount;
+    }
 
+    /**
+     * Sets the amount that this button displays.
+     *
+     * @param amount    Should be a value on or between
+     *                  MIN_AMOUNT and MAX_AMOUNT
+     */
+    public void setAmount(int amount) {
+        mAmount = amount;
+        setButtonDatas(createButtonImages(mAmount));
+        invalidate();
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -353,14 +378,14 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      * @return  A list of button images suitable for sending to
      *          <code>setButtonDatas()</code>.
      */
-    private List<ButtonData> createButtonImages() {
+    private List<ButtonData> createButtonImages(int amount) {
 
         // Create a drawable with the correct color
         Drawable highlightDrawable = AppCompatResources.getDrawable(mCtx, R.drawable.circle_black);
 
         List<ButtonData> buttonDataList = new ArrayList<>();
 
-        ButtonData highlightButtonData = ButtonData.buildIconAndTextButton(mCtx, highlightDrawable, 0, "$");
+        ButtonData highlightButtonData = ButtonData.buildIconAndTextButton(mCtx, highlightDrawable, 0, amount);
         ButtonData firstPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_give_money, 0);
         ButtonData secondPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_take_money, 0);
 

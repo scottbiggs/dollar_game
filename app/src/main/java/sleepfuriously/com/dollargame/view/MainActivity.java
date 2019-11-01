@@ -473,7 +473,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void longClicked() {
-                Toast.makeText(getBaseContext(), "LONG click!", Toast.LENGTH_SHORT).show();
                 showMoneyDialog(button);
             }
         });
@@ -496,17 +495,21 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param button    The node/button in question.
      */
-    private void showMoneyDialog(MovableNodeButton button) {
+    private void showMoneyDialog(final MovableNodeButton button) {
+
+        // figure out this constant that will be used throughout
+        final int seekbarOffset = getResources().getInteger(R.integer.DOLLAR_AMOUNT_SEEKBAR_OFFSET);
+
         LayoutInflater inflater = getLayoutInflater();
         View inflatedView = inflater.inflate(R.layout.add_money_dialog, null);
 
         final TextView dialogAmountTv = inflatedView.findViewById(R.id.dialog_amount);
 
-        SeekBar dialogSeekBar = inflatedView.findViewById(R.id.dialog_seekbar);
+        final SeekBar dialogSeekBar = inflatedView.findViewById(R.id.dialog_seekbar);
         dialogSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String dollarStr = getString(R.string.dollar_number, progress - (seekBar.getMax() / 2));
+                String dollarStr = getString(R.string.dollar_number, progress - seekbarOffset);
                 dialogAmountTv.setText(dollarStr);
             }
 
@@ -518,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         String initialDollarStr = getString(R.string.dollar_number,
-                dialogSeekBar.getProgress() - dialogSeekBar.getMax() / 2);
+                dialogSeekBar.getProgress() - seekbarOffset);
         dialogAmountTv.setText(initialDollarStr);
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -529,7 +532,8 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MainActivity.this, "dialog OK", Toast.LENGTH_SHORT).show();
+                        button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
+                        Toast.makeText(MainActivity.this, "dialog returned " + button.getAmount(), Toast.LENGTH_SHORT).show();
                     }
                 });
 

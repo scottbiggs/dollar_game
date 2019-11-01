@@ -81,6 +81,24 @@ public class ButtonData implements Cloneable{
         return buttonData;
     }
 
+    /**
+     * Works like the other {@link #buildIconAndTextButton(Context, int, float, String...)},
+     * but this one takes a number as the text string--works better for
+     * my project.
+     */
+    public static ButtonData buildIconAndTextButton(Context ctx, Drawable drawable, float iconPaddingDp,
+                                                    int amount) {
+        ButtonData buttonData = new ButtonData(ButtonType.BOTH);
+        buttonData.buttonType = ButtonType.BOTH;
+        String amountStr = "$" + amount;
+        buttonData.setText(amountStr);
+
+        buttonData.iconPaddingDp = iconPaddingDp;
+        buttonData.setIcon(drawable);
+
+        return buttonData;
+    }
+
     private ButtonData(ButtonType buttonType) {
         this.buttonType = buttonType;
     }

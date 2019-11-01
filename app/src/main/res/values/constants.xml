@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Constants that need to be accessed by XML code should be put here.
+    And if the java code has an Activity or Service available to it,
+    then it can access these constants too.
+-->
+<resources>
+    <integer name="MAX_DOLLAR_AMOUNT">20</integer>
+    <integer name="MIN_DOLLAR_AMOUNT">-20</integer>
+
+    <!-- Used by seekbar which can only work in positive numbers -->
+    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE">40</integer>
+    <!-- Used by seekbar for 0 -->
+    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0">20</integer>
+    <!-- The offset between the actual dollar amount and what the seekbar thinks it is -->
+    <integer name="DOLLAR_AMOUNT_SEEKBAR_OFFSET">@integer/MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0</integer>
+</resources>
