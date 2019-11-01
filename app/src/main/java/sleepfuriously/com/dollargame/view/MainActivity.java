@@ -446,7 +446,6 @@ public class MainActivity extends AppCompatActivity {
                     if (endId == mStartNodeId) {
                         // Can't connect to yourself!
                         Log.d(TAG, "clicking on yourself");
-                        button.setMode(MovableNodeButton.Modes.MOVABLE);
                         button.setBackgroundColorResource(getButtonStateColor(button));
                         button.invalidate();
                     }
@@ -461,6 +460,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     mConnecting = false;
+                    setAllButtonsBuild();
                     buildModeUI();
                 }
                 else {
