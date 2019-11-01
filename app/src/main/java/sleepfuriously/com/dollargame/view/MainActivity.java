@@ -278,6 +278,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "menu option: solve");
                 break;
 
+            case R.id.build_settings:
+                doOptions();
+                break;
+
             default:
                 Toast.makeText(this, "unknown menu selection", Toast.LENGTH_LONG).show();
                 break;
@@ -708,6 +712,13 @@ public class MainActivity extends AppCompatActivity {
     private int getButtonStateColor(MovableNodeButton button) {
         // todo: make this work properly
         return R.color.button_bg_color_build_disconnected;
+    }
+
+    /**
+     * Throws up the options dialog and all that entails.
+     */
+    private void doOptions() {
+        // todo
     }
 
 }

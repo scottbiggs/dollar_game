@@ -9,9 +9,10 @@
     <string name="build_hint">Tap playfield to add nodes\nDrag node to move\nTap node to connect\nLong tap buttons to add $</string>
     <string name="connect_hint">Tap on another node to complete or remove a connection.</string>
 
-    <!-- menu items -->
+    <!-- main menu items -->
     <string name="load">load</string>
     <string name="save">save</string>
+    <string name="settings">settings</string>
     <string name="share">share</string>
     <string name="solve">solve</string>
     <string name="build">build</string>
@@ -19,6 +20,11 @@
     <string name="about">about</string>
     <string name="clear">clear</string>
     <string name="exit">exit</string>
+
+    <!-- prefs -->
+    <string name="prefs_max_title">maximum dollar amount</string>
+    <string name="prefs_min_title">minumum dollar amount</string>
+
     <string name="genus_label">genus:</string>
     <string name="count_label">count:</string>
 
