@@ -90,8 +90,7 @@ public class ButtonData implements Cloneable{
                                                     int amount) {
         ButtonData buttonData = new ButtonData(ButtonType.BOTH);
         buttonData.buttonType = ButtonType.BOTH;
-        String amountStr = "$" + amount;
-        buttonData.setText(amountStr);
+        buttonData.setText(String.valueOf(amount));
 
         buttonData.iconPaddingDp = iconPaddingDp;
         buttonData.setIcon(drawable);
