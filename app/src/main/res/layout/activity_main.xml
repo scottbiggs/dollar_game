@@ -3,7 +3,7 @@
     Base layout for the app.  This includes everything that's
     common to both the build mode and solve mode.
 -->
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_cl"
@@ -35,7 +35,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/main_switch"
         app:layout_constraintStart_toEndOf="@+id/main_switch" />
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -91,4 +91,4 @@
         app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"
         app:layout_constraintEnd_toEndOf="parent" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
