@@ -26,6 +26,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 
+import java.util.List;
+
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
@@ -657,6 +659,7 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.invalidate();
 
         startButton.invalidate();
+        endButton.invalidate();
     }
 
     /**
@@ -703,6 +706,7 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.invalidate();
 
         startButton.invalidate();
+        endButton.invalidate();
     }
 
 
@@ -710,8 +714,15 @@ public class MainActivity extends AppCompatActivity {
      * Figures out the appropriate color for this button based on its current state.
      */
     private int getButtonStateColor(MovableNodeButton button) {
-        // todo: make this work properly
-        return R.color.button_bg_color_build_disconnected;
+
+        // if the node is connected to any other node, then use the connected color
+        List<Integer> connectedNodes = mGraph.getAllAdjacentTo(button.getId());
+        if (connectedNodes.size() > 0) {
+            return R.color.button_bg_color_build_connected;
+        }
+        else {
+            return R.color.button_bg_color_build_disconnected;
+        }
     }
 
     /**

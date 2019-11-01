@@ -22,7 +22,8 @@
     <color name="button_bg_color_build_normal">#fff</color>
     <color name="button_bg_color_build_connect">#54F35D</color>
     <color name="button_bg_color_build_problem">#FF5555</color>
-    <color name="button_bg_color_build_disconnected">#e8e8f0</color>
+    <color name="button_bg_color_build_disconnected">#E7AEFA</color>
+    <color name="button_bg_color_build_connected">#fff</color>
 
     <color name="button_bg_color_solve_normal">#fff</color>
 
