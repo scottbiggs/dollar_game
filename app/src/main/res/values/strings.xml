@@ -29,4 +29,14 @@
             I was surprised no had made a computer version of that game, so…here it is!</string>
     <string name="more_info">There\'s way more than you ever wanted to know about his game here: https://mattbaker.blog/2013/10/18/riemann-roch-for-graphs-and-applications/</string>
     <string name="credits_freepik">Money icons inspired by Freepik.</string>
+
+    <!-- edit dollar amount dialog -->
+    <string name="dialog_title"> $$ Dollar Amount $$</string>
+    <string name="dialog_desc">Adjust the dollar amount for this node.</string>
+    <string name="dialog_orig_label">previous:</string>
+
+    <!-- generally useful strings -->
+    <string name="dollar_number">$%d</string>   <!-- shows a dollar sign plus an integer -->
+
+
 </resources>

@@ -1,13 +1,16 @@
 package sleepfuriously.com.dollargame.view;
 
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Typeface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +30,6 @@ import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
-import sleepfuriously.com.dollargame.view.buttons.NodeButton;
 
 
 /**
@@ -471,105 +474,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void longClicked() {
                 Toast.makeText(getBaseContext(), "LONG click!", Toast.LENGTH_SHORT).show();
+                showMoneyDialog(button);
             }
         });
-//        button.setDumbNodeButtonListener(new DumbNodeButton.DumbNodeButtonListener() {
-//            @Override
-//            public void onPopupButtonClicked(int index) {
-//                Log.d(TAG, "click! index = " + index);
-//            }
-//
-//            @Override
-//            public void onTouch(MotionEvent buttonEvent) {
-//                int action = buttonEvent.getAction();
-//                switch (action) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        Log.d(TAG, "action down");
-//
-////                        startMove(buttonEvent, button);
-//
-//                        // convert to play area coords.
-//                        float x = buttonEvent.getRawX() - mPlayArea.getLeft();
-//                        float y = buttonEvent.getRawY() - mPlayArea.getTop();
-//                        PointF playAreaPos = new PointF(x, y);
-//                        startMovePlayAreaPos(playAreaPos, button);
-//                        break;
-//
-//                    case MotionEvent.ACTION_MOVE:
-//                        continueMove(buttonEvent, button);
-//                        break;
-//
-//                    case MotionEvent.ACTION_UP:
-//                        Log.d(TAG, "action up");
-//                        if (isRealMove(buttonEvent)) {
-//                            finishMove(buttonEvent, button);
-//                        }
-//                        else {
-//                            // not a move, it's a click. start connecting
-//                            startConnection(buttonEvent, button);
-//                        }
-//                        break;
-//                }
-//            }
-//        });
-
-
-/*
-        button.setButtonEventListener(new ButtonEventListener() {
-//            @Override
-//            public void onPopupButtonClicked(int index) {
-//                Log.d(TAG, "click! index = " + index);
-//            }
-
-//            @Override
-//            public void onExpand() {
-//                Log.d(TAG, "expanding...");
-//            }
-//
-//            @Override
-//            public void onCollapse() {
-//                Log.d(TAG, "...collapsing");
-//            }
-
-            // A connection click
-            @Override
-            public void onDisabledClick() {
-                if (mConnecting) {
-                    // completing a connection
-                    connectButtons(mStartNodeId, id);
-                    mConnecting = false;
-                }
-
-                else {
-                    // beginning a connection
-                    mConnecting = true;
-                    mStartNodeId = id;
-                    button.setHighlight(NodeButton.HighlightTypes.CONNECT);
-//                    button.setHighlighted(true);
-                    button.invalidate();    // todo: is this necessary?
-                }
-            }
-
-            @Override
-            public void onMoved(PointF oldLoc, PointF newLoc) {
-//                mPlayArea.updateLines(oldLoc, newLoc);
-                // remove and rebuild the line data
-                mPlayArea.removeAllLines();
-                for (int i = 0; i < mGraph.numEdges(); i++) {
-                    Graph.Edge edge = mGraph.getEdge(i);
-//                    NodeButtonOLD startNode = (NodeButtonOLD) mGraph.getNodeData(edge.startNodeId);
-                    NodeButton startNode = (NodeButton) mGraph.getNodeData(edge.startNodeId);
-//                    NodeButtonOLD endNode = (NodeButtonOLD) mGraph.getNodeData(edge.endNodeId);
-                    NodeButton endNode = (NodeButton) mGraph.getNodeData(edge.endNodeId);
-
-                    PointF startp = startNode.getCenter();
-                    PointF endp = endNode.getCenter();
-                    mPlayArea.addLine(startp, endp);
-                }
-                mPlayArea.invalidate();
-            }
-        });
-*/
 
         mPlayArea.addView(button);
 
@@ -581,6 +488,53 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             throw new RuntimeException();
         }
+    }
+
+
+    /**
+     * Throws up a dialog that allows the user to edit the money amount within a node.
+     *
+     * @param button    The node/button in question.
+     */
+    private void showMoneyDialog(MovableNodeButton button) {
+        LayoutInflater inflater = getLayoutInflater();
+        View inflatedView = inflater.inflate(R.layout.add_money_dialog, null);
+
+        final TextView dialogAmountTv = inflatedView.findViewById(R.id.dialog_amount);
+
+        SeekBar dialogSeekBar = inflatedView.findViewById(R.id.dialog_seekbar);
+        dialogSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                String dollarStr = getString(R.string.dollar_number, progress - (seekBar.getMax() / 2));
+                dialogAmountTv.setText(dollarStr);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
+        String initialDollarStr = getString(R.string.dollar_number,
+                dialogSeekBar.getProgress() - dialogSeekBar.getMax() / 2);
+        dialogAmountTv.setText(initialDollarStr);
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setView(inflatedView)
+                .setCancelable(true)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, "dialog OK", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
     }
 
 
@@ -611,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
      * @param diffY     Similar for y-axis
      */
     private void continueMove(MovableNodeButton button, float diffX, float diffY) {
+        // todo: this would be more efficient--make updateLines() method work
 //        PointF diffPoint = new PointF(diffX, diffY);
 //        mPlayArea.updateLines(button.getCenter(), diffPoint);
 
