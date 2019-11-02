@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/connected_iv"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
@@ -61,11 +61,14 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@color/draw_area_bg"
         app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_switch">
+        app:layout_constraintTop_toBottomOf="@+id/main_switch"
+        app:layout_constraintVertical_bias="0.0">
 
     </sleepfuriously.com.dollargame.view.PlayAreaFrameLayout>
 
@@ -88,14 +91,13 @@
         android:id="@+id/connected_iv"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_not_connected"
         android:background="@color/button_bg_color_build_disconnected"
-        app:layout_constraintBottom_toBottomOf="@+id/play_area_fl"
-        app:layout_constraintEnd_toEndOf="parent"
         android:elevation="4dp"
-        />
+        android:src="@drawable/ic_not_connected"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
