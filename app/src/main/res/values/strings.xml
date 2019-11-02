@@ -42,6 +42,7 @@
     <string name="dialog_orig_label">previous:</string>
     <string name="delete_node">I hate this node, remove it!</string>
     <string name="keep_node">I like this node</string>
+    <string name="dialog_random">random</string>
 
     <!-- connected/disconnected strings -->
     <string name="not_connected">disconnected</string>

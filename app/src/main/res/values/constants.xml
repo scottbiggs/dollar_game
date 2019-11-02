@@ -5,13 +5,16 @@
     then it can access these constants too.
 -->
 <resources>
-    <integer name="MAX_DOLLAR_AMOUNT">20</integer>
-    <integer name="MIN_DOLLAR_AMOUNT">-20</integer>
 
-    <!-- Used by seekbar which can only work in positive numbers -->
-    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE">40</integer>
+    <!-- WARNING: All these Maximums and Minimums MUST agree with each other!
+        There's no way to enforce this as computations are not allowed here, sigh. -->
+    <integer name="MAX_DOLLAR_AMOUNT">5</integer>
+    <integer name="MIN_DOLLAR_AMOUNT">-5</integer>
+
+    <!-- Used by seekbar which can only work in positive numbers (the min is always 0) -->
+    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE">10</integer>
     <!-- Used by seekbar for 0 -->
-    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0">20</integer>
+    <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0">5</integer>
     <!-- The offset between the actual dollar amount and what the seekbar thinks it is -->
     <integer name="DOLLAR_AMOUNT_SEEKBAR_OFFSET">@integer/MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0</integer>
 </resources>

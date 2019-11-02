@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -32,6 +33,7 @@ import androidx.appcompat.widget.Toolbar;
 
 
 import java.util.List;
+import java.util.Random;
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
@@ -560,6 +562,18 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
+        final Button dialogRandomButt = inflatedView.findViewById(R.id.dialog_rand_butt);
+        dialogRandomButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random random = new Random();
+                random.setSeed(System.currentTimeMillis());
+
+                int randInt = random.nextInt((getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT_NON_NEGATIVE)) + 1);
+                dialogSeekBar.setProgress(randInt);
+            }
         });
 
         final ToggleButton nodeToggleButt = inflatedView.findViewById(R.id.dialog_delete_butt);
