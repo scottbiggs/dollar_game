@@ -4,6 +4,7 @@ package sleepfuriously.com.dollargame.model;
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import android.util.Log;
+import android.widget.EditText;
 
 import java.util.List;
 import java.util.Set;
@@ -499,6 +500,23 @@ public class Graph<T>
             return false;
         }
         return true;
+    }
+
+    /**
+     * Removes all edges that use a given node.
+     *
+     * @return The number of edges that were removed.
+     */
+    public int removeEdgesWithNode(int nodeId) {
+        int count = 0;
+        for (int i = mEdges.size() - 1; i >= 0; i--) {  // have to go backwards as this is a destructive loop!
+            Edge edge = mEdges.get(i);
+            if ((edge.startNodeId == nodeId) || (edge.endNodeId == nodeId)) {
+                count++;
+                mEdges.remove(i);
+            }
+        }
+        return count;
     }
 
     /**

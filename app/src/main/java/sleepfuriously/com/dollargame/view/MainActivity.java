@@ -26,6 +26,8 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import androidx.appcompat.widget.Toolbar;
 
 
@@ -534,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
         final int seekbarOffset = getResources().getInteger(R.integer.DOLLAR_AMOUNT_SEEKBAR_OFFSET);
 
         LayoutInflater inflater = getLayoutInflater();
-        View inflatedView = inflater.inflate(R.layout.add_money_dialog, null);
+        View inflatedView = inflater.inflate(R.layout.money_delete_dialog, null);
 
         final TextView dialogAmountTv = inflatedView.findViewById(R.id.dialog_amount);
 
@@ -555,6 +557,8 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
+        final ToggleButton nodeToggleButt = inflatedView.findViewById(R.id.dialog_delete_butt);
+
         String initialDollarStr = getString(R.string.dollar_number,
                 dialogSeekBar.getProgress() - seekbarOffset);
         dialogAmountTv.setText(initialDollarStr);
@@ -567,8 +571,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
-                        Toast.makeText(MainActivity.this, "dialog returned " + button.getAmount(), Toast.LENGTH_SHORT).show();
+                        if (nodeToggleButt.isChecked()) {
+                            deleteNode(button);
+                        }
+                        else {
+                            button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
+                        }
                     }
                 });
 
@@ -577,19 +585,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Call this to do the setup for a node (button) move.
-     *
-     * @param button        The MovableNodeButton that will start moving.
-     *
-     * @param buttonEvent   The touch event that signaled the beginning of
-     *                      the move.
-     */
-    private void startMove(MovableNodeButton button, MotionEvent buttonEvent) {
-        // save the start location as LAST location
-        Log.d(TAG, "startMove()");
-    }
+    private void deleteNode(MovableNodeButton nodeToDelete) {
 
+        @SuppressWarnings("unchecked")
+        int nodeId = mGraph.getNodeId(nodeToDelete);
+
+        mPlayArea.removeView(nodeToDelete);
+
+        // remove the edges associated with this node, and then the node
+        mGraph.removeEdgesWithNode(nodeId);
+        mGraph.removeNode(nodeId);
+
+        resetAllButtonStateColors();
+
+        rebuildPlayAreaLines();
+        resetConnectedUI();
+    }
 
     /**
      * Call this to execute the logic and the UI of a node button being moved.
@@ -608,7 +619,15 @@ public class MainActivity extends AppCompatActivity {
 //        PointF diffPoint = new PointF(diffX, diffY);
 //        mPlayArea.updateLines(button.getCenter(), diffPoint);
 
-        // just rebuild, sigh
+        rebuildPlayAreaLines();
+        mPlayArea.invalidate();
+    }
+
+    /**
+     * Helper method that clears all the lines from the play area and reconstructs
+     * them according to mGraph.
+     */
+    private void rebuildPlayAreaLines() {
         mPlayArea.removeAllLines();
 
         for (int i = 0; i < mGraph.numEdges(); i++) {
@@ -622,8 +641,6 @@ public class MainActivity extends AppCompatActivity {
 
             mPlayArea.addLine(startp, endp);
         }
-
-        mPlayArea.invalidate();
     }
 
     /**
@@ -740,6 +757,24 @@ public class MainActivity extends AppCompatActivity {
         endButton.invalidate();
 
         resetConnectedUI();
+    }
+
+
+    /**
+     * Goes through each node/button and checks it's state, making sure
+     * that it is displaying the correct color.
+     */
+    private void resetAllButtonStateColors() {
+
+        @SuppressWarnings("unchecked")
+        List<Integer> nodeList = mGraph.getAllNodeIds();
+
+        for (int nodeId : nodeList) {
+            MovableNodeButton nodeButton = (MovableNodeButton) mGraph.getNodeData(nodeId);
+            int color = getButtonStateColor(nodeButton);
+            nodeButton.setBackgroundColorResource(color);
+            nodeButton.invalidate();
+        }
     }
 
 

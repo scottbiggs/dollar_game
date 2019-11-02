@@ -36,10 +36,12 @@
     <string name="more_info">There\'s way more than you ever wanted to know about his game here: https://mattbaker.blog/2013/10/18/riemann-roch-for-graphs-and-applications/</string>
     <string name="credits_freepik">Money icons inspired by Freepik.</string>
 
-    <!-- edit dollar amount dialog -->
+    <!-- edit dollar amount / delete node dialog -->
     <string name="dialog_title"> $$ Dollar Amount $$</string>
     <string name="dialog_desc">Adjust the dollar amount for this node.</string>
     <string name="dialog_orig_label">previous:</string>
+    <string name="delete_node">I hate this node, remove it!</string>
+    <string name="keep_node">I like this node</string>
 
     <!-- connected/disconnected strings -->
     <string name="not_connected">disconnected</string>
