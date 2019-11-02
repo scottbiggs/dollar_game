@@ -807,13 +807,13 @@ public class MainActivity extends AppCompatActivity {
     private void resetConnectedUI() {
         if (mGraph.isConnected()) {
             mConnectedIV.setImageResource(R.drawable.ic_connected);
-            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_connected));
+//            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_connected));
 
             mMainSwitch.setEnabled(true);
         }
         else {
             mConnectedIV.setImageResource(R.drawable.ic_not_connected);
-            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_disconnected));
+//            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_disconnected));
 
             mMainSwitch.setEnabled(false);
         }
