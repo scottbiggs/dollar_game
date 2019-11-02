@@ -6,6 +6,8 @@ import android.graphics.PointF;
 import android.graphics.Typeface;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
@@ -78,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
     /** displays hints to keep the user going */
     private TextView mHintTv;
 
+    /** displays the connectivity of the Graph while building */
+    private ImageView mConnectedIV;
 
     //------------------------
     //  data
@@ -169,18 +173,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ImageView iv = findViewById(R.id.connected_iv);
-        iv.setOnClickListener(new View.OnClickListener() {
+        mConnectedIV = findViewById(R.id.connected_iv);
+        mConnectedIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tag = (String) v.getTag();
                 String toastStr;
-                if (tag.equals(getString(R.string.connected))) {
+
+                ColorDrawable colorDrawable = (ColorDrawable) mConnectedIV.getBackground();
+                int bgColor = colorDrawable.getColor();
+
+                // Use the background color to detect which state the IV is in.
+                if (bgColor == getResources().getColor(R.color.button_bg_color_build_connected)) {
                     toastStr = getString(R.string.connected_toast);
                 }
                 else {
                     toastStr = getString(R.string.not_connected_toast);
                 }
+
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
             }
         });
@@ -509,6 +518,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             throw new RuntimeException();
         }
+
+        resetConnectedUI();
     }
 
 
@@ -667,15 +678,18 @@ public class MainActivity extends AppCompatActivity {
         PointF start = startButton.getCenter();
         PointF end = endButton.getCenter();
 
-        startButton.setBackgroundColorResource(getButtonStateColor(startButton));
-
         // remove from graph and play area
         mGraph.removeEdge(startButtonId, endButtonId);
         mPlayArea.removeLine(start, end);
         mPlayArea.invalidate();
 
+        startButton.setBackgroundColorResource(getButtonStateColor(startButton));
+        endButton.setBackgroundColorResource(getButtonStateColor(endButton));
+
         startButton.invalidate();
         endButton.invalidate();
+
+        resetConnectedUI();
     }
 
     /**
@@ -711,8 +725,6 @@ public class MainActivity extends AppCompatActivity {
         MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(startButtonId);
         MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(endButtonId);
 
-        startButton.setBackgroundColorResource(getButtonStateColor(startButton));
-
         PointF start = startButton.getCenter();
         PointF end = endButton.getCenter();
 
@@ -721,8 +733,13 @@ public class MainActivity extends AppCompatActivity {
         mPlayArea.addLine(start, end);
         mPlayArea.invalidate();
 
+        startButton.setBackgroundColorResource(getButtonStateColor(startButton));
+        endButton.setBackgroundColorResource(getButtonStateColor(endButton));
+
         startButton.invalidate();
         endButton.invalidate();
+
+        resetConnectedUI();
     }
 
 
@@ -734,12 +751,40 @@ public class MainActivity extends AppCompatActivity {
         // if the node is connected to any other node, then use the connected color
         List<Integer> connectedNodes = mGraph.getAllAdjacentTo(button.getId());
         if (connectedNodes.size() > 0) {
+            Log.d(TAG, "getButtonStateColor(), returning CONNECTED");
             return R.color.button_bg_color_build_connected;
         }
         else {
+            Log.d(TAG, "getButtonStateColor(), returning DISconnected");
             return R.color.button_bg_color_build_disconnected;
         }
     }
+
+    /**
+     * Sets the drawing in the connection ImageView according to the current
+     * state of the graph.
+     *
+     * side effects:
+     *  mConnectedIV    may have its source image changed
+     *
+     *  mMainSwitch     Will be enabled/disabled depending on the state of the Graph
+     */
+    private void resetConnectedUI() {
+        if (mGraph.isConnected()) {
+            mConnectedIV.setImageResource(R.drawable.ic_connected);
+            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_connected));
+
+            mMainSwitch.setEnabled(true);
+        }
+        else {
+            mConnectedIV.setImageResource(R.drawable.ic_not_connected);
+            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_disconnected));
+
+            mMainSwitch.setEnabled(false);
+        }
+        mConnectedIV.invalidate();
+    }
+
 
     /**
      * Throws up the options dialog and all that entails.
