@@ -6,7 +6,7 @@
     <string name="mode_solve">Solve</string>
 
     <string name="solve_hint">Move $ around to eliminate all debts</string>
-    <string name="build_hint">Tap playfield to add nodes\nDrag node to move\nTap node to connect\nLong tap buttons to add $</string>
+    <string name="build_hint">\u2022Tap playfield to add nodes\n\u2022Drag node to move\n\u2022Tap node to connect\n\u2022Long tap buttons to delete or change $</string>
     <string name="connect_hint">Tap on another node to complete or remove a connection.</string>
 
     <!-- main menu items -->

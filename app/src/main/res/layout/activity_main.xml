@@ -77,7 +77,7 @@
         android:textSize="18sp"
         android:minHeight="40dp"
         android:padding="8dp"
-        android:gravity="center"
+        android:gravity="start"
         android:textColor="@color/textcolor_normal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

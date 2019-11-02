@@ -791,6 +791,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void doOptions() {
         // todo
+
+        // todo: allow hints to disapper
+        // todo: change max and min dollar amount
+        // todo: change color scheme???
     }
 
 }
