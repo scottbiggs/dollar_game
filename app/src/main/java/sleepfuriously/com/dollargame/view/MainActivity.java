@@ -141,6 +141,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent playAreaEvent) {
 
+                if (!mBuildMode) {
+                    // Solve mode, pass along the events
+                    return false;
+                }
+
                 // If we're in the middle of a connection, handle all events here.
                 if (mConnecting) {
 
@@ -163,11 +168,11 @@ public class MainActivity extends AppCompatActivity {
                     PointF touchLoc = new PointF(playAreaEvent.getX(), playAreaEvent.getY());
 
                     // todo: testing
-                    PointF rawLoc = new PointF(playAreaEvent.getRawX(), playAreaEvent.getRawY());
-                    float testX = rawLoc.x + mPlayArea.getLeft();
-                    float testY = rawLoc.y + mPlayArea.getTop();
-                    Log.d (TAG, "relative = " + touchLoc + ", raw = " + rawLoc +
-                            ", and calculated = " + testX + ", " + testY);
+//                    PointF rawLoc = new PointF(playAreaEvent.getRawX(), playAreaEvent.getRawY());
+//                    float testX = rawLoc.x + mPlayArea.getLeft();
+//                    float testY = rawLoc.y + mPlayArea.getTop();
+//                    Log.d (TAG, "relative = " + touchLoc + ", raw = " + rawLoc +
+//                            ", and calculated = " + testX + ", " + testY);
 
                     newButton(touchLoc);
                 }
