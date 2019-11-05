@@ -53,7 +53,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     private static final float MOVE_THRESHOLD = 5f;
 
     /** The number of milliseconds before a click becomes a long click */
-    private static final long MILLIS_FOR_LONG_CLICK = 5000L;
+    private static final long MILLIS_FOR_LONG_CLICK = 500L;
 
     /**
      * The modes of this button.  These modes completely determine the behavior of this
