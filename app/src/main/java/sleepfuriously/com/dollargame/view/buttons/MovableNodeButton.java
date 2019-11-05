@@ -53,7 +53,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     private static final float MOVE_THRESHOLD = 5f;
 
     /** The number of milliseconds before a click becomes a long click */
-    private static final long MILLIS_FOR_LONG_CLICK = 1000L;
+    private static final long MILLIS_FOR_LONG_CLICK = 5000L;
 
     /**
      * The modes of this button.  These modes completely determine the behavior of this
@@ -176,6 +176,21 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         invalidate();
     }
 
+    /**
+     * Increments the amount of this Node by 1.
+     */
+    public void incrementAmount() {
+        setAmount(mAmount + 1);
+    }
+
+    /**
+     * Decrements the amount by 1
+     */
+    public void decrementAmount() {
+        setAmount(mAmount - 1);
+    }
+
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -206,7 +221,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      */
     private boolean processClickTouchEvent(MotionEvent event) {
 
-        Log.d(TAG, "processClickTouchEvent(), ACTION = " + event.getAction());
+//        Log.d(TAG, "processClickTouchEvent(), ACTION = " + event.getAction());
 
         if (event.getAction() == ACTION_DOWN) {
             mClickStartMillis = System.currentTimeMillis();
@@ -293,8 +308,20 @@ public class MovableNodeButton extends AllAngleExpandableButton {
             case ACTION_UP:
                 if (mMoving) {
                     mMoving = false;
-                    moveListener.moveEnded();
-                    // registered
+
+                    // always calculate the moving difference for this final move
+                    float diffX = event.getRawX() - mOffsetX;
+                    float diffY = event.getRawY() - mOffsetY;
+
+                    moveListener.moveEnded(diffX, diffY);
+
+                    if ((diffX != 0f) || (diffY != 0f)) {
+                        animate()
+                                .x(diffX)
+                                .y(diffY)
+                                .setDuration(0)
+                                .start();
+                    }
                 }
                 else {
                     long currentTime = System.currentTimeMillis();
@@ -396,6 +423,12 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         return buttonDataList;
     }
 
+//    @Override
+//    public void invalidate() {
+//        setButtonDatas(createButtonImages(mAmount));
+//        super.invalidate();
+//    }
+
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //  interfaces & classes
@@ -423,8 +456,13 @@ public class MovableNodeButton extends AllAngleExpandableButton {
          * Signals that a move has been completed with this button.
          *
          * Coincides with MotionEvent.ACTION_UP.
+         *
+         * @param diffX     If there is a difference in location from the last moveTo
+         *                  event, this will record the difference.
+         *
+         * @param diffY     Same for y-axis
          */
-        void moveEnded();
+        void moveEnded(float diffX, float diffY);
 
         /**
          * The user has clicked on this button, not moved it.

@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -139,9 +140,14 @@ public class PlayAreaFrameLayout extends FrameLayout {
     public void addLine(PointF start, PointF end) {
         Line line = new Line(start, end);
         mLines.add(line);
+        Log.d(TAG, "addline(), start = " + start + ", end = " + end);
     }
 
     public void removeLine(PointF start, PointF end) {
+        Log.d(TAG, "removeLine() begin: start = " + start + ", end = " + end);
+
+        int numOrigLines = mLines.size();
+
         // find the line...
         for (int i = 0; i < mLines.size(); i++) {
             Line line = mLines.get(i);
@@ -151,14 +157,25 @@ public class PlayAreaFrameLayout extends FrameLayout {
             if ((line.start.equals(start) && line.end.equals(end)) ||
                 (line.start.equals(end) && line.end.equals(start))) {
                 mLines.remove(i);
+                Log.d(TAG, "   --removed");
                 break;
             }
         }
+
+        if (numOrigLines == mLines.size()) {
+            Log.e(TAG, "removeLines() called, but didn't do anything!");
+            Log.e(TAG, "   mLines[0].start = " + mLines.get(0).start + ", end = " + mLines.get(0).end);
+        }
+        else {
+            Log.d(TAG, "removeLines() removed a line");
+        }
+//        Log.d(TAG, "removeLine()...  mLines.size =  " + mLines.size());
     }
 
     /** Removes all the lines from the line list */
     public void removeAllLines() {
         mLines.clear();
+        Log.d(TAG, "removeAllLines()");
     }
 
     /**

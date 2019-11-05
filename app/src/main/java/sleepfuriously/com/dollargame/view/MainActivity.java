@@ -38,6 +38,7 @@ import java.util.Random;
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
+import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
 
@@ -100,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
     /** The id of the starting node in a connection or when moving */
     private int mStartNodeId;
 
+    /** Used to indicate if an action is giving or taking */
+    private boolean mGiving;
+
+    /** The node/button that is doing the acting (either a give or a take) */
+    private MovableNodeButton mActingButton;
 
     //------------------------
     //  methods
@@ -456,11 +462,26 @@ public class MainActivity extends AppCompatActivity {
         button.setXYCenter(relativeToParentLoc.x, relativeToParentLoc.y);
         button.setBackgroundColorResource(R.color.button_bg_color_build_disconnected);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        button.setButtonEventListener(new ButtonEventListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "click", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "click listner");
+            public void onPopupButtonClicked(int index) {
+                switch (index) {
+                    case 1:
+                        startGive(button);
+                        break;
+
+                    case 2:
+                        startTake(button);
+                        break;
+                }
+            }
+
+            @Override
+            public void onExpand() { }
+
+            @Override
+            public void onCollapse() {
+                finishGiveTake(button);
             }
         });
 
@@ -468,12 +489,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void movingTo(float diffX, float diffY) {
                 continueMove(button, diffX, diffY);
-                Log.d(TAG, "moving to " + diffX + ", " + diffY);
+//                Log.d(TAG, "moving to " + diffX + ", " + diffY);
             }
 
             @Override
-            public void moveEnded() {
-                Log.d(TAG, "move ended");
+            public void moveEnded(float diffX, float diffY) {
+                continueMove(button, diffX, diffY);
+//                Log.d(TAG, "move ended");
             }
 
             @Override
@@ -531,6 +553,50 @@ public class MainActivity extends AppCompatActivity {
         resetConnectedUI();
     }
 
+    private void startGive(MovableNodeButton button) {
+        mGiving = true;
+        mActingButton = button;
+    }
+
+    private void startTake(MovableNodeButton button) {
+        mGiving = false;
+        mActingButton = button;
+    }
+
+    /**
+     * User has indicated that this node will give to each of its neighbors.
+     * This handles the logic and UI for that move.
+     *
+     * @param button    The button that is doing the giving
+     */
+    private void finishGiveTake(MovableNodeButton button) {
+        @SuppressWarnings("unchecked")
+        int actorId = mGraph.getNodeId(button); // actor is the button that's doing the giving or taking
+
+        @SuppressWarnings("unchecked")
+        List<Integer> adjacentList = mGraph.getAllAdjacentTo(actorId);
+
+        for (int adjacentNodeId : adjacentList) {
+            MovableNodeButton adjacentNode = (MovableNodeButton) mGraph.getNodeData(adjacentNodeId);
+
+            if (mGiving) {
+                adjacentNode.incrementAmount();
+                button.decrementAmount();
+            }
+            else {
+                adjacentNode.decrementAmount();
+                button.incrementAmount();
+            }
+
+            adjacentNode.invalidate();
+        }
+
+        button.invalidate();
+    }
+
+    private void take(MovableNodeButton button) {
+        // todo
+    }
 
     /**
      * Throws up a dialog that allows the user to edit the money amount within a node.
@@ -706,7 +772,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        setAllButtonsBuild();   // this can only happen during the build mode
+//        setAllButtonsBuild();   // this can only happen during the build mode
 
         MovableNodeButton startButton = (MovableNodeButton) mGraph.getNodeData(startButtonId);
         MovableNodeButton endButton = (MovableNodeButton) mGraph.getNodeData(endButtonId);
@@ -721,6 +787,9 @@ public class MainActivity extends AppCompatActivity {
 
         startButton.setBackgroundColorResource(getButtonStateColor(startButton));
         endButton.setBackgroundColorResource(getButtonStateColor(endButton));
+
+        startButton.setMode(MovableNodeButton.Modes.MOVABLE);
+        endButton.setMode(MovableNodeButton.Modes.MOVABLE);
 
         startButton.invalidate();
         endButton.invalidate();
@@ -805,11 +874,11 @@ public class MainActivity extends AppCompatActivity {
         // if the node is connected to any other node, then use the connected color
         List<Integer> connectedNodes = mGraph.getAllAdjacentTo(button.getId());
         if (connectedNodes.size() > 0) {
-            Log.d(TAG, "getButtonStateColor(), returning CONNECTED");
+//            Log.d(TAG, "getButtonStateColor(), returning CONNECTED");
             return R.color.button_bg_color_build_connected;
         }
         else {
-            Log.d(TAG, "getButtonStateColor(), returning DISconnected");
+//            Log.d(TAG, "getButtonStateColor(), returning DISconnected");
             return R.color.button_bg_color_build_disconnected;
         }
     }
