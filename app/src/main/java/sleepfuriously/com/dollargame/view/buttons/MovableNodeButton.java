@@ -423,12 +423,6 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         return buttonDataList;
     }
 
-//    @Override
-//    public void invalidate() {
-//        setButtonDatas(createButtonImages(mAmount));
-//        super.invalidate();
-//    }
-
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //  interfaces & classes

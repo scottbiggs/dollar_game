@@ -147,6 +147,11 @@ public class DumbNodeButton extends AllAngleExpandableButton
     public void onCollapse() {
     }
 
+    @Override
+    public void onCollapseFinished() {
+
+    }
+
     /**
      * Called by AllAngleExpandableButton when one of the animated
      * buttons is pressed.  This intermediary routine translates it

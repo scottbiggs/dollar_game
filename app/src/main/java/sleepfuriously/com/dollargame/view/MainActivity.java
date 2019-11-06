@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
@@ -29,15 +30,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
+import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.AllAngleExpandableButton;
+import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
@@ -481,6 +486,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCollapse() {
+            }
+
+            @Override
+            public void onCollapseFinished() {
                 finishGiveTake(button);
             }
         });

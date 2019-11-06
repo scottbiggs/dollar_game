@@ -21,6 +21,12 @@ public interface ButtonEventListener {
     void onCollapse();
 
     /**
+     * Called when all the collapse animations have completed but before invalidate
+     * is called for this button.  You have a chance to do some changes here!
+     */
+    void onCollapseFinished();
+
+    /**
      * A touch event has happened with the button (actually, just passed
      * along from the View to here).  It's up to the caller to handle it.<br>
      * <br>

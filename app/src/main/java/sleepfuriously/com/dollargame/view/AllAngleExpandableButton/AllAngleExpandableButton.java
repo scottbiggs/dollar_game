@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.IntDef;
 import androidx.core.graphics.ColorUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,9 @@ import sleepfuriously.com.dollargame.R;
  * Created by dear33 on 2016/9/8.
  */
 public class AllAngleExpandableButton extends View implements ValueAnimator.AnimatorUpdateListener {
+
+    private final static String TAG = AllAngleExpandableButton.class.getSimpleName();
+
     private List<ButtonData> buttonDatas;
     private Map<ButtonData, RectF> buttonRects;
     protected ButtonEventListener buttonEventListener;
@@ -584,6 +588,10 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                 rectF.set(buttonSideMarginPx, buttonSideMarginPx, buttonSideMarginPx + size, buttonSideMarginPx + size);
             }
         }
+
+        // inform anyone who cares that we're done collapsing. And give 'em a chance
+        // to make changes before this button is redrawn.
+        buttonEventListener.onCollapseFinished();
         invalidate();
     }
 
@@ -997,7 +1005,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         private RectF touchRectF;//set when one of buttons are touched
         private ValueAnimator touchRippleAnimator;
         private Paint paint;
-        private Map<ButtonData, ExpandMoveCoordinate> expandDesCoordinateMap;
+        private Map<ButtonData, ExpandMoveCoordinate> expandedCoordinateMap;
         private int rippleState;
         private float rippleRadius;
         private int clickIndex = 0;
@@ -1045,7 +1053,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             initialSubButtonRectF = new RectF();
             touchRectF = new RectF();
 
-            expandDesCoordinateMap = new HashMap<>(allAngleExpandableButton.buttonDatas.size());
+            expandedCoordinateMap = new HashMap<>(allAngleExpandableButton.buttonDatas.size());
             setBackgroundColor(allAngleExpandableButton.maskBackgroundColor);
 
             touchRippleAnimator = ValueAnimator.ofFloat(0, 1);
@@ -1168,7 +1176,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         private int getTouchedButtonIndex() {
             for (int i = 0; i < allAngleExpandableButton.buttonDatas.size(); i++) {
                 ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(i);
-                ExpandMoveCoordinate coordinate = expandDesCoordinateMap.get(buttonData);
+                ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
                 if (i == 0) {
                     RectF rectF = allAngleExpandableButton.buttonRects.get(buttonData);
                     touchRectF.set(rectF);
@@ -1226,8 +1234,8 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                 ButtonData buttonData = buttonDatas.get(i);
                 matrix.reset();
                 if (allAngleExpandableButton.expanded) {
-                    ExpandMoveCoordinate coordinate = expandDesCoordinateMap.get(buttonData);
-                    //noinspection ConstantConditions
+                    ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
+//                    //noinspection ConstantConditions
                     float dx = allAngleExpandableButton.expandProgress * (coordinate.moveX);
                     float dy = allAngleExpandableButton.expandProgress * (-coordinate.moveY);
                     matrix.postTranslate(dx, dy);
@@ -1235,12 +1243,12 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     int radius = mainButtonRadius + subButtonRadius + allAngleExpandableButton.buttonGapPx;
                     float moveX;
                     float moveY;
-                    ExpandMoveCoordinate coordinate = expandDesCoordinateMap.get(buttonData);
+                    ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
                     if (coordinate == null) {
                         moveX = allAngleExpandableButton.angleCalculator.getMoveX(radius, i);
                         moveY = allAngleExpandableButton.angleCalculator.getMoveY(radius, i);
                         coordinate = new ExpandMoveCoordinate(moveX, moveY);
-                        expandDesCoordinateMap.put(buttonData, coordinate);
+                        expandedCoordinateMap.put(buttonData, coordinate);
                     } else {
                         moveX = coordinate.moveX;
                         moveY = coordinate.moveY;
@@ -1332,7 +1340,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
         @Override
         public void onAnimationEnd(Animator animator) {
-
+            Log.d(TAG, "SimpleAnimatorListener.onAnimationEnd()");
         }
 
         @Override
