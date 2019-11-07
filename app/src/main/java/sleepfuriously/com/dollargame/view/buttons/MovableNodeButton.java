@@ -384,7 +384,6 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      * @param colorResource     Resource ID of the color to highlight
      *                          the primary button.
      */
-
     public void setOutlineColor(int colorResource) {
 
         Toast.makeText(mCtx, "setOutlineColor() NOT implemented!", Toast.LENGTH_SHORT).show();
