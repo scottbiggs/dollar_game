@@ -138,6 +138,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         // make the buttons go left/right
         setStartAngle(0);
         setEndAngle(180);
+        setButtonGapPx(5); // make the buttons much closer than the default of 25
 
         setButtonDatas(createButtonImages(mAmount));
     }
