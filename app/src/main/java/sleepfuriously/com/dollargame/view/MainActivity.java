@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
@@ -90,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
     /** displays hints to keep the user going */
     private TextView mHintTv;
 
-    /** displays the connectivity of the Graph while building */
+    /**
+     * Displays the connectivity of the Graph while building.
+     * The state of this can be retrieved from its tag.
+     * If the tag ==
+     */
     private ImageView mConnectedIV;
 
     //------------------------
@@ -199,16 +204,33 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String toastStr;
 
-                ColorDrawable colorDrawable = (ColorDrawable) mConnectedIV.getBackground();
-                int bgColor = colorDrawable.getColor();
-
-                // Use the background color to detect which state the IV is in.
-                if (bgColor == getResources().getColor(R.color.button_bg_color_build_connected)) {
+                boolean connected = (boolean) mConnectedIV.getTag();
+                if (connected) {
                     toastStr = getString(R.string.connected_toast);
                 }
                 else {
                     toastStr = getString(R.string.not_connected_toast);
                 }
+
+//                // use the VectorDrawable to figure what state the IV is in.
+//                VectorDrawable vectorDrawable = (VectorDrawable) mConnectedIV.getDrawable();
+//                if (vectorDrawable == getResources().getDrawable(R.drawable.ic_connected)) {
+//                    toastStr = getString(R.string.connected_toast);
+//                }
+//                else {
+//                    toastStr = getString(R.string.not_connected_toast);
+//                }
+//
+////                ColorDrawable colorDrawable = (ColorDrawable) mConnectedIV.getBackground();
+//                int bgColor = colorDrawable.getColor();
+//
+//                // Use the background color to detect which state the IV is in.
+//                if (bgColor == getResources().getColor(R.color.button_bg_color_build_connected)) {
+//                    toastStr = getString(R.string.connected_toast);
+//                }
+//                else {
+//                    toastStr = getString(R.string.not_connected_toast);
+//                }
 
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
             }
@@ -904,14 +926,12 @@ public class MainActivity extends AppCompatActivity {
     private void resetConnectedUI() {
         if (mGraph.isConnected()) {
             mConnectedIV.setImageResource(R.drawable.ic_connected);
-//            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_connected));
-
+            mConnectedIV.setTag(true);  // indicates that it is displaying a connected graphic
             mMainSwitch.setEnabled(true);
         }
         else {
             mConnectedIV.setImageResource(R.drawable.ic_not_connected);
-//            mConnectedIV.setBackgroundColor(getResources().getColor(R.color.button_bg_color_build_disconnected));
-
+            mConnectedIV.setTag(false); // displaying not connected graphic
             mMainSwitch.setEnabled(false);
         }
         mConnectedIV.invalidate();
