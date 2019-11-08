@@ -111,8 +111,11 @@ public class MainActivity extends AppCompatActivity {
     /** The id of the starting node in a connection or when moving */
     private int mStartNodeId;
 
-    /** Used to indicate if an action is giving or taking */
+    /** Used to indicate that a give action is taking place */
     private boolean mGiving;
+
+    /** Used to indicate that a take action is occurring */
+    private boolean mTaking;
 
     /** The node/button that is doing the acting (either a give or a take) */
     private MovableNodeButton mActingButton;
@@ -504,7 +507,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onExpand() { }
+            public void onExpand() {
+                resetPopupButtons();
+            }
 
             @Override
             public void onCollapse() {
@@ -584,13 +589,19 @@ public class MainActivity extends AppCompatActivity {
         resetConnectedUI();
     }
 
+
+    private void resetPopupButtons() {
+        mGiving = false;
+        mTaking = false;
+    }
+
     private void startGive(MovableNodeButton button) {
         mGiving = true;
         mActingButton = button;
     }
 
     private void startTake(MovableNodeButton button) {
-        mGiving = false;
+        mTaking = true;
         mActingButton = button;
     }
 
@@ -613,16 +624,21 @@ public class MainActivity extends AppCompatActivity {
             if (mGiving) {
                 adjacentNode.incrementAmount();
                 button.decrementAmount();
+
+                adjacentNode.invalidate();
+                button.invalidate();
             }
-            else {
+
+            if (mTaking) {
                 adjacentNode.decrementAmount();
                 button.incrementAmount();
+
+                adjacentNode.invalidate();
+                button.invalidate();
             }
 
-            adjacentNode.invalidate();
         }
 
-        button.invalidate();
     }
 
     private void take(MovableNodeButton button) {
