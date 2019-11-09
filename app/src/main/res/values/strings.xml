@@ -45,6 +45,24 @@
     <string name="keep_node">I like this node</string>
     <string name="dialog_random">random</string>
 
+    <!-- explanation dialogs -->
+    <string name="count_dialog_title">Count</string>
+    <string name="count_dialog_msg">The sum of the dollar amounts of all the nodes.\n\n
+        If this number is greater than or equal to the genus, then the puzzle is solvable.
+        There are some situations where the puzzle is solvable even though the count is less
+        than the genus—good luck finding them!
+    </string>
+    <string name="genus_dialog_title">Genus</string>
+    <string name="genus_dialog_msg">
+        The genus is the number of holes or loops in the puzzle. As you add more
+        loops the number of connections increase, making the puzzle more difficult
+        to solve.\n\n
+        A good rule of thumb: the puzzle will always be solvable if the count is greater or
+        equal to the genus.\n\n
+        However the opposite is not the case; there are some puzzles
+        that have a count less than the genus but are still solvable. I hope you have fun finding them!
+    </string>
+
     <!-- connected/disconnected strings -->
     <string name="not_connected">disconnected</string>
     <string name="connected">connected</string>

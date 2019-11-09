@@ -153,12 +153,38 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mCountLabelTv = findViewById(R.id.count_label_tv);
+        mCountLabelTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSimpleDialog(R.string.count_dialog_title, R.string.count_dialog_msg);
+            }
+        });
+
         mCountTv = findViewById(R.id.count_tv);
         mCountTv.setText(R.string.not_applicable);
+        mCountTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSimpleDialog(R.string.count_dialog_title, R.string.count_dialog_msg);
+            }
+        });
 
         mGenusLabelTv = findViewById(R.id.genus_label_tv);
+        mGenusLabelTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSimpleDialog(R.string.genus_dialog_title, R.string.genus_dialog_msg);
+            }
+        });
+
         mGenusTv = findViewById(R.id.genus_tv);
         mGenusTv.setText(R.string.not_applicable);
+        mGenusTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSimpleDialog(R.string.genus_dialog_title, R.string.genus_dialog_msg);
+            }
+        });
 
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
@@ -398,6 +424,23 @@ public class MainActivity extends AppCompatActivity {
         for (Object button :mGraph) {
             ((MovableNodeButton)button).setMode(MovableNodeButton.Modes.CLICKS_ONLY);
         }
+    }
+
+
+    private void showSimpleDialog(int titleId, int msgId) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setCancelable(false)
+                .setTitle(titleId)
+                .setMessage(msgId)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
     }
 
 
