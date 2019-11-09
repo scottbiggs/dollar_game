@@ -660,8 +660,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         resetConnectedUI();
-        setCountUI();
-        setGenusUI();
     }
 
 
@@ -780,13 +778,10 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if (nodeToggleButt.isChecked()) {
                             deleteNode(button);
-                            setCountUI();
-                            setGenusUI();
                         }
                         else {
                             button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
                             setCountUI();
-                            setGenusUI();
                         }
                     }
                 });
@@ -921,8 +916,6 @@ public class MainActivity extends AppCompatActivity {
         endButton.invalidate();
 
         resetConnectedUI();
-        setCountUI();
-        setGenusUI();
     }
 
     /**
@@ -973,8 +966,6 @@ public class MainActivity extends AppCompatActivity {
         endButton.invalidate();
 
         resetConnectedUI();
-        setCountUI();
-        setGenusUI();
     }
 
 
@@ -1034,6 +1025,9 @@ public class MainActivity extends AppCompatActivity {
             mMainSwitch.setEnabled(false);
         }
         mConnectedIV.invalidate();
+
+        setCountUI();
+        setGenusUI();
     }
 
 
