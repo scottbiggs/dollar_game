@@ -104,25 +104,33 @@
         android:id="@+id/genus_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:fontFamily="@font/designer_block"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:minEms="2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/genus_label_tv"
         app:layout_constraintBottom_toTopOf="@+id/count_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="59" />
+        tools:text="59"
+        tools:ignore="RtlSymmetry" />
 
     <TextView
         android:id="@+id/count_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:fontFamily="@font/designer_block"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:minEms="2"
+        app:layout_constraintBaseline_toBaselineOf="@+id/count_label_tv"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="-2" />
+        tools:text="-2"
+        tools:ignore="RtlSymmetry" />
 
     <View
         android:id="@+id/info_bg"
@@ -135,20 +143,24 @@
         android:id="@+id/count_label_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/designer_block"
         android:text="@string/count_label"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/count_tv"
+        app:layout_constraintBottom_toTopOf="@+id/genus_label_tv"
         app:layout_constraintEnd_toStartOf="@+id/count_tv" />
 
     <TextView
         android:id="@+id/genus_label_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/designer_block"
         android:text="@string/genus_label"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/genus_tv"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/genus_tv" />
 
 

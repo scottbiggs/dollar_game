@@ -523,7 +523,9 @@ public class MainActivity extends AppCompatActivity {
             int count = 0;
             for (int i = 0; i < mGraph.numNodes(); i++) {
                 MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(i);
-                count += node.getAmount();
+                if (node != null) {
+                    count += node.getAmount();
+                }
             }
             mCountTv.setText(String.valueOf(count));
         }
