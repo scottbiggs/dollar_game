@@ -368,6 +368,19 @@ public class Graph<T>
 
 
     /**
+     * Returns the genus of the graph.  If the graph is not connected, throws
+     * an exception.
+     */
+    public int getGenus() throws GraphNotConnectedException {
+
+        if (!isConnected()) {
+            throw new GraphNotConnectedException();
+        }
+
+        return mEdges.size() - mNodes.size() + 1;
+    }
+
+    /**
      * Figures out if this Graph is connected or not.
      *
      * For undirected graphs, this simply means that all the nodes

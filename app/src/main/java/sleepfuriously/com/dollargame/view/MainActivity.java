@@ -7,9 +7,6 @@ import android.graphics.Typeface;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
@@ -31,19 +28,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.AllAngleExpandableButton;
-import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonData;
+import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
@@ -98,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private ImageView mConnectedIV;
 
+    /** Textiviews that deal with the genus, which is only meaningful when the graph is connected. */
+    private TextView mGenusLabelTv, mGenusTv;
+
+    /** TextViews that display the current count of the nodes */
+    private TextView mCountLabelTv, mCountTv;
+
+
     //------------------------
     //  data
     //------------------------
@@ -150,6 +151,14 @@ public class MainActivity extends AppCompatActivity {
                 setMode(!isChecked);
             }
         });
+
+        mCountLabelTv = findViewById(R.id.count_label_tv);
+        mCountTv = findViewById(R.id.count_tv);
+        mCountTv.setText(R.string.not_applicable);
+
+        mGenusLabelTv = findViewById(R.id.genus_label_tv);
+        mGenusTv = findViewById(R.id.genus_tv);
+        mGenusTv.setText(R.string.not_applicable);
 
         mBuildTv = findViewById(R.id.build_tv);
         mSolveTv = findViewById(R.id.solve_tv);
@@ -468,6 +477,70 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
+     * Does all the genus UI.  If the graph is NOT connected, the genus doesn't make sense,
+     * so the UI will reflect it.
+     *
+     * preconditions
+     *      - genus widgets are initialized
+     *      - mGraph contains all the correct info about the graph
+     */
+    private void setGenusUI() {
+        try {
+            int genus = mGraph.getGenus();
+            mGenusTv.setText(String.valueOf(genus));
+        }
+        catch (GraphNotConnectedException e) {
+            // This is not really an error, just a convenient way to see that the
+            // graph is not connected.
+            mGenusTv.setText(R.string.not_applicable);
+        }
+    }
+
+    private void hideGenusUI() {
+        mGenusTv.setVisibility(View.GONE);
+        mGenusLabelTv.setVisibility(View.GONE);
+    }
+
+    private void showGenusUI() {
+        mGenusTv.setVisibility(View.VISIBLE);
+        mGenusLabelTv.setVisibility(View.VISIBLE);
+    }
+
+
+    /**
+     * Does all the UI for displaying the current count.  The count is simply the
+     * sum of all the dollar amounts in all the nodes.  This is displayed whether
+     * or not the graph is connected.
+     *
+     * If there are no nodes, then the count doesn't make sense and "not applicable"
+     * will display.
+     */
+    private void setCountUI() {
+        if (mGraph.numNodes() == 0) {
+            mCountTv.setText(R.string.not_applicable);
+        }
+        else {
+            int count = 0;
+            for (int i = 0; i < mGraph.numNodes(); i++) {
+                MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(i);
+                count += node.getAmount();
+            }
+            mCountTv.setText(String.valueOf(count));
+        }
+    }
+
+    private void hideCountUI() {
+        mCountTv.setVisibility(View.GONE);
+        mCountLabelTv.setVisibility(View.GONE);
+    }
+
+    private void showCountUI() {
+        mCountTv.setVisibility(View.VISIBLE);
+        mCountLabelTv.setVisibility(View.VISIBLE);
+    }
+
+
+    /**
      * Adds a button to the given coords.  Should only be called
      * when in Build mode.
      *
@@ -587,6 +660,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         resetConnectedUI();
+        setCountUI();
+        setGenusUI();
     }
 
 
@@ -705,9 +780,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if (nodeToggleButt.isChecked()) {
                             deleteNode(button);
+                            setCountUI();
+                            setGenusUI();
                         }
                         else {
                             button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
+                            setCountUI();
+                            setGenusUI();
                         }
                     }
                 });
@@ -842,6 +921,8 @@ public class MainActivity extends AppCompatActivity {
         endButton.invalidate();
 
         resetConnectedUI();
+        setCountUI();
+        setGenusUI();
     }
 
     /**
@@ -892,6 +973,8 @@ public class MainActivity extends AppCompatActivity {
         endButton.invalidate();
 
         resetConnectedUI();
+        setCountUI();
+        setGenusUI();
     }
 
 

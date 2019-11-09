@@ -76,16 +76,16 @@
         android:id="@+id/bottom_hint_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="hints go here"
-        android:textSize="18sp"
+        android:layout_marginEnd="16dp"
+        android:gravity="start"
         android:minHeight="40dp"
         android:padding="8dp"
-        android:gravity="start"
         android:textColor="@color/textcolor_normal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintEnd_toStartOf="@+id/count_label_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="hints go here" />
 
     <ImageView
         android:id="@+id/connected_iv"
@@ -100,14 +100,56 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <sleepfuriously.com.dollargame.view.AllAngleExpandableButton.AllAngleExpandableButton
-        android:id="@+id/test_aaeb"
+    <TextView
+        android:id="@+id/genus_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/count_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/play_area_fl" />
+        tools:text="59" />
+
+    <TextView
+        android:id="@+id/count_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="-2" />
+
+    <View
+        android:id="@+id/info_bg"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/count_label_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/count_label"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/count_tv"
+        app:layout_constraintEnd_toStartOf="@+id/count_tv" />
+
+    <TextView
+        android:id="@+id/genus_label_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/genus_label"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/genus_tv"
+        app:layout_constraintEnd_toStartOf="@+id/genus_tv" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
