@@ -87,8 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Displays the connectivity of the Graph while building.
-     * The state of this can be retrieved from its tag.
-     * If the tag ==
+     * Displays the solved state of the puzzle while solving.
      */
     private ImageView mConnectedIV;
 
@@ -489,6 +488,14 @@ public class MainActivity extends AppCompatActivity {
         mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
         mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_on));
 
+        // convert this widget to display the solvable state.
+        if (isSolved()) {
+            mConnectedIV.setImageResource(R.drawable.ic_solved);
+        }
+        else {
+            mConnectedIV.setImageResource(R.drawable.ic_unsolved);
+        }
+
         mHintTv.setText(R.string.solve_hint);
     }
 
@@ -505,6 +512,13 @@ public class MainActivity extends AppCompatActivity {
 
         mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_on));
         mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
+
+        if (mGraph.isConnected()) {
+            mConnectedIV.setImageResource(R.drawable.ic_connected);
+        }
+        else {
+            mConnectedIV.setImageResource(R.drawable.ic_not_connected);
+        }
 
         mHintTv.setText(R.string.build_hint);
     }
@@ -757,11 +771,35 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        if (isSolved()) {
+            mConnectedIV.setImageResource(R.drawable.ic_solved);
+        }
+        else {
+            mConnectedIV.setImageResource(R.drawable.ic_unsolved);
+        }
+
     }
 
-    private void take(MovableNodeButton button) {
-        // todo
+
+    /**
+     * Checks the current state of mGraph and determines if we're in a solved
+     * state or not.  If any node has less than 0 dollars, then the puzzle
+     * is not solved.
+     *
+     * preconditions:
+     *      mGraph      Ready for inspection
+     */
+    private boolean isSolved() {
+
+        for (int i = 0; i < mGraph.numNodes(); i++) {
+            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(i);
+            if (node.getAmount() < 0) {
+                return false;
+            }
+        }
+        return true;
     }
+
 
     /**
      * Throws up a dialog that allows the user to edit the money amount within a node.

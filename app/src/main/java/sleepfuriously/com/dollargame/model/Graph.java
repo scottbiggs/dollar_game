@@ -4,7 +4,6 @@ package sleepfuriously.com.dollargame.model;
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import android.util.Log;
-import android.widget.EditText;
 
 import java.util.List;
 import java.util.Set;
