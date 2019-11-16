@@ -72,5 +72,7 @@
     <!-- generally useful strings -->
     <string name="dollar_number">$%d</string>   <!-- shows a dollar sign plus an integer -->
 
+    <!-- main screen ui components -->
+    <string name="random_all_button_text">randomize</string>    <!-- allows users to randomize ALL the nodes at once -->
 
 </resources>

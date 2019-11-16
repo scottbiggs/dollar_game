@@ -139,6 +139,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <Button
+        android:id="@+id/random_all_butt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/random_all_button_text"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/count_label_tv"
         android:layout_width="wrap_content"

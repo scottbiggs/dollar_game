@@ -49,13 +49,6 @@ import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
  */
 public class MainActivity extends AppCompatActivity {
 
-    //============================================
-    // general todo & other ideas
-    //      have a button to randomly assign numbers to the buttsons
-    //      have an icon for if the graph is connected or not
-    //
-    //============================================
-
     //------------------------
     //  constants
     //------------------------
@@ -97,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     /** TextViews that display the current count of the nodes */
     private TextView mCountLabelTv, mCountTv;
 
+    /** allows the user to quickly randomize all the nodes at once */
+    private Button mRandomizeAllButt;
 
     //------------------------
     //  data
@@ -270,6 +265,14 @@ public class MainActivity extends AppCompatActivity {
 //                }
 
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        mRandomizeAllButt = findViewById(R.id.random_all_butt);
+        mRandomizeAllButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                randomizeAllNodes();
             }
         });
 
@@ -497,6 +500,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mHintTv.setText(R.string.solve_hint);
+
+        mRandomizeAllButt.setVisibility(View.GONE);
     }
 
     /**
@@ -521,6 +526,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mHintTv.setText(R.string.build_hint);
+
+        mRandomizeAllButt.setVisibility(View.VISIBLE);
+        mRandomizeAllButt.setEnabled(true);
     }
 
     /**
@@ -530,6 +538,8 @@ public class MainActivity extends AppCompatActivity {
     private void connectUI() {
         Log.d(TAG, "connectUI()");
         mHintTv.setText(R.string.connect_hint);
+
+        mRandomizeAllButt.setEnabled(false);
     }
 
 
@@ -1111,8 +1121,36 @@ public class MainActivity extends AppCompatActivity {
 
         setCountUI();
         setGenusUI();
+
+        mRandomizeAllButt.setVisibility(View.VISIBLE);
+        mRandomizeAllButt.setEnabled(true);
     }
 
+
+    /**
+     * Does the logic and UI of randomizing the contents of all the nodes.
+     */
+    private void randomizeAllNodes() {
+
+        // todo: depending on options, this may need to ensure that the puzzle is genus-solvable.
+
+        for (int i = 0; i < mGraph.numNodes(); i++) {
+            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(i);
+            Random random = new Random();
+
+            // gets a random number [0, MAX_DOLLAR_AMOUNT_NON_NEGATIVE)
+            int positive_max = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT_NON_NEGATIVE) + 1;
+            int offset = positive_max / 2;
+
+            int randInt = random.nextInt(positive_max);
+            node.setAmount(randInt - offset);
+
+            node.invalidate();
+        }
+
+        setGenusUI();
+        setCountUI();
+    }
 
     /**
      * Throws up the options dialog and all that entails.
