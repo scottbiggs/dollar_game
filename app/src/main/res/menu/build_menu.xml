@@ -3,14 +3,14 @@
     Options menu (kabob) for the build screen.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    >
-    <item
-        android:id="@+id/build_solve"
-        android:title="@string/solve"
-        />
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/build_load"
         android:title="@string/load"
+        />
+    <item
+        android:id="@+id/build_save"
+        android:title="@string/save"
         />
     <item
         android:id="@+id/build_settings"

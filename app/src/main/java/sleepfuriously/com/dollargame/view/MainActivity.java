@@ -1,13 +1,18 @@
 package sleepfuriously.com.dollargame.view;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Typeface;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -54,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
     //------------------------
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /** An id to identify the PrefsActivity in onActivityResult() */
+    public static final int PREFS_ACTIVITY_ID = 2;
+
 
     //------------------------
     //  widgets
@@ -134,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
         // use my toolbar instead of default
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // shows back arrow
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         mMainSwitch = findViewById(R.id.main_switch);
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -244,26 +255,6 @@ public class MainActivity extends AppCompatActivity {
                     toastStr = getString(R.string.not_connected_toast);
                 }
 
-//                // use the VectorDrawable to figure what state the IV is in.
-//                VectorDrawable vectorDrawable = (VectorDrawable) mConnectedIV.getDrawable();
-//                if (vectorDrawable == getResources().getDrawable(R.drawable.ic_connected)) {
-//                    toastStr = getString(R.string.connected_toast);
-//                }
-//                else {
-//                    toastStr = getString(R.string.not_connected_toast);
-//                }
-//
-////                ColorDrawable colorDrawable = (ColorDrawable) mConnectedIV.getBackground();
-//                int bgColor = colorDrawable.getColor();
-//
-//                // Use the background color to detect which state the IV is in.
-//                if (bgColor == getResources().getColor(R.color.button_bg_color_build_connected)) {
-//                    toastStr = getString(R.string.connected_toast);
-//                }
-//                else {
-//                    toastStr = getString(R.string.not_connected_toast);
-//                }
-
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
             }
         });
@@ -286,13 +277,8 @@ public class MainActivity extends AppCompatActivity {
         // turn off status and navigation bar (top and bottom)
         fullScreenStickyImmersive();
 
-        // Make sure the UI is properly set for the current mode.
-        if (mBuildMode) {
-            buildModeUI();
-        }
-        else {
-            solveModeUI();
-        }
+        // handles refreshing UI
+        refreshPrefs();
     }
 
 
@@ -339,7 +325,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.build_menu, menu);
+
+        if (mBuildMode) {
+            inflater.inflate(R.menu.build_menu, menu);
+        }
+        else {
+            inflater.inflate(R.menu.solve_menu, menu);
+        }
 
         // nice simple font for menu
         Typeface tf = FontCache.get("fonts/roboto_med.ttf", this);
@@ -352,7 +344,6 @@ public class MainActivity extends AppCompatActivity {
             ssb.setSpan(span, 0, ssb.length(), SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             menuItem.setTitle(ssb);
         }
-
 
         return true;
     }
@@ -380,11 +371,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.build_share:
                 // todo
                 Log.d(TAG, "menu option: share");
-                break;
-
-            case R.id.build_solve:
-                // todo
-                Log.d(TAG, "menu option: solve");
                 break;
 
             case R.id.build_settings:
@@ -1152,15 +1138,56 @@ public class MainActivity extends AppCompatActivity {
         setCountUI();
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case PREFS_ACTIVITY_ID:
+                // refresh prefs
+                refreshPrefs();
+                break;
+
+            default:
+                Log.e(TAG, "unknown requestCode of " + requestCode + " in onActivityResult()");
+                break;
+        }
+    }
+
     /**
      * Throws up the options dialog and all that entails.
      */
     private void doOptions() {
-        // todo
 
-        // todo: allow hints to disapper
-        // todo: change max and min dollar amount
-        // todo: change color scheme???
+        // Using an Activity for prefs because I'm lazy and haven't
+        // setup the UI for Fragments. uh yeah.
+        Intent itt = new Intent(this, PrefsActivity.class);
+        startActivityForResult(itt, PREFS_ACTIVITY_ID);
     }
 
+    /**
+     * Updates variables and resets UI according to a fresh loading of the preferences.
+     *
+     * preconditions:
+     *      - All the preference globals are initialized.
+     *      - All UI elements that can change via prefs are ready to roll.
+     *
+     * side effects:
+     *      mHintTV - visibility changes
+     */
+    private void refreshPrefs() {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean showHint = prefs.getBoolean(getResources().getString(R.string.pref_hints_cb_key), true);
+        mHintTv.setVisibility(showHint ? View.VISIBLE : View.GONE);
+
+        if (mBuildMode) {
+            buildModeUI();
+        }
+        else {
+            solveModeUI();
+        }
+    }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Hints at the bottom of the screen -->
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_hints_cb_key"
+        android:summaryOff="@string/pref_hints_summary_off"
+        android:summaryOn="@string/pref_hints_summary_on"
+        android:title="@string/pref_hints_title"
+        app:title="@string/pref_hints_title" />
+
+</PreferenceScreen>
