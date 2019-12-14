@@ -22,8 +22,21 @@
     <string name="exit">exit</string>
 
     <!-- prefs -->
+    <string name="prefs_general_category">General</string>
+
+    <string name="pref_hints_cb_key">hints_cb_key</string>
+    <string name="pref_hints_summary_on">Display hints</string>
+    <string name="pref_hints_summary_off">Do not show hints</string>
+    <string name="pref_hints_title">Show hints</string>
+
+    <string name="prefs_dollar_amounts_category">Dollar Amounts</string>
+
+    <string name="prefs_max_key">prefs_max_key</string>
     <string name="prefs_max_title">maximum dollar amount</string>
+
+    <string name="prefs_min_key">prefs_min_key</string>
     <string name="prefs_min_title">minumum dollar amount</string>
+
 
     <string name="genus_label">genus:</string>
     <string name="not_applicable">n\/a</string>
@@ -75,11 +88,6 @@
     <!-- main screen ui components -->
     <string name="random_all_button_text">randomize</string>    <!-- allows users to randomize ALL the nodes at once -->
 
-    <!-- preferences screen -->
-    <string name="pref_hints_cb_key">hints_cb_key</string>
-    <string name="pref_hints_summary_on">Display hints</string>
-    <string name="pref_hints_summary_off">Do not show hints</string>
-    <string name="pref_hints_title">Show hints</string>
 
 
 
