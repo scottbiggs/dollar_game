@@ -29,13 +29,20 @@
     <string name="pref_hints_summary_off">Do not show hints</string>
     <string name="pref_hints_title">Show hints</string>
 
+    <string name="pref_gameplay_category">Game Play</string>
+    <string name="pref_gameplay_difficulty_key">pref gameplay difficulty key</string>
+    <string name="pref_gameplay_difficulty_title">Difficulty</string>
+    <string name="pref_gameplay_difficulty_summary">\t%s</string>
+
     <string name="prefs_dollar_amounts_category">Dollar Amounts</string>
 
-    <string name="prefs_max_key" translatable="false">prefs_max_key</string>
-    <string name="prefs_max_title">maximum dollar amount</string>
+    <string name="pref_dollar_amounts_max_key" translatable="false">prefs_max_key</string>
+    <string name="pref_dollar_amounts_max_title">maximum dollar amount</string>
+    <string name="pref_dollar_amounts_max_summary">\t%s</string>
 
-    <string name="prefs_min_key" translatable="false">prefs_min_key</string>
-    <string name="prefs_min_title">minumum dollar amount</string>
+    <string name="pref_dollar_amounts_min_key" translatable="false">prefs_min_key</string>
+    <string name="pref_dollar_amounts_min_title">minumum dollar amount</string>
+    <string name="pref_dollar_amounts_min_summary">\t%s</string>
 
 
     <string name="genus_label">genus:</string>

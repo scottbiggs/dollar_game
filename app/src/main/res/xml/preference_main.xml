@@ -15,14 +15,34 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/pref_gameplay_category">
+
+        <ListPreference
+            android:key="@string/pref_gameplay_difficulty_key"
+            android:title="@string/pref_gameplay_difficulty_title"
+            app:defaultValue="1"
+            app:useSimpleSummaryProvider="true"
+            android:summary="@string/pref_gameplay_difficulty_summary"
+            android:entries="@array/pref_gameplay_difficulties_readable"
+            android:entryValues="@array/pref_gameplay_difficulties_values"
+            />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
         android:title="@string/prefs_dollar_amounts_category">
 
         <EditTextPreference
-            android:key="@string/prefs_max_key"
+            android:key="@string/pref_dollar_amounts_max_key"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:inputType="numberSigned"
-            android:title="@string/prefs_max_title" />
+            app:defaultValue="5"
+            app:useSimpleSummaryProvider="true"
+            android:title="@string/pref_dollar_amounts_max_title"
+            android:summary="@string/pref_dollar_amounts_max_summary"
+            />
 
 
 <!--        <EditTextPreference-->
