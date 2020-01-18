@@ -61,8 +61,8 @@
     <string name="dialog_title"> $$ Dollar Amount $$</string>
     <string name="dialog_desc">Adjust the dollar amount for this node.</string>
     <string name="dialog_orig_label">previous:</string>
-    <string name="delete_node">I hate this node, remove it!</string>
-    <string name="keep_node">I like this node</string>
+    <string name="delete_node">marked for deletion</string>
+    <string name="keep_node">delete</string>
     <string name="dialog_random">random</string>
 
     <!-- explanation dialogs -->
