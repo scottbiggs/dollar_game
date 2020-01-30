@@ -20,7 +20,7 @@ import sleepfuriously.com.dollargame.R;
  * Displays a dialog that allows the user to modify the dollar amount
  * of a node and delete it.
  */
-public class NodeEditDialog {
+class NodeEditDialog {
 
     //---------------------------
     //  constants
@@ -38,7 +38,7 @@ public class NodeEditDialog {
     //  methods
     //---------------------------
 
-    public void setOnNodeEditDialogDoneListener(OnNodeEditDialogDoneListener listener) {
+    void setOnNodeEditDialogDoneListener(OnNodeEditDialogDoneListener listener) {
         mListener = listener;
     }
 
@@ -50,7 +50,7 @@ public class NodeEditDialog {
      *
      * @param startDollars  The amount of dollars to display initially.
      */
-    public void show(final Context ctx, final int startDollars) {
+    void show(final Context ctx, final int startDollars) {
 
         // figure out this constant that will be used throughout
         final int seekbarOffset = ctx.getResources().getInteger(R.integer.DOLLAR_AMOUNT_SEEKBAR_OFFSET);
@@ -141,7 +141,7 @@ public class NodeEditDialog {
          * @param delete    When TRUE, means that the user wants to delete
          *                  this node.
          */
-        public void result(boolean cancelled, int dollarAmount, boolean delete);
+        void result(boolean cancelled, int dollarAmount, boolean delete);
 
     }
 
