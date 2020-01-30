@@ -43,6 +43,7 @@ import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
+import sleepfuriously.com.dollargame.model.Node;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
@@ -1120,9 +1121,13 @@ public class MainActivity extends AppCompatActivity {
 
         // todo: depending on options, this may need to ensure that the puzzle is genus-solvable.
 
-        for (int i = 0; i < mGraph.numNodes(); i++) {
-            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(i);
-            Random random = new Random();
+        Random random = new Random();
+
+        @SuppressWarnings("unchecked")
+        List<Integer> nodeIds = mGraph.getAllNodeIds();
+
+        for (int nodeId : nodeIds) {
+            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
 
             // gets a random number [0, MAX_DOLLAR_AMOUNT_NON_NEGATIVE)
             int positive_max = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT_NON_NEGATIVE) + 1;
