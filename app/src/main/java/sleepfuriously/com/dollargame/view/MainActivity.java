@@ -805,69 +805,24 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showMoneyDialog(final MovableNodeButton button) {
 
-        // figure out this constant that will be used throughout
-        final int seekbarOffset = getResources().getInteger(R.integer.DOLLAR_AMOUNT_SEEKBAR_OFFSET);
-
-        LayoutInflater inflater = getLayoutInflater();
-        View inflatedView = inflater.inflate(R.layout.money_delete_dialog, null);
-
-        final TextView dialogAmountTv = inflatedView.findViewById(R.id.dialog_amount);
-
-        final SeekBar dialogSeekBar = inflatedView.findViewById(R.id.dialog_seekbar);
-        dialogSeekBar.setProgress(button.getAmount() + seekbarOffset);
-
-        dialogSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        NodeEditDialog dialog = new NodeEditDialog();
+        dialog.setOnNodeEditDialogDoneListener(new NodeEditDialog.OnNodeEditDialogDoneListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String dollarStr = getString(R.string.dollar_number, progress - seekbarOffset);
-                dialogAmountTv.setText(dollarStr);
-            }
+            public void result(boolean cancelled, int dollarAmount, boolean delete) {
+                if (cancelled) {
+                    return; // do nothing
+                }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+                if (delete) {
+                    deleteNode(button);
+                    return;
+                }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
-        });
-
-        final Button dialogRandomButt = inflatedView.findViewById(R.id.dialog_rand_butt);
-        dialogRandomButt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Random random = new Random();
-                random.setSeed(System.currentTimeMillis());
-
-                int randInt = random.nextInt((getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT_NON_NEGATIVE)) + 1);
-                dialogSeekBar.setProgress(randInt);
+                // set the button to the dollar amount.
+                button.setAmount(dollarAmount);
             }
         });
-
-        final ToggleButton nodeToggleButt = inflatedView.findViewById(R.id.dialog_delete_butt);
-
-        String initialDollarStr = getString(R.string.dollar_number,
-                dialogSeekBar.getProgress() - seekbarOffset);
-        dialogAmountTv.setText(initialDollarStr);
-
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setView(inflatedView)
-                .setCancelable(true)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (nodeToggleButt.isChecked()) {
-                            deleteNode(button);
-                        }
-                        else {
-                            button.setAmount(dialogSeekBar.getProgress() - seekbarOffset);
-                            setCountUI();
-                        }
-                    }
-                });
-
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+        dialog.show(this, button.getAmount());
     }
 
 
