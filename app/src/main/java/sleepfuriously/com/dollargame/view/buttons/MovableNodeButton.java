@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import androidx.appcompat.content.res.AppCompatResources;
 
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -74,6 +75,10 @@ public class MovableNodeButton extends AllAngleExpandableButton
         /** Not movable nor will any expanding buttons will appear. Only registers clicks  and long clicks. */
         CLICKS_ONLY
     }
+
+
+    /** thickness for drawing the circle outline of a button */
+    private static final int OUTLINE_STROKE_WIDTH = 3;
 
     //-------------------------------
     //  data
@@ -265,7 +270,7 @@ public class MovableNodeButton extends AllAngleExpandableButton
 
         switch (event.getAction()) {
             case ACTION_DOWN:
-                Log.d(TAG, "processMovableTouchEvent() - ACTION_DOWN");
+//                Log.d(TAG, "processMovableTouchEvent() - ACTION_DOWN");
 
                 mLongClickHandler.postDelayed(this, MILLIS_FOR_LONG_CLICK); // start timing
                 mLongClickFired = false;
@@ -279,7 +284,7 @@ public class MovableNodeButton extends AllAngleExpandableButton
                 break;
 
             case ACTION_MOVE:
-                Log.d(TAG, "processMovableTouchEvent() - ACTION_MOVE");
+//                Log.d(TAG, "processMovableTouchEvent() - ACTION_MOVE");
 
                 // only move if we're already movingTo AND the finger has moved enough to
                 // be considered a move.
@@ -307,7 +312,7 @@ public class MovableNodeButton extends AllAngleExpandableButton
                 break;
 
             case ACTION_UP:
-                Log.d(TAG, "processMovableTouchEvent() - ACTION_UP");
+//                Log.d(TAG, "processMovableTouchEvent() - ACTION_UP");
 
                 mLongClickHandler.removeCallbacks(this);
 
@@ -438,7 +443,8 @@ public class MovableNodeButton extends AllAngleExpandableButton
     private List<ButtonData> createButtonImages(int amount) {
 
         // Create a drawable with the correct color
-        Drawable highlightDrawable = AppCompatResources.getDrawable(mCtx, R.drawable.circle_black);
+        Drawable highlightDrawable = AppCompatResources.getDrawable(mCtx,
+                (amount < 0) ? R.drawable.circle_solve_negative : R.drawable.circle_black);
 
         List<ButtonData> buttonDataList = new ArrayList<>();
 

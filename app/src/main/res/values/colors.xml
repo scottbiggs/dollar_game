@@ -15,7 +15,9 @@
     <!-- button border colors -->
     <color name="button_build_border_normal">#675613</color>
     <color name="button_build_border_connect">#267B2D</color>
-    <color name="button_build_border_problem">#c00</color>
+    <color name="button_border_negative">#c00</color>
+    <color name="button_border_non_negative">#000</color>
+    <color name="button_build_border_problem">#EF3BFF</color>
     <color name="button_solve_border_normal">#1B2895</color>
 
     <!-- button background colors -->
