@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import androidx.appcompat.content.res.AppCompatResources;
+
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -37,15 +39,12 @@ import static android.view.MotionEvent.ACTION_UP;
  * are called.  And conversely while a button is expandable (not movable), only callbacks to
  * {@link sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener} occur.
  */
-public class MovableNodeButton extends AllAngleExpandableButton {
+public class MovableNodeButton extends AllAngleExpandableButton
+        implements Runnable {
 
     //-------------------------------
     //  constants
     //-------------------------------
-
-    /** The maximums and minimums for the dollars that can put in a node */
-    public static final int
-        MIN_AMOUNT = -8, MAX_AMOUNT = 8;
 
     private static final String TAG = MovableNodeButton.class.getSimpleName();
 
@@ -76,9 +75,6 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         CLICKS_ONLY
     }
 
-    /** size of the stroke in the main button background */
-    private static final int STROKE_WIDTH = 3;
-
     //-------------------------------
     //  data
     //-------------------------------
@@ -87,9 +83,6 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
     /** The number of dollars this button currently holds */
     private int mAmount;
-
-    /** The start time in millis of a click */
-    private long mClickStartMillis;
 
     /** raw coordinates of where a click starts */
     private float mStartRawX, mStartRawY;
@@ -106,13 +99,20 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     /** true iff the button is in the process of moving */
     private boolean mMoving;
 
-    private OnMoveListener moveListener;
+    /** listener sent in to receive callbacks when the button has moved */
+    private OnMoveListener mMoveListener;
 
     /** The actual color of the current highlight */
     private int mCurrentHighlightColor;
 
     /** background color of the main button */
     private int mCurrentBackgroundColor;
+
+    /** Helper for responding to long-clicks */
+    private Handler mLongClickHandler;
+
+    /** When true, a long click event has been handled. Will be reset when a new long click wait begins */
+    private boolean mLongClickFired = false;
 
     //-------------------------------
     //  methods
@@ -134,6 +134,8 @@ public class MovableNodeButton extends AllAngleExpandableButton {
         mCurrentMode = Modes.MOVABLE;
 
         mAmount = 0;
+
+        mLongClickHandler = new Handler();
 
         // make the buttons go left/right
         setStartAngle(0);
@@ -213,7 +215,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
     }
 
     /**
-     * Process UI events when in CLICKS_ONLY mode.
+     * Process UI events when in CLICKS_ONLY mode (which is usually SOLVE mode).
      *
      * @param event     The original onTouch MotionEvent.
      *
@@ -221,19 +223,14 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      *          False - continue processing this event down the UI chain.
      */
     private boolean processClickTouchEvent(MotionEvent event) {
-
 //        Log.d(TAG, "processClickTouchEvent(), ACTION = " + event.getAction());
 
         if (event.getAction() == ACTION_DOWN) {
-            mClickStartMillis = System.currentTimeMillis();
             mStartRawX = event.getRawX();
             mStartRawY = event.getRawY();
         }
 
         else if (event.getAction() == ACTION_UP) {
-
-            long currentTime = System.currentTimeMillis();
-
             // Don't count this as a click if the user has slid their hand around.
             float currentRawX = event.getRawX();
             float currentRawY = event.getRawY();
@@ -243,13 +240,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
             // no interested in.
             if ((Math.abs(currentRawX - mStartRawX) < MOVE_THRESHOLD) &&
                     (Math.abs(currentRawY - mStartRawY) < MOVE_THRESHOLD)) {
-
-                if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
-                    moveListener.clicked();
-                }
-                else {
-                    moveListener.longClicked();
-                }
+                mMoveListener.clicked();
             }
 
             else {
@@ -262,7 +253,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
 
 
     /**
-     * Localizes the processing of a touch event while in MOVEABLE mode.
+     * Localizes the processing of a touch event while in MOVEABLE (Build) mode.
      *
      * @param event     The original onTouch MotionEvent.
      *
@@ -271,9 +262,13 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      */
     private boolean processMovableTouchEvent(MotionEvent event) {
 
+
         switch (event.getAction()) {
             case ACTION_DOWN:
-                mClickStartMillis = System.currentTimeMillis();
+                Log.d(TAG, "processMovableTouchEvent() - ACTION_DOWN");
+
+                mLongClickHandler.postDelayed(this, MILLIS_FOR_LONG_CLICK); // start timing
+                mLongClickFired = false;
 
                 mStartRawX = event.getRawX();
                 mStartRawY = event.getRawY();
@@ -284,16 +279,21 @@ public class MovableNodeButton extends AllAngleExpandableButton {
                 break;
 
             case ACTION_MOVE:
+                Log.d(TAG, "processMovableTouchEvent() - ACTION_MOVE");
+
                 // only move if we're already movingTo AND the finger has moved enough to
                 // be considered a move.
                 if (mMoving || movedPastThreshold(event)) {
                     mMoving = true;
 
+                    // stop waiting for a long click, this is a move.
+                    mLongClickHandler.removeCallbacks(this);
+
                     // calc the move differences
                     float diffX = event.getRawX() - mOffsetX;
                     float diffY = event.getRawY() - mOffsetY;
 
-                    moveListener.movingTo(diffX, diffY);
+                    mMoveListener.movingTo(diffX, diffY);
 
                     animate()
                             .x(diffX)
@@ -307,6 +307,17 @@ public class MovableNodeButton extends AllAngleExpandableButton {
                 break;
 
             case ACTION_UP:
+                Log.d(TAG, "processMovableTouchEvent() - ACTION_UP");
+
+                mLongClickHandler.removeCallbacks(this);
+
+                // Handle the up event that occurs AFTER a long-click has been detected.
+                if (mLongClickFired) {
+                    mMoving = false;
+                    Log.d(TAG, "encountered an ACTION_UP event after a long-click has fired");
+                    break;
+                }
+
                 if (mMoving) {
                     mMoving = false;
 
@@ -314,7 +325,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
                     float diffX = event.getRawX() - mOffsetX;
                     float diffY = event.getRawY() - mOffsetY;
 
-                    moveListener.moveEnded(diffX, diffY);
+                    mMoveListener.moveEnded(diffX, diffY);
 
                     if ((diffX != 0f) || (diffY != 0f)) {
                         animate()
@@ -325,19 +336,38 @@ public class MovableNodeButton extends AllAngleExpandableButton {
                     }
                 }
                 else {
-                    long currentTime = System.currentTimeMillis();
-                    if (currentTime - mClickStartMillis < MILLIS_FOR_LONG_CLICK) {
-                        moveListener.clicked();
-                    }
-                    else {
-                        moveListener.longClicked();
-                    }
+                    // Not moving (or has moved enough). So treat as a click.
+                    mMoveListener.clicked();
                 }
                 break;
+
+            default:
+                mLongClickHandler.removeCallbacks(this);
+                Log.d(TAG, "processMovableTouchEvent(), unknown event = " + event.getAction());
+                break;
         }
+
         return true;    // event consumed
     }
 
+
+    /**
+     * Called when a Long Click event occurs.
+     */
+    @Override
+    public void run() {
+        // Signal that an up event has been handled and indicate the long click
+        mLongClickFired = true;
+        mMoveListener.longClicked();
+    }
+
+
+    /**
+     * Returns TRUE iff the position of the given event is more than the
+     * threshold from {@link #mStartRawX} and {@link #mStartRawY}.
+     *
+     * Does not worry about time.
+     */
     @SuppressWarnings("RedundantIfStatement")
     private boolean movedPastThreshold(MotionEvent event) {
         float currentX = event.getRawX();
@@ -359,7 +389,7 @@ public class MovableNodeButton extends AllAngleExpandableButton {
      * @param listener  The instance that is implementing the interface.
      */
     public void setOnMoveListener(OnMoveListener listener) {
-        moveListener = listener;
+        mMoveListener = listener;
     }
 
 
@@ -468,5 +498,6 @@ public class MovableNodeButton extends AllAngleExpandableButton {
          */
         void longClicked();
     }
+
 
 }

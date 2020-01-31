@@ -140,11 +140,11 @@ public class PlayAreaFrameLayout extends FrameLayout {
     public void addLine(PointF start, PointF end) {
         Line line = new Line(start, end);
         mLines.add(line);
-        Log.d(TAG, "addline(), start = " + start + ", end = " + end);
+//        Log.d(TAG, "addline(), start = " + start + ", end = " + end);
     }
 
     public void removeLine(PointF start, PointF end) {
-        Log.d(TAG, "removeLine() begin: start = " + start + ", end = " + end);
+//        Log.d(TAG, "removeLine() begin: start = " + start + ", end = " + end);
 
         int numOrigLines = mLines.size();
 
@@ -162,20 +162,20 @@ public class PlayAreaFrameLayout extends FrameLayout {
             }
         }
 
-        if (numOrigLines == mLines.size()) {
-            Log.e(TAG, "removeLines() called, but didn't do anything!");
-            Log.e(TAG, "   mLines[0].start = " + mLines.get(0).start + ", end = " + mLines.get(0).end);
-        }
-        else {
-            Log.d(TAG, "removeLines() removed a line");
-        }
+//        if (numOrigLines == mLines.size()) {
+//            Log.e(TAG, "removeLines() called, but didn't do anything!");
+//            Log.e(TAG, "   mLines[0].start = " + mLines.get(0).start + ", end = " + mLines.get(0).end);
+//        }
+//        else {
+//            Log.d(TAG, "removeLines() removed a line");
+//        }
 //        Log.d(TAG, "removeLine()...  mLines.size =  " + mLines.size());
     }
 
     /** Removes all the lines from the line list */
     public void removeAllLines() {
         mLines.clear();
-        Log.d(TAG, "removeAllLines()");
+//        Log.d(TAG, "removeAllLines()");
     }
 
     /**
