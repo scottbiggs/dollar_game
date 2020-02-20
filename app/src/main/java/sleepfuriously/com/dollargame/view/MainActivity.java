@@ -1090,11 +1090,9 @@ public class MainActivity extends AppCompatActivity {
 
         // use the settings to figure out what the sum of all the nodes'
         // dollar amount should be.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int sum = prefs.getInt(getString(R.string.pref_gameplay_difficulty_key),
-                               PrefsActivity.DEFAULT_DIFFICULTY);
+        int targetSum = getCurrentDifficulty();
         try {
-            sum += mGraph.getGenus();
+            targetSum += mGraph.getGenus();
         }
         catch (GraphNotConnectedException e) {
             Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
@@ -1102,7 +1100,7 @@ public class MainActivity extends AppCompatActivity {
 
         // here's the big calculation, find all the possible combinations
 //        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(0, 0, -3, 5);
-        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, sum, floor, ceiling);
+        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
         Log.d(TAG, "summedCombos = " + summedCombos.toString());
 
         // pick a random list from summedCombos (it's a list of lists)
@@ -1173,6 +1171,50 @@ public class MainActivity extends AppCompatActivity {
         setGenusUI();
         setCountUI();
 */
+    }
+
+
+    /**
+     * Checks the shared prefs to find the current difficulty setting.
+     *
+     * @return  An int representing how many dollars should be adjusted
+     *          above (or below if negative) the genus according to the
+     *          current user's preference.
+     */
+    private int getCurrentDifficulty() {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String diffKey = getString(R.string.pref_gameplay_difficulty_key);
+
+        String diffVal = prefs.getString(diffKey, null);
+        if (diffVal == null) {
+            Log.e(TAG, "could not find difficulty key in getCurrentDifficulty()!");
+            return 0;
+        }
+
+        int retVal = 0;
+        switch (diffVal) {
+            case "1":     // very easy
+                retVal = 2;
+                break;
+
+            case "2":     // easy
+                retVal = 1;
+                break;
+
+            case "3":     // challenging
+                retVal = 0;
+                break;
+
+            case "4":     // not always possible
+                retVal = -1;
+                break;
+
+            default:
+                Log.e(TAG, "unable to figure out diffVal in getCurrentDifficulty()!");
+        }
+
+        return retVal;
     }
 
 
