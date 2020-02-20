@@ -16,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,15 +26,16 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.appcompat.widget.Toolbar;
 
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -43,6 +43,8 @@ import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
+import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
+import sleepfuriously.com.dollargame.model.MyPermutations;
 import sleepfuriously.com.dollargame.model.Node;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
@@ -124,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
 
     /** The node/button that is doing the acting (either a give or a take) */
     private MovableNodeButton mActingButton;
+
+    /** The difficulty of the puzzles when the random button is hit */
+    private int mDifficulty;
+
 
     //------------------------
     //  methods
@@ -1074,8 +1080,78 @@ public class MainActivity extends AppCompatActivity {
      */
     private void randomizeAllNodes() {
 
-        // todo: depending on options, this may need to ensure that the puzzle is genus-solvable.
+        // first, get all the nodes and find out how many there are
+        List<Integer> nodeIds = mGraph.getAllNodeIds();
+        int numNodes = nodeIds.size();
 
+        // now get the maximum and minimum values for each node
+        int ceiling = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT);
+        int floor = getResources().getInteger(R.integer.MIN_DOLLAR_AMOUNT);
+
+        // use the settings to figure out what the sum of all the nodes'
+        // dollar amount should be.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int sum = prefs.getInt(getString(R.string.pref_gameplay_difficulty_key),
+                               PrefsActivity.DEFAULT_DIFFICULTY);
+        try {
+            sum += mGraph.getGenus();
+        }
+        catch (GraphNotConnectedException e) {
+            Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
+        }
+
+        // here's the big calculation, find all the possible combinations
+//        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(0, 0, -3, 5);
+        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, sum, floor, ceiling);
+        Log.d(TAG, "summedCombos = " + summedCombos.toString());
+
+        // pick a random list from summedCombos (it's a list of lists)
+        Random rand = new Random();
+        List<Integer> comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
+
+        // sanity check: the comboList and the nodeIds list should be the same size
+        if (comboList.size() != nodeIds.size()) {
+            Log.e(TAG, "error! comboList.size() = " + comboList.size() +
+                    " whereas nodeIds.size() = " + nodeIds.size());
+            return;
+        }
+
+        // go through all the nodes and
+        for (int i = 0; i < nodeIds.size(); i++) {
+            // todo: fix this--it's O(n*n)!
+            int nodeId = nodeIds.get(i);
+            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
+
+            node.setAmount(comboList.get(i));
+            node.invalidate();      // todo: is this needed?
+        }
+
+        setGenusUI();
+        setCountUI();
+
+
+
+//        List<Integer> testS = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+//        List<Integer> testList = new ArrayList<>(Arrays.asList(1, 4, 4, 4));
+//
+//        Log.d(TAG, "next lex of " + testList.toString() +
+//                " is " + MyPermutations.nextLexicographicalOrder(testS, testList).toString());
+
+
+//        MyRandomizer randomizer = MyRandomizer.getInstance();
+//        Log.d(TAG, randomizer.allCombos(0, 5).toString());
+
+/*
+        for (int i = 0; i < 8; i++ ) {
+            List<Integer> list = randomizer.buildList(5, 0, -2, 5);
+            Log.d(TAG, "randomizer list = " + list.toString());
+        }
+*/
+
+
+
+        // todo: depending on options, this may need to ensure that the puzzle is genus-solvable.
+/*
         Random random = new Random();
 
         @SuppressWarnings("unchecked")
@@ -1096,6 +1172,7 @@ public class MainActivity extends AppCompatActivity {
 
         setGenusUI();
         setCountUI();
+*/
     }
 
 
@@ -1140,9 +1217,14 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        // hints
         boolean showHint = prefs.getBoolean(getResources().getString(R.string.pref_hints_cb_key), true);
         mHintTv.setVisibility(showHint ? View.VISIBLE : View.GONE);
 
+        // difficulty
+//        mDifficulty = prefs.getInt(getResources().getString(R.string.pref_gameplay_difficulty_key), 1);
+
+        // construct the UI according to the current mode
         if (mBuildMode) {
             buildModeUI();
         }

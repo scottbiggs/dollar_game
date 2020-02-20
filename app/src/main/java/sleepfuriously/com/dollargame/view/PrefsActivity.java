@@ -3,6 +3,7 @@ package sleepfuriously.com.dollargame.view;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 
 import androidx.annotation.Nullable;
@@ -13,7 +14,7 @@ import java.util.Map;
 import sleepfuriously.com.dollargame.R;
 
 /**
- * todo:  describe class' purpose and context
+ * Does the prefs
  */
 public class PrefsActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -24,16 +25,18 @@ public class PrefsActivity extends PreferenceActivity
 
     public static final boolean SHOW_HINTS_DEFAULT = true;
 
-    public static final RandomizeButtonModes DEFAULT_RANDOMIZE_BUTTON_MODE
-            = RandomizeButtonModes.ENTIRE_RANGE;
+//    public static final RandomizeButtonModes DEFAULT_RANDOMIZE_BUTTON_MODE
+//            = RandomizeButtonModes.ENTIRE_RANGE;
 
-    /** All the different ways that the randomize button can work */
-    enum RandomizeButtonModes {
-        ENTIRE_RANGE,
-        SOLVABLE_AND_ABOVE,
-        EXACTLY_SOLVABLE,
-        SOLVABLE_PLUS_ZERO_TO_ONE
-    }
+//    /** All the different ways that the randomize button can work */
+//    enum RandomizeButtonModes {
+//        ENTIRE_RANGE,
+//        SOLVABLE_AND_ABOVE,
+//        EXACTLY_SOLVABLE,
+//        SOLVABLE_PLUS_ZERO_TO_ONE
+//    }
+
+    public static final int DEFAULT_DIFFICULTY = 1;
 
 
     //------------------------
@@ -90,11 +93,14 @@ public class PrefsActivity extends PreferenceActivity
         // get the preference that has been changed
         Object changedPref = prefsMap.get(key);
 
-        // and if it's an instance of EditTextPreference class,
-        // update its summary
-        if (prefsMap.get(key) instanceof EditTextPreference) {
+        if (key.equals(getString(R.string.pref_hints_cb_key))) {
             updateSummary((EditTextPreference) changedPref);
         }
+
+        else if (key.equals(getString(R.string.pref_gameplay_difficulty_key))) {
+            updateDifficulty((ListPreference) changedPref);
+        }
+
     }
 
 
@@ -104,4 +110,7 @@ public class PrefsActivity extends PreferenceActivity
         pref.setSummary(pref.getText());
     }
 
+    private void updateDifficulty(ListPreference pref) {
+        // todo
+    }
 }
