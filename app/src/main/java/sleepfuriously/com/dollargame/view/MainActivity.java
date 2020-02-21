@@ -33,9 +33,6 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -45,8 +42,6 @@ import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
 import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
-import sleepfuriously.com.dollargame.model.MyPermutations;
-import sleepfuriously.com.dollargame.model.Node;
 import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
@@ -124,13 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
     /** Used to indicate that a take action is occurring */
     private boolean mTaking;
-
-    /** The node/button that is doing the acting (either a give or a take) */
-    private MovableNodeButton mActingButton;
-
-    /** The difficulty of the puzzles when the random button is hit */
-    private int mDifficulty;
-
 
     //------------------------
     //  methods
@@ -235,14 +223,6 @@ public class MainActivity extends AppCompatActivity {
                 // build a new button
                 else if (playAreaEvent.getAction() == MotionEvent.ACTION_UP) {
                     PointF touchLoc = new PointF(playAreaEvent.getX(), playAreaEvent.getY());
-
-                    // todo: testing
-//                    PointF rawLoc = new PointF(playAreaEvent.getRawX(), playAreaEvent.getRawY());
-//                    float testX = rawLoc.x + mPlayArea.getLeft();
-//                    float testY = rawLoc.y + mPlayArea.getTop();
-//                    Log.d (TAG, "relative = " + touchLoc + ", raw = " + rawLoc +
-//                            ", and calculated = " + testX + ", " + testY);
-
                     newButton(touchLoc);
                 }
                 return true;    // event consumed
@@ -733,12 +713,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void startGive(MovableNodeButton button) {
         mGiving = true;
-        mActingButton = button;
     }
 
     private void startTake(MovableNodeButton button) {
         mTaking = true;
-        mActingButton = button;
     }
 
     /**
@@ -1138,51 +1116,6 @@ public class MainActivity extends AppCompatActivity {
 
         setGenusUI();
         setCountUI();
-
-
-
-//        List<Integer> testS = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
-//        List<Integer> testList = new ArrayList<>(Arrays.asList(1, 4, 4, 4));
-//
-//        Log.d(TAG, "next lex of " + testList.toString() +
-//                " is " + MyPermutations.nextLexicographicalOrder(testS, testList).toString());
-
-
-//        MyRandomizer randomizer = MyRandomizer.getInstance();
-//        Log.d(TAG, randomizer.allCombos(0, 5).toString());
-
-/*
-        for (int i = 0; i < 8; i++ ) {
-            List<Integer> list = randomizer.buildList(5, 0, -2, 5);
-            Log.d(TAG, "randomizer list = " + list.toString());
-        }
-*/
-
-
-
-        // todo: depending on options, this may need to ensure that the puzzle is genus-solvable.
-/*
-        Random random = new Random();
-
-        @SuppressWarnings("unchecked")
-        List<Integer> nodeIds = mGraph.getAllNodeIds();
-
-        for (int nodeId : nodeIds) {
-            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
-
-            // gets a random number [0, MAX_DOLLAR_AMOUNT_NON_NEGATIVE)
-            int positive_max = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT_NON_NEGATIVE) + 1;
-            int offset = positive_max / 2;
-
-            int randInt = random.nextInt(positive_max);
-            node.setAmount(randInt - offset);
-
-            node.invalidate();
-        }
-
-        setGenusUI();
-        setCountUI();
-*/
     }
 
 

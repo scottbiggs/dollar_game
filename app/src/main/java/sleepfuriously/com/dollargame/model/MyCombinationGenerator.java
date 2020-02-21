@@ -1,7 +1,5 @@
 package sleepfuriously.com.dollargame.model;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +10,7 @@ import java.util.List;
  */
 public class MyCombinationGenerator {
 
+    @SuppressWarnings("unused")
     private static final String TAG = MyCombinationGenerator.class.getSimpleName();
 
     /** temp var to hold all the numbers to be used for the combinations */
@@ -78,6 +77,7 @@ public class MyCombinationGenerator {
      * @return  A list of lists that comprise all combinations with howMany
      *          integers in range [floor..ceiling].  Numbers may be repeated.
      */
+    @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
     public static List<List<Integer>> getAllCombinations(int howMany,
                                                          int floor, int ceiling) {
         mCombinationsList = new ArrayList<>();
@@ -103,6 +103,7 @@ public class MyCombinationGenerator {
      *
      * @return  A list of integers in the range [floor..ceiling].
      */
+    @SuppressWarnings("UnusedReturnValue")
     private static List<Integer> makeList(int floor, int ceiling) {
 
         List<Integer> list = new ArrayList<>();
@@ -117,14 +118,12 @@ public class MyCombinationGenerator {
     }
 
 
-//    static String[] donuts = {"iced", "jam", "plain", "choc", "kolache", "powdered", "cake", "kruller", "buttermilk"};
-
     /**
      * Test, found at http://rosettacode.org/wiki/Combinations_with_repetitions#C.
      * I'm trying to port it to java from C.
      *
-     * @param got   needs to have at least len elements
-     * @param n_chosen
+     * @param got       temp storage. needs to have at least len elements
+     * @param n_chosen  Number of items already chosen (in the 'got' array)
      * @param len
      * @param at
      * @param maxTypes
@@ -142,10 +141,8 @@ public class MyCombinationGenerator {
 
             for (int i = 0; i < len; i++) {
                 int fromListIndex = got[i];
-//                Log.d(TAG, donuts[fromListIndex]);
                 list.add(mRangeList.get(fromListIndex));
             }
-//            Log.d(TAG, "---");
             mCombinationsList.add(list);
             return 1;
         }
@@ -159,23 +156,5 @@ public class MyCombinationGenerator {
 
         return count;
     }
-
-
-
-    public static List<List<Integer>> testChooseStart(int len, int maxTypes) {
-        mCombinationsList = new ArrayList<>();
-        int[] got = new int[len];
-
-        makeList(-2, 2);    // works by side effect
-        long retVal = choose(got, 0, len, 0, maxTypes);
-
-
-//        Log.d(TAG, "list is " + mCombinationsList.toString());
-        Log.d(TAG, "testChooseStart() returns " + retVal);
-        return new ArrayList<>(mCombinationsList);
-    }
-
-
-
 
 }
