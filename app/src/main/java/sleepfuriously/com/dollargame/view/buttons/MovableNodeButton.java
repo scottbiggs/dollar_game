@@ -449,8 +449,8 @@ public class MovableNodeButton extends AllAngleExpandableButton
         List<ButtonData> buttonDataList = new ArrayList<>();
 
         ButtonData highlightButtonData = ButtonData.buildIconAndTextButton(mCtx, highlightDrawable, 0, amount);
-        ButtonData firstPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_give_3, 0);
-        ButtonData secondPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_take_3, 0);
+        ButtonData firstPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_take_3, 0);
+        ButtonData secondPopup = ButtonData.buildIconButton(mCtx, R.drawable.ic_give_3, 0);
 
         buttonDataList.add(highlightButtonData);
         buttonDataList.add(firstPopup);

@@ -618,11 +618,11 @@ public class MainActivity extends AppCompatActivity {
             public void onPopupButtonClicked(int index) {
                 switch (index) {
                     case 1:
-                        startGive(button);
+                        startTake(button);
                         break;
 
                     case 2:
-                        startTake(button);
+                        startGive(button);
                         break;
                 }
             }
