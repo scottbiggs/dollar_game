@@ -89,6 +89,9 @@
     <string name="connected_toast">All nodes are connected! You may proceed to solving this puzzle.</string>
     <string name="not_connected_toast">There are nodes that are not connected to the rest. Connect them to make a solvable puzzle.</string>
 
+    <string name="solved_toast">Yay, you\'ve solved this puzzle!</string>
+    <string name="not_solved_toast">Looks like there\'s still some work needed to solve this puzzle.</string>
+
     <!-- generally useful strings -->
     <string name="dollar_number">$%d</string>   <!-- shows a dollar sign plus an integer -->
 

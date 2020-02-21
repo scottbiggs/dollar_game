@@ -235,12 +235,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String toastStr;
 
-                boolean connected = (boolean) mConnectedIV.getTag();
-                if (connected) {
-                    toastStr = getString(R.string.connected_toast);
+                if (mBuildMode) {
+                    boolean connected = (boolean) mConnectedIV.getTag();
+                    toastStr = connected ?
+                            getString(R.string.connected_toast) :
+                            getString(R.string.not_connected_toast);
                 }
                 else {
-                    toastStr = getString(R.string.not_connected_toast);
+                    // in solve mode
+                    toastStr = isSolved() ?
+                            getString(R.string.solved_toast) :
+                            getString(R.string.not_solved_toast);
                 }
 
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
