@@ -36,6 +36,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -1099,9 +1100,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // here's the big calculation, find all the possible combinations
-//        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(0, 0, -3, 5);
         List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
-        Log.d(TAG, "summedCombos = " + summedCombos.toString());
+//        Log.d(TAG, "summedCombos = " + summedCombos.toString());
+
+        // Check to see if no possible summation exists.  This shouldn't be possible, but
+        // it doesn't hurt to check.
+        if (summedCombos.size() < 1) {
+            Toast.makeText(this, R.string.impossible_randomize_settings, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         // pick a random list from summedCombos (it's a list of lists)
         Random rand = new Random();
@@ -1114,7 +1121,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // go through all the nodes and
+        // randomize the list (since each item in the list appears in a certain
+        // order)
+        Collections.shuffle(comboList);
+
+        // go through all the nodes and assign them to the dollar amounts from
+        // our list.
         for (int i = 0; i < nodeIds.size(); i++) {
             // todo: fix this--it's O(n*n)!
             int nodeId = nodeIds.get(i);

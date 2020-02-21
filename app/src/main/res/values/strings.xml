@@ -95,6 +95,8 @@
     <!-- main screen ui components -->
     <string name="random_all_button_text">randomize</string>    <!-- allows users to randomize ALL the nodes at once -->
 
+    <!-- error messages -->
+    <string name="impossible_randomize_settings">The current node configuration and settings make it impossible to produce suitable dollar amounts.</string>
 
 
 
