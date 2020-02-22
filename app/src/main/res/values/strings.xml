@@ -50,12 +50,13 @@
     <string name="count_label">count:</string>
 
     <!-- credits -->
-    <string name="credits_title">credits</string>
+    <string name="credits_title">Credits &amp; Blame</string>
     <string name="part1">This program was done by Biggs. You can find him easily enough by searching.</string>
-    <string name="holly">Inspired by a Numberphile video by Dr. Holley (https://www.youtube.com/watch?v=U33dsEcKgeQ).
-            I was surprised no had made a computer version of that game, so…here it is!</string>
-    <string name="more_info">There\'s way more than you ever wanted to know about his game here: https://mattbaker.blog/2013/10/18/riemann-roch-for-graphs-and-applications/</string>
-    <string name="credits_freepik">Money icons inspired by Freepik.</string>
+    <string name="holly">Inspired by a Numberphile <a href="https://www.youtube.com/watch?v=U33dsEcKgeQ">video</a>
+        with Dr. Holly Krieger.  I was surprised no one had made a computer version of that game, so…here it is!
+        </string>
+    <string name="more_info">There\'s way more than you ever wanted to know about the math of this game
+        <a href="https://mattbaker.blog/2013/10/18/riemann-roch-for-graphs-and-applications/">here</a>. </string>
 
     <!-- edit dollar amount / delete node dialog -->
     <string name="dialog_title"> $$ Dollar Amount $$</string>
@@ -100,7 +101,7 @@
 
     <!-- error messages -->
     <string name="impossible_randomize_settings">The current node configuration and settings make it impossible to produce suitable dollar amounts.</string>
-
+    <string name="done">done</string>
 
 
 </resources>

@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.build_about:
-                // todo
+                doAbout();
                 Log.d(TAG, "menu option: about");
                 break;
 
@@ -1183,6 +1183,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    /**
+     * Simple dialog that gives basic info about this app.
+     */
+    private void doAbout() {
+        Intent itt = new Intent(this, AboutActivity.class);
+        startActivity(itt);
+    }
+
 
     /**
      * Throws up the options dialog and all that entails.

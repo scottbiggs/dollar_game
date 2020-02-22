@@ -4,60 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    >
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/credits_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/aerolite"
         android:text="@string/credits_title"
         android:textSize="36sp"
-        android:fontFamily="@font/aerolite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/who_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:text="@string/part1"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/credits_title"
-        tools:layout_editor_absoluteX="152dp"
-        android:text="@string/part1" />
+        tools:layout_editor_absoluteX="16dp" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/inspired_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:text="@string/holly"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        tools:layout_editor_absoluteX="175dp"
-        android:text="@string/holly" />
+        app:layout_constraintTop_toBottomOf="@+id/who_tv"
+        tools:layout_editor_absoluteX="175dp" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/more_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:text="@string/more_info"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        tools:layout_editor_absoluteX="160dp"
-        android:text="@string/more_info" />
+        app:layout_constraintTop_toBottomOf="@+id/inspired_tv"
+        tools:layout_editor_absoluteX="160dp" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/done_butt"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
-        tools:layout_editor_absoluteX="160dp"
-        android:text="@string/credits_freepik"
-        />
+        android:layout_marginBottom="8dp"
+        android:text="@string/done"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
