@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
@@ -36,6 +37,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
@@ -129,19 +131,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mBuildMode = true;   // start in build mode
-        mConnecting = false;
+        // determines if this was setup
+        if (isStartingFromUser()) {
+            userInitiatedOnCreate();
+        }
 
-        //
-        // setup ui and widgets
-        //
+        else {
+            // There's some data to be loaded and processed.
+            processIntent();
+        }
 
-        // use my toolbar instead of default
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // shows back arrow
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
+    /**
+     * Initialize the main switch widget that controls build/solve mode.
+     * Works by side-effect.
+     */
+    private void setupMainSwitch() {
         mMainSwitch = findViewById(R.id.main_switch);
         mMainSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -152,7 +158,13 @@ public class MainActivity extends AppCompatActivity {
                 setMode(!isChecked);
             }
         });
+    }
 
+    /**
+     * Initializes the widgets that control the count display.
+     * Works by side-effect.
+     */
+    private void setupCountWidgets() {
         mCountLabelTv = findViewById(R.id.count_label_tv);
         mCountLabelTv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,7 +181,13 @@ public class MainActivity extends AppCompatActivity {
                 showSimpleDialog(R.string.count_dialog_title, R.string.count_dialog_msg);
             }
         });
+    }
 
+    /**
+     * Initializes the widgets that display genus info.
+     * Works by side-effect.
+     */
+    private void setupGenusWidgets() {
         mGenusLabelTv = findViewById(R.id.genus_label_tv);
         mGenusLabelTv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,12 +204,13 @@ public class MainActivity extends AppCompatActivity {
                 showSimpleDialog(R.string.genus_dialog_title, R.string.genus_dialog_msg);
             }
         });
+    }
 
-        mBuildTv = findViewById(R.id.build_tv);
-        mSolveTv = findViewById(R.id.solve_tv);
-
-        mHintTv = findViewById(R.id.bottom_hint_tv);
-
+    /**
+     * initializes the play area.
+     * Works by side-effect.
+     */
+    private void setupPlayArea() {
         mPlayArea = findViewById(R.id.play_area_fl);
 
         mPlayArea.setOnTouchListener(new View.OnTouchListener() {
@@ -228,7 +247,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;    // event consumed
             }
         });
+    }
 
+    /**
+     * Initializes the widgets that show if the graph is connected or not.
+     * Works by side-effect.
+     */
+    private void setupConnectedWidgets() {
         mConnectedIV = findViewById(R.id.connected_iv);
         mConnectedIV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,7 +276,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
             }
         });
+    }
 
+    /**
+     * Initializes the randomize button.  This puts dollar amounts in all the
+     * currently displayed buttons appropriate to the difficulty setting.  If
+     * the graph is not connected, will set the count to 0.
+     * Works by side-effect.
+     */
+    private void setupRandomizeButton() {
         mRandomizeAllButt = findViewById(R.id.random_all_butt);
         mRandomizeAllButt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,7 +292,52 @@ public class MainActivity extends AppCompatActivity {
                 randomizeAllNodes();
             }
         });
+    }
 
+    /**
+     * Initializes all the main widgets for the game.
+     * Works by side-effects (method data).
+     */
+    private void setupWidgets() {
+        setupMainSwitch();
+        setupCountWidgets();
+        setupGenusWidgets();
+
+        mBuildTv = findViewById(R.id.build_tv);
+        mSolveTv = findViewById(R.id.solve_tv);
+        mHintTv = findViewById(R.id.bottom_hint_tv);
+
+        setupPlayArea();
+        setupConnectedWidgets();
+        setupRandomizeButton();
+    }
+
+    /**
+     * onCreate() if user initiated the Activity.  Does all the initializations
+     * for the user to start the program from scratch.
+     */
+    private void userInitiatedOnCreate() {
+
+        mBuildMode = true;   // start in build mode
+        mConnecting = false;
+
+        setupToolbar();
+        setupWidgets();
+
+    }
+
+    /**
+     * This is the initialization portion of the program for when it has been
+     * started via a notification.  Takes the user straight to the solve mode
+     * and will have a puzzle laid out for him.
+     */
+    private void notificationInitiatedOnCreate() {
+
+        mBuildMode = false;   // start in solve mode
+        mConnecting = false;
+
+        setupToolbar();
+        setupWidgets();
     }
 
 
@@ -272,6 +350,27 @@ public class MainActivity extends AppCompatActivity {
 
         // handles refreshing UI
         refreshPrefs();
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (isStartingFromUser()) {
+            Log.d(TAG, "detected a user initiated start from onNewIntent()--that's weird! aborting.");
+            return;
+        }
+
+        processIntent();
+    }
+
+
+    private void setupToolbar() {
+        // use my toolbar instead of default
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // shows back arrow
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
 
@@ -376,6 +475,68 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;   // end processing (consumed completely)
+    }
+
+
+    /**
+     * Determines if this Activity was started by the user or by some other
+     * notification (which implies that the Intent will have some important
+     * data!).
+     *
+     * @return  True - user started this Activity. Use normal startup.
+     *          False - Activity was started from a notification Intent.
+     */
+    private boolean isStartingFromUser() {
+        Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+
+        if (appLinkAction.equals(Intent.ACTION_MAIN)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Does the work of processing the Intent that started this Activity.
+     * The Intent holds any info that was sent to this Activity.
+     *
+     * This is primarily called after it's determined that this Activity was
+     * NOT started by the user (and by elimination was called by a notification
+     * Intent).  All the necessary data will be grabbed from the Intent here.
+     *
+     * Called by {@link #onCreate(Bundle)} and {@link #onNewIntent(Intent)}.
+     *
+     * side effects:
+     *  todo
+     *
+     */
+    private void processIntent() {
+
+        Intent appLinkIntent = getIntent();
+        String rawDataStr = appLinkIntent.getDataString();
+        String appLinkAction = appLinkIntent.getAction();
+
+
+        Uri appLinkData = appLinkIntent.getData();
+        if (appLinkData == null) {
+            Log.e(TAG, "no data found in the Intent in processIntent()!");
+            return;
+        }
+
+        String host = appLinkData.getHost();
+        String scheme = appLinkData.getScheme();
+        Set queryParmNames = appLinkData.getQueryParameterNames();
+
+        String lastPathSegment = appLinkData.getLastPathSegment();  // data could be here!
+
+        // todo: process data sent
+
+//        TextView dataTv = findViewById(R.id.data_tv);
+//        String finalStr = "host: " + host + "\n" +
+//                "scheme: " + scheme + "\n" +
+//                "last path segment: " + lastPathSegment + "\n" +
+//                "names: " + queryParmNames.toString();
+//        dataTv.setText(finalStr);
     }
 
 

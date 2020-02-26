@@ -1,5 +1,7 @@
 package sleepfuriously.com.dollargame.view;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.TintableBackgroundView;
 
 import sleepfuriously.com.dollargame.R;
 
@@ -36,6 +39,19 @@ public class AboutActivity extends AppCompatActivity {
 
         TextView moreTv = findViewById(R.id.more_tv);
         moreTv.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView versionTv = findViewById(R.id.version_tv);
+        String versionName;
+
+        try {
+            versionName = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            versionName = getString(R.string.version_error);
+        }
+        versionTv.setText(versionName);
+
     }
 
 

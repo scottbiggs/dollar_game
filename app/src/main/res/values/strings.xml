@@ -102,6 +102,6 @@
     <!-- error messages -->
     <string name="impossible_randomize_settings">The current node configuration and settings make it impossible to produce suitable dollar amounts.</string>
     <string name="done">done</string>
-
+    <string name="version_error">error</string> <!-- error when attempting to get version -->
 
 </resources>

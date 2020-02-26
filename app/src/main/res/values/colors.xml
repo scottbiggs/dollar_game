@@ -8,9 +8,11 @@
     <color name="textcolor_normal">#111</color>
     <color name="textcolor_on">#000</color>     <!-- black -->
     <color name="textcolor_ghosted">#7D8080</color>
+    <color name="textcolor_link">#416DF6</color>
 
     <!-- backgrounds -->
     <color name="draw_area_bg">#bbb</color>
+    <color name="text_bg">#eee</color>
 
     <!-- button border colors -->
     <color name="button_build_border_normal">#675613</color>
