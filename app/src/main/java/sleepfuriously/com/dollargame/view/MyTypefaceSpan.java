@@ -29,11 +29,11 @@ import android.text.style.MetricAffectingSpan;
  *  <br>
  *  <strong>example</strong><br>
  *  <code>
- *  // Changes the font of the word 'favorite' to a fancy one for a TextView
- *  Typeface tf = FontCache.get("fonts/my_fancy_font.ttf", getApplicationContext());
- *  MyTypefaceSpan myTypefaceSpan = new MyTypefaceSpan(tf);
- *  SpannableStringBuilder sb = new SpannableStringBuilder("my favorite bug");
- *  sb.setSpan(myTypefaceSpan, 3, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+ *  // Changes the font of the word 'favorite' to a fancy one for a TextView<br>
+ *  Typeface tf = FontCache.get("fonts/my_fancy_font.ttf", getApplicationContext());<br>
+ *  MyTypefaceSpan myTypefaceSpan = new MyTypefaceSpan(tf);<br>
+ *  SpannableStringBuilder sb = new SpannableStringBuilder("my favorite bug");<br>
+ *  sb.setSpan(myTypefaceSpan, 3, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);<br>
  *  myTextView.setText(sb);
  *  </code><br>
  *  <br>
