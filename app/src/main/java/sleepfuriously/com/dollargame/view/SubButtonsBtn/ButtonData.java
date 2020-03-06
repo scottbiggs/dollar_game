@@ -1,11 +1,13 @@
-package sleepfuriously.com.dollargame.view.AllAngleExpandableButton;
+package sleepfuriously.com.dollargame.view.SubButtonsBtn;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
 /**
- * Created by dear33 on 2016/9/9.
+ * Controls images etc. for the button and sub-buttons
+ *
+ * todo: needs cleaning and more formal dox
  */
 public class ButtonData implements Cloneable{
     private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
@@ -19,7 +21,7 @@ public class ButtonData implements Cloneable{
     private int backgroundColor = DEFAULT_BACKGROUND_COLOR;//the background color of the button
 
     /** Replaces simple boolean for the type of button we're showing--I need both! */
-    public enum ButtonType { ICON, TEXT, BOTH };
+    public enum ButtonType { ICON, TEXT, BOTH }
 
 
     @Override

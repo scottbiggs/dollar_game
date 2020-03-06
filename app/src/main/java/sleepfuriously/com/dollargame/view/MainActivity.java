@@ -44,7 +44,7 @@ import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
 import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
-import sleepfuriously.com.dollargame.view.AllAngleExpandableButton.ButtonEventListener;
+import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 
 

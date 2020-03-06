@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.AllAngleExpandableButton;
+package sleepfuriously.com.dollargame.view.SubButtonsBtn;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,13 +9,12 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import androidx.annotation.WorkerThread;
-//import android.support.v8.renderscript.Allocation;
-//import android.support.v8.renderscript.Element;
-//import android.support.v8.renderscript.RenderScript;
-//import android.support.v8.renderscript.ScriptIntrinsicBlur;
+
 
 /**
- * Created by Administrator on 2016/10/21.
+ * Heavily copied from online source.
+ *
+ * todo: more docs, note source
  */
 public class Blur {
     private static final float SCALE = 0.4F;

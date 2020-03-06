@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.AllAngleExpandableButton;
+package sleepfuriously.com.dollargame.view.SubButtonsBtn;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -43,11 +43,22 @@ import sleepfuriously.com.dollargame.R;
 
 
 /**
- * Created by dear33 on 2016/9/8.
+ * General version of a button class that creates sub-buttons when
+ * pressed.  Each sub-button animates and is customizable.
+ *
+ * todo: improve docs
  */
-public class AllAngleExpandableButton extends View implements ValueAnimator.AnimatorUpdateListener {
+public class SubButtonsBtn extends View implements ValueAnimator.AnimatorUpdateListener {
 
-    private final static String TAG = AllAngleExpandableButton.class.getSimpleName();
+    //---------------------------------
+    //  constants
+    //---------------------------------
+
+    private final static String TAG = SubButtonsBtn.class.getSimpleName();
+
+    //---------------------------------
+    //  data
+    //---------------------------------
 
     private List<ButtonData> buttonDatas;
     private Map<ButtonData, RectF> buttonRects;
@@ -102,7 +113,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private Paint paint;
     private Paint textPaint;
 
-    private AngleCalculator angleCalculator;
+    private SubButtonAngleCalculator subButtonAngleCalculator;
     private boolean animating = false;
     private boolean maskAttached = false;
     private float expandProgress;
@@ -125,28 +136,24 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     private int pressTmpColor;
     private boolean pressInButton;
 
-    protected QuickClickChecker checker;
+    protected FastClickChecker checker;
     private int checkThreshold;
 
-    //store ripple effect params
-    private static class RippleInfo {
-        float pressX;
-        float pressY;
-        float rippleRadius;
-        int buttonIndex;
-        int rippleColor = Integer.MIN_VALUE;
-    }
 
-    public AllAngleExpandableButton(Context context) {
+    //---------------------------------
+    //  methods
+    //---------------------------------
+
+    public SubButtonsBtn(Context context) {
         this(context, null);
     }
 
-    public AllAngleExpandableButton(Context context, AttributeSet attrs) {
+    public SubButtonsBtn(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        init(context, attrs);   // for some reason, this wasn't in the original version
+        init(context, attrs);
     }
 
-    public AllAngleExpandableButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SubButtonsBtn(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
@@ -156,29 +163,29 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
 
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.AllAngleExpandableButton);
-        startAngle = ta.getInteger(R.styleable.AllAngleExpandableButton_aebStartAngleDegree, DEFAULT_START_ANGLE);
-        endAngle = ta.getInteger(R.styleable.AllAngleExpandableButton_aebEndAngleDegree, DEFAULT_END_ANGLE);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SubButtonsBtn);
+        startAngle = ta.getInteger(R.styleable.SubButtonsBtn_aebStartAngleDegree, DEFAULT_START_ANGLE);
+        endAngle = ta.getInteger(R.styleable.SubButtonsBtn_aebEndAngleDegree, DEFAULT_END_ANGLE);
 
-        buttonGapPx = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebButtonGapDp, dp2px(context, DEFAULT_BUTTON_GAP_DP));
-        mainButtonSizePx = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebMainButtonSizeDp, dp2px(context, DEFAULT_BUTTON_MAIN_SIZE_DP));
-        subButtonSizePx = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebSubButtonSizeDp, dp2px(context, DEFAULT_BUTTON_SUB_SIZE_DP));
-        buttonElevationPx = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebButtonElevation, dp2px(context, DEFAULT_BUTTON_ELEVATION_DP));
+        buttonGapPx = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebButtonGapDp, dp2px(context, DEFAULT_BUTTON_GAP_DP));
+        mainButtonSizePx = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebMainButtonSizeDp, dp2px(context, DEFAULT_BUTTON_MAIN_SIZE_DP));
+        subButtonSizePx = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebSubButtonSizeDp, dp2px(context, DEFAULT_BUTTON_SUB_SIZE_DP));
+        buttonElevationPx = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebButtonElevation, dp2px(context, DEFAULT_BUTTON_ELEVATION_DP));
         buttonSideMarginPx = buttonElevationPx * 2;
-        mainButtonTextSize = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebMainButtonTextSizeSp, sp2px(context, DEFAULT_BUTTON_TEXT_SIZE_SP));
-        subButtonTextSize = ta.getDimensionPixelSize(R.styleable.AllAngleExpandableButton_aebSubButtonTextSizeSp, sp2px(context, DEFAULT_BUTTON_TEXT_SIZE_SP));
-        mainButtonTextColor = ta.getColor(R.styleable.AllAngleExpandableButton_aebMainButtonTextColor, DEFAULT_BUTTON_TEXT_COLOR);
-        subButtonTextColor = ta.getColor(R.styleable.AllAngleExpandableButton_aebSubButtonTextColor, DEFAULT_BUTTON_TEXT_COLOR);
+        mainButtonTextSize = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebMainButtonTextSizeSp, sp2px(context, DEFAULT_BUTTON_TEXT_SIZE_SP));
+        subButtonTextSize = ta.getDimensionPixelSize(R.styleable.SubButtonsBtn_aebSubButtonTextSizeSp, sp2px(context, DEFAULT_BUTTON_TEXT_SIZE_SP));
+        mainButtonTextColor = ta.getColor(R.styleable.SubButtonsBtn_aebMainButtonTextColor, DEFAULT_BUTTON_TEXT_COLOR);
+        subButtonTextColor = ta.getColor(R.styleable.SubButtonsBtn_aebSubButtonTextColor, DEFAULT_BUTTON_TEXT_COLOR);
 
-        expandAnimDuration = ta.getInteger(R.styleable.AllAngleExpandableButton_aebAnimDurationMillis, DEFAULT_EXPAND_ANIMATE_DURATION);
-        rotateAnimDuration = ta.getInteger(R.styleable.AllAngleExpandableButton_aebMainButtonRotateAnimDurationMillis, DEFAULT_ROTATE_ANIMATE_DURATION);
-        maskBackgroundColor = ta.getInteger(R.styleable.AllAngleExpandableButton_aebMaskBackgroundColor, DEFAULT_MASK_BACKGROUND_COLOR);
-        mainButtonRotateDegree = ta.getInteger(R.styleable.AllAngleExpandableButton_aebMainButtonRotateDegree, mainButtonRotateDegree);
-        isSelectionMode = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebIsSelectionMode, false);
-        rippleEffect = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebRippleEffect, true);
-        rippleColor = ta.getColor(R.styleable.AllAngleExpandableButton_aebRippleColor, rippleColor);
-        blurBackground = ta.getBoolean(R.styleable.AllAngleExpandableButton_aebBlurBackground, false);
-        blurRadius = ta.getFloat(R.styleable.AllAngleExpandableButton_aebBlurRadius, DEFAULT_BLUR_RADIUS);
+        expandAnimDuration = ta.getInteger(R.styleable.SubButtonsBtn_aebAnimDurationMillis, DEFAULT_EXPAND_ANIMATE_DURATION);
+        rotateAnimDuration = ta.getInteger(R.styleable.SubButtonsBtn_aebMainButtonRotateAnimDurationMillis, DEFAULT_ROTATE_ANIMATE_DURATION);
+        maskBackgroundColor = ta.getInteger(R.styleable.SubButtonsBtn_aebMaskBackgroundColor, DEFAULT_MASK_BACKGROUND_COLOR);
+        mainButtonRotateDegree = ta.getInteger(R.styleable.SubButtonsBtn_aebMainButtonRotateDegree, mainButtonRotateDegree);
+        isSelectionMode = ta.getBoolean(R.styleable.SubButtonsBtn_aebIsSelectionMode, false);
+        rippleEffect = ta.getBoolean(R.styleable.SubButtonsBtn_aebRippleEffect, true);
+        rippleColor = ta.getColor(R.styleable.SubButtonsBtn_aebRippleColor, rippleColor);
+        blurBackground = ta.getBoolean(R.styleable.SubButtonsBtn_aebBlurBackground, false);
+        blurRadius = ta.getFloat(R.styleable.SubButtonsBtn_aebBlurRadius, DEFAULT_BLUR_RADIUS);
 
         ta.recycle();
 
@@ -192,7 +199,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         } else {
             checkThreshold = expandAnimDuration;
         }
-        checker = new QuickClickChecker(checkThreshold);
+        checker = new FastClickChecker(checkThreshold);
 
         rippleInfo = new RippleInfo();
         pressPointF = new PointF();
@@ -282,7 +289,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
     /**
-     * Call THIS method to create the callback, NOT setOnClickListener!
+     * !!! Call THIS method to create the callback, NOT setOnClickListener !!!
      */
     public void setButtonEventListener(ButtonEventListener listener) {
         buttonEventListener = listener;
@@ -301,7 +308,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public AllAngleExpandableButton setButtonDatas(List<ButtonData> buttonDatas) {
+    public SubButtonsBtn setButtonDatas(List<ButtonData> buttonDatas) {
         if (buttonDatas == null || buttonDatas.isEmpty()) {
             return this;
         }
@@ -323,7 +330,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     , buttonSizePx + buttonSideMarginPx, buttonSizePx + buttonSideMarginPx);
             buttonRects.put(buttonData, rectF);
         }
-        angleCalculator = new AngleCalculator(startAngle, endAngle, this.buttonDatas.size() - 1);
+        subButtonAngleCalculator = new SubButtonAngleCalculator(startAngle, endAngle, this.buttonDatas.size() - 1);
         return this;
     }
 
@@ -364,7 +371,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (checker.isQuick()) {
+                if (checker.isFast()) {
                     return false;
                 }
 
@@ -612,7 +619,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
     /**
-     * this method is called by both {@link AllAngleExpandableButton} and {@link MaskView} at draw process
+     * this method is called by both {@link SubButtonsBtn} and {@link MaskView} at draw process
      */
     private void drawButton(Canvas canvas, Paint paint, ButtonData buttonData) {
         drawShadow(canvas, paint, buttonData);
@@ -995,12 +1002,29 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
     }
 
 
+    //---------------------------------
+    //  classes
+    //---------------------------------
+
     /**
-     * when expand,draw MaskView to overlap the fullscreen,the background is transparent default
+     * Stores ripple effect params
+     */
+    private static class RippleInfo {
+        float pressX;
+        float pressY;
+        float rippleRadius;
+        int buttonIndex;
+        int rippleColor = Integer.MIN_VALUE;
+    }
+
+
+    /**
+     * Allows touch events to be captured outside of the main button area.  Only active
+     * after expansion.
      */
     @SuppressLint("ViewConstructor")
     private static class MaskView extends View {
-        private AllAngleExpandableButton allAngleExpandableButton;
+        private SubButtonsBtn subButtonsBtn;
         private RectF initialSubButtonRectF;//all of the sub button's initial rectF
         private RectF touchRectF;//set when one of buttons are touched
         private ValueAnimator touchRippleAnimator;
@@ -1010,7 +1034,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         private float rippleRadius;
         private int clickIndex = 0;
         private Matrix[] matrixArray;//each button has a Matrix to perform expand/collapse animation
-        private QuickClickChecker checker;
+        private FastClickChecker checker;
 
         private static final int IDLE = 0;
         private static final int RIPPLING = 1;
@@ -1027,7 +1051,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             float moveY;
 
             /**
-             * the members are set by getMoveX() and getMoveY() of {@link AngleCalculator}
+             * the members are set by getMoveX() and getMoveY() of {@link SubButtonAngleCalculator}
              */
             ExpandMoveCoordinate(float moveX, float moveY) {
                 this.moveX = moveX;
@@ -1035,17 +1059,17 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             }
         }
 
-        public MaskView(Context context, AllAngleExpandableButton button) {
+        public MaskView(Context context, SubButtonsBtn button) {
             super(context);
-            allAngleExpandableButton = button;
+            subButtonsBtn = button;
 
-            checker = new QuickClickChecker(allAngleExpandableButton.checkThreshold);
+            checker = new FastClickChecker(subButtonsBtn.checkThreshold);
 
             paint = new Paint();
             paint.setStyle(Paint.Style.FILL);
             paint.setAntiAlias(true);
 
-            matrixArray = new Matrix[allAngleExpandableButton.buttonDatas.size()];
+            matrixArray = new Matrix[subButtonsBtn.buttonDatas.size()];
             for (int i = 0; i < matrixArray.length; i++) {
                 matrixArray[i] = new Matrix();
             }
@@ -1053,22 +1077,22 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             initialSubButtonRectF = new RectF();
             touchRectF = new RectF();
 
-            expandedCoordinateMap = new HashMap<>(allAngleExpandableButton.buttonDatas.size());
-            setBackgroundColor(allAngleExpandableButton.maskBackgroundColor);
+            expandedCoordinateMap = new HashMap<>(subButtonsBtn.buttonDatas.size());
+            setBackgroundColor(subButtonsBtn.maskBackgroundColor);
 
             touchRippleAnimator = ValueAnimator.ofFloat(0, 1);
-            touchRippleAnimator.setDuration((long) ((float) allAngleExpandableButton.expandAnimDuration * 0.9f));
+            touchRippleAnimator.setDuration((long) ((float) subButtonsBtn.expandAnimDuration * 0.9f));
             touchRippleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator) {
                     float animateProgress = (float) valueAnimator.getAnimatedValue();
-                    allAngleExpandableButton.rippleInfo.rippleRadius = rippleRadius * animateProgress;
+                    subButtonsBtn.rippleInfo.rippleRadius = rippleRadius * animateProgress;
                 }
             });
             touchRippleAnimator.addListener(new SimpleAnimatorListener() {
                 @Override
                 public void onAnimationEnd(Animator animator) {
-                    allAngleExpandableButton.rippleInfo.rippleRadius = 0;
+                    subButtonsBtn.rippleInfo.rippleRadius = 0;
                     setRippleState(RIPPLED);
                 }
             });
@@ -1088,32 +1112,32 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            allAngleExpandableButton.pressPointF.set(event.getX(), event.getY());
+            subButtonsBtn.pressPointF.set(event.getX(), event.getY());
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    if (checker.isQuick()) {
+                    if (checker.isFast()) {
                         return false;
                     }
                     clickIndex = getTouchedButtonIndex();
 
-                    if (allAngleExpandableButton.expanded) {
-                        allAngleExpandableButton.updatePressState(clickIndex, true);
+                    if (subButtonsBtn.expanded) {
+                        subButtonsBtn.updatePressState(clickIndex, true);
                     }
-                    allAngleExpandableButton.pressInButton = true;
-                    return allAngleExpandableButton.expanded;
+                    subButtonsBtn.pressInButton = true;
+                    return subButtonsBtn.expanded;
 
                 case MotionEvent.ACTION_MOVE:
-                    allAngleExpandableButton.updatePressPosition(clickIndex, touchRectF);
+                    subButtonsBtn.updatePressPosition(clickIndex, touchRectF);
                     break;
 
                 case MotionEvent.ACTION_UP:
-                    if (!allAngleExpandableButton.isPointInRectF(allAngleExpandableButton.pressPointF, touchRectF)) {
+                    if (!subButtonsBtn.isPointInRectF(subButtonsBtn.pressPointF, touchRectF)) {
                         if (clickIndex < 0) {
-                            allAngleExpandableButton.collapse();
+                            subButtonsBtn.collapse();
                         }
                         return true;
                     }
-                    allAngleExpandableButton.updatePressState(clickIndex, false);
+                    subButtonsBtn.updatePressState(clickIndex, false);
                     onButtonPressed();
                     break;
             }
@@ -1138,16 +1162,16 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         }
 
         protected void onButtonPressed() {
-            if (allAngleExpandableButton.buttonEventListener != null) {
+            if (subButtonsBtn.buttonEventListener != null) {
                 if (clickIndex > 0) {
-                    allAngleExpandableButton.buttonEventListener.onPopupButtonClicked(clickIndex);
+                    subButtonsBtn.buttonEventListener.onPopupButtonClicked(clickIndex);
                 }
             }
 
-            if (allAngleExpandableButton.isSelectionMode) {
+            if (subButtonsBtn.isSelectionMode) {
                 if (clickIndex > 0) {
-                    ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(clickIndex);
-                    ButtonData mainButton = allAngleExpandableButton.getMainButtonData();
+                    ButtonData buttonData = subButtonsBtn.buttonDatas.get(clickIndex);
+                    ButtonData mainButton = subButtonsBtn.getMainButtonData();
 
                     switch (buttonData.getButtonType()) {
                         case ICON:
@@ -1170,15 +1194,15 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     mainButton.setBackgroundColor(buttonData.getBackgroundColor());
                 }
             }
-            allAngleExpandableButton.collapse();
+            subButtonsBtn.collapse();
         }
 
         private int getTouchedButtonIndex() {
-            for (int i = 0; i < allAngleExpandableButton.buttonDatas.size(); i++) {
-                ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(i);
+            for (int i = 0; i < subButtonsBtn.buttonDatas.size(); i++) {
+                ButtonData buttonData = subButtonsBtn.buttonDatas.get(i);
                 ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
                 if (i == 0) {
-                    RectF rectF = allAngleExpandableButton.buttonRects.get(buttonData);
+                    RectF rectF = subButtonsBtn.buttonRects.get(buttonData);
                     touchRectF.set(rectF);
                 } else {
                     touchRectF.set(initialSubButtonRectF);
@@ -1186,7 +1210,7 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                     touchRectF.offset(coordinate.moveX, -coordinate.moveY);
                 }
 
-                if (allAngleExpandableButton.isPointInRectF(allAngleExpandableButton.pressPointF, touchRectF)) {
+                if (subButtonsBtn.isPointInRectF(subButtonsBtn.pressPointF, touchRectF)) {
                     return i;
                 }
             }
@@ -1194,24 +1218,24 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
         }
 
         private void initButtonRect() {
-            for (int i = 0; i < allAngleExpandableButton.buttonDatas.size(); i++) {
-                ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(i);
-                RectF rectF = allAngleExpandableButton.buttonRects.get(buttonData);
+            for (int i = 0; i < subButtonsBtn.buttonDatas.size(); i++) {
+                ButtonData buttonData = subButtonsBtn.buttonDatas.get(i);
+                RectF rectF = subButtonsBtn.buttonRects.get(buttonData);
                 if (i == 0) {
                     //noinspection ConstantConditions
-                    rectF.left = allAngleExpandableButton.rawButtonRectF.left + allAngleExpandableButton.buttonSideMarginPx;
-                    rectF.right = allAngleExpandableButton.rawButtonRectF.right - allAngleExpandableButton.buttonSideMarginPx;
-                    rectF.top = allAngleExpandableButton.rawButtonRectF.top + allAngleExpandableButton.buttonSideMarginPx;
-                    rectF.bottom = allAngleExpandableButton.rawButtonRectF.bottom - allAngleExpandableButton.buttonSideMarginPx;
+                    rectF.left = subButtonsBtn.rawButtonRectF.left + subButtonsBtn.buttonSideMarginPx;
+                    rectF.right = subButtonsBtn.rawButtonRectF.right - subButtonsBtn.buttonSideMarginPx;
+                    rectF.top = subButtonsBtn.rawButtonRectF.top + subButtonsBtn.buttonSideMarginPx;
+                    rectF.bottom = subButtonsBtn.rawButtonRectF.bottom - subButtonsBtn.buttonSideMarginPx;
                 } else {
                     //noinspection ConstantConditions
                     float leftTmp = rectF.left;
                     float topTmp = rectF.top;
-                    int buttonRadius = allAngleExpandableButton.subButtonSizePx / 2;
-                    rectF.left = leftTmp + allAngleExpandableButton.rawButtonRectF.centerX() - allAngleExpandableButton.buttonSideMarginPx - buttonRadius;
-                    rectF.right = leftTmp + allAngleExpandableButton.rawButtonRectF.centerX() - allAngleExpandableButton.buttonSideMarginPx + buttonRadius;
-                    rectF.top = topTmp + allAngleExpandableButton.rawButtonRectF.centerY() - allAngleExpandableButton.buttonSideMarginPx - buttonRadius;
-                    rectF.bottom = topTmp + allAngleExpandableButton.rawButtonRectF.centerY() - allAngleExpandableButton.buttonSideMarginPx + buttonRadius;
+                    int buttonRadius = subButtonsBtn.subButtonSizePx / 2;
+                    rectF.left = leftTmp + subButtonsBtn.rawButtonRectF.centerX() - subButtonsBtn.buttonSideMarginPx - buttonRadius;
+                    rectF.right = leftTmp + subButtonsBtn.rawButtonRectF.centerX() - subButtonsBtn.buttonSideMarginPx + buttonRadius;
+                    rectF.top = topTmp + subButtonsBtn.rawButtonRectF.centerY() - subButtonsBtn.buttonSideMarginPx - buttonRadius;
+                    rectF.bottom = topTmp + subButtonsBtn.rawButtonRectF.centerY() - subButtonsBtn.buttonSideMarginPx + buttonRadius;
                     initialSubButtonRectF.set(rectF);
                     touchRectF.set(rectF);
                 }
@@ -1222,50 +1246,51 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
          * called before draw an expand/collapse frame
          */
         private void updateButtons() {
-            List<ButtonData> buttonDatas = allAngleExpandableButton.buttonDatas;
-            int mainButtonRadius = allAngleExpandableButton.mainButtonSizePx / 2;
-            int subButtonRadius = allAngleExpandableButton.subButtonSizePx / 2;
+            List<ButtonData> buttonDatas = subButtonsBtn.buttonDatas;
+            int mainButtonRadius = subButtonsBtn.mainButtonSizePx / 2;
+            int subButtonRadius = subButtonsBtn.subButtonSizePx / 2;
             Matrix matrix = matrixArray[0];
             matrix.reset();
-            matrix.postRotate(allAngleExpandableButton.mainButtonRotateDegree * allAngleExpandableButton.rotateProgress
-                    , allAngleExpandableButton.rawButtonRectF.centerX(), allAngleExpandableButton.rawButtonRectF.centerY());
+            matrix.postRotate(subButtonsBtn.mainButtonRotateDegree * subButtonsBtn.rotateProgress
+                    , subButtonsBtn.rawButtonRectF.centerX(), subButtonsBtn.rawButtonRectF.centerY());
             for (int i = 1; i < buttonDatas.size(); i++) {
                 matrix = matrixArray[i];
                 ButtonData buttonData = buttonDatas.get(i);
                 matrix.reset();
-                if (allAngleExpandableButton.expanded) {
+                if (subButtonsBtn.expanded) {
                     ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
-//                    //noinspection ConstantConditions
-                    float dx = allAngleExpandableButton.expandProgress * (coordinate.moveX);
-                    float dy = allAngleExpandableButton.expandProgress * (-coordinate.moveY);
+
+                    //noinspection ConstantConditions
+                    float dx = subButtonsBtn.expandProgress * (coordinate.moveX);
+                    float dy = subButtonsBtn.expandProgress * (-coordinate.moveY);
                     matrix.postTranslate(dx, dy);
                 } else {
-                    int radius = mainButtonRadius + subButtonRadius + allAngleExpandableButton.buttonGapPx;
+                    int radius = mainButtonRadius + subButtonRadius + subButtonsBtn.buttonGapPx;
                     float moveX;
                     float moveY;
                     ExpandMoveCoordinate coordinate = expandedCoordinateMap.get(buttonData);
                     if (coordinate == null) {
-                        moveX = allAngleExpandableButton.angleCalculator.getMoveX(radius, i);
-                        moveY = allAngleExpandableButton.angleCalculator.getMoveY(radius, i);
+                        moveX = subButtonsBtn.subButtonAngleCalculator.getMoveX(radius, i);
+                        moveY = subButtonsBtn.subButtonAngleCalculator.getMoveY(radius, i);
                         coordinate = new ExpandMoveCoordinate(moveX, moveY);
                         expandedCoordinateMap.put(buttonData, coordinate);
                     } else {
                         moveX = coordinate.moveX;
                         moveY = coordinate.moveY;
                     }
-                    float dx = allAngleExpandableButton.expandProgress * (moveX);
-                    float dy = allAngleExpandableButton.expandProgress * (-moveY);
+                    float dx = subButtonsBtn.expandProgress * (moveX);
+                    float dy = subButtonsBtn.expandProgress * (-moveY);
                     matrix.postTranslate(dx, dy);
                 }
             }
         }
 
         private void drawButtons(Canvas canvas, Paint paint) {
-            for (int i = allAngleExpandableButton.buttonDatas.size() - 1; i >= 0; i--) {
+            for (int i = subButtonsBtn.buttonDatas.size() - 1; i >= 0; i--) {
                 canvas.save();
                 canvas.concat(matrixArray[i]);
-                ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(i);
-                allAngleExpandableButton.drawButton(canvas, paint, buttonData);
+                ButtonData buttonData = subButtonsBtn.buttonDatas.get(i);
+                subButtonsBtn.drawButton(canvas, paint, buttonData);
                 if (i == 0 && clickIndex == 0) {
                     performRipple();
                 }
@@ -1275,18 +1300,19 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
         private void performRipple() {
             if (getRippleState() == IDLE) {
-                ripple(0, allAngleExpandableButton.pressPointF.x, allAngleExpandableButton.pressPointF.y);
+                ripple(0, subButtonsBtn.pressPointF.x, subButtonsBtn.pressPointF.y);
                 setRippleState(RIPPLING);
             }
         }
 
         private void ripple(int index, float pressX, float pressY) {
-            if (index < 0 || !allAngleExpandableButton.rippleEffect) {
+            if (index < 0 || !subButtonsBtn.rippleEffect) {
                 return;
             }
-            allAngleExpandableButton.resetRippleInfo();
-            ButtonData buttonData = allAngleExpandableButton.buttonDatas.get(index);
-            RectF rectF = allAngleExpandableButton.buttonRects.get(buttonData);
+            subButtonsBtn.resetRippleInfo();
+            ButtonData buttonData = subButtonsBtn.buttonDatas.get(index);
+            RectF rectF = subButtonsBtn.buttonRects.get(buttonData);
+
             //noinspection ConstantConditions
             float centerX = rectF.centerX();
             float centerY = rectF.centerY();
@@ -1298,29 +1324,29 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
                 //press out of the button circle_solve_normal
                 return;
             }
-            allAngleExpandableButton.rippleInfo.pressX = pressX;
-            allAngleExpandableButton.rippleInfo.pressY = pressY;
-            allAngleExpandableButton.rippleInfo.buttonIndex = index;
-            allAngleExpandableButton.rippleInfo.rippleRadius = radius + pressToCenterDistance;
-            allAngleExpandableButton.rippleInfo.rippleColor = getRippleColor(allAngleExpandableButton.rippleColor == Integer.MIN_VALUE ?
-                    buttonData.getBackgroundColor() : allAngleExpandableButton.rippleColor);
+            subButtonsBtn.rippleInfo.pressX = pressX;
+            subButtonsBtn.rippleInfo.pressY = pressY;
+            subButtonsBtn.rippleInfo.buttonIndex = index;
+            subButtonsBtn.rippleInfo.rippleRadius = radius + pressToCenterDistance;
+            subButtonsBtn.rippleInfo.rippleColor = getRippleColor(subButtonsBtn.rippleColor == Integer.MIN_VALUE ?
+                    buttonData.getBackgroundColor() : subButtonsBtn.rippleColor);
 
-            rippleRadius = allAngleExpandableButton.rippleInfo.rippleRadius;
+            rippleRadius = subButtonsBtn.rippleInfo.rippleRadius;
             startRippleAnimator();
         }
 
         private int getRippleColor(int color) {
-            if (allAngleExpandableButton.rippleColor != Integer.MIN_VALUE) {
-                return allAngleExpandableButton.rippleColor;
+            if (subButtonsBtn.rippleColor != Integer.MIN_VALUE) {
+                return subButtonsBtn.rippleColor;
             }
-            if (allAngleExpandableButton.rippleInfo.rippleColor != Integer.MIN_VALUE) {
-                return allAngleExpandableButton.rippleInfo.rippleColor;
+            if (subButtonsBtn.rippleInfo.rippleColor != Integer.MIN_VALUE) {
+                return subButtonsBtn.rippleInfo.rippleColor;
             }
 
-            if (color == allAngleExpandableButton.getLighterColor(color)) {
-                return allAngleExpandableButton.getDarkerColor(color);
+            if (color == subButtonsBtn.getLighterColor(color)) {
+                return subButtonsBtn.getDarkerColor(color);
             } else {
-                return allAngleExpandableButton.getLighterColor(color);
+                return subButtonsBtn.getLighterColor(color);
             }
         }
 
@@ -1330,8 +1356,10 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
             }
             touchRippleAnimator.start();
         }
-    }
+    } // class MaskView
 
+
+    // todo
     private static class SimpleAnimatorListener implements Animator.AnimatorListener {
         @Override
         public void onAnimationStart(Animator animator) {
@@ -1353,4 +1381,5 @@ public class AllAngleExpandableButton extends View implements ValueAnimator.Anim
 
         }
     }
+
 }

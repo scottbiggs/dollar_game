@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Generates combinations with very specific parameters.
  *
- *
+ * todo: usage dox
  */
 public class MyCombinationGenerator {
 
@@ -20,10 +20,11 @@ public class MyCombinationGenerator {
     private static List<List<Integer>> mCombinationsList = null;
 
 
-
-
     /**
      * This is the main purpose of this class.
+     * Estimated complexity: O(howMany ^ (ceiling - floor)). Ugh.
+     *
+     * NOTE: May need to put calls to this in a separate process.
      *
      * @param howMany     The number of ints
      *
@@ -119,8 +120,16 @@ public class MyCombinationGenerator {
 
 
     /**
-     * Test, found at http://rosettacode.org/wiki/Combinations_with_repetitions#C.
-     * I'm trying to port it to java from C.
+     * Loosely based on some C code found at http://rosettacode.org/wiki/Combinations_with_repetitions#C.
+     * So many side-effects, yuck!.
+     *
+     * Difficult to calculate order of complexity because of the recursion AND iteration, but it
+     * works!  That's what I get for cobbling together pieces of code.  Estimated O(n^n)
+     * where n is maxTypes.
+     *
+     * side-effects
+     *  mRangeList
+     *  mCombinationsList
      *
      * @param got       temp storage. needs to have at least len elements
      * @param n_chosen  Number of items already chosen (in the 'got' array)
@@ -128,7 +137,7 @@ public class MyCombinationGenerator {
      * @param at
      * @param maxTypes
      *
-     * @return  Seems to return the number of the different listings.
+     * @return  The number of the different listings.
      */
     public static long choose(int[] got, int n_chosen, int len, int at, int maxTypes) {
 
