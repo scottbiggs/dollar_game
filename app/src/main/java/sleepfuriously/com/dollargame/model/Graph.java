@@ -246,9 +246,9 @@ public class Graph<T>
 
     /**
      * Returns a list of all the node IDs adjacent to the given node.
-     * If none, this returns an empty list.
-     *
-     *	O(n)
+     * If none, this returns an empty list.<br>
+     *<br>
+     *	O(n)<br>
      *
      * @param	nodeId		The ID of the node in question.
      *
@@ -283,8 +283,15 @@ public class Graph<T>
     }
 
     /**
-     * Like getAllAdjacentTo(nodeId, directed), but this uses the
-     * directedness of the current Graph.
+     * Returns a list of all the node IDs adjacent to the given node.
+     * If none, this returns an empty list.<br>
+     *<br>
+     *	O(n)<br>
+     *<br>
+     * Like {@link #getAllAdjacentTo(int, boolean)}, but this uses the current
+     * directedness of the Graph.
+     *
+     * @param	nodeId		The ID of the node in question.
      */
     public List<Integer> getAllAdjacentTo(int nodeId) {
         return getAllAdjacentTo(nodeId, mDirected);
@@ -317,7 +324,9 @@ public class Graph<T>
 
     /**
      * Returns the id of the first node to match the given
-     * data.
+     * data.<br>
+     * <br>
+     * O(n)
      *
      *	@return		The key or null if not found.
      */

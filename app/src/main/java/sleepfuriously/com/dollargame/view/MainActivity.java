@@ -1,5 +1,6 @@
 package sleepfuriously.com.dollargame.view;
 
+import android.animation.Animator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,17 +25,21 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -64,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     /** An id to identify the PrefsActivity in onActivityResult() */
     public static final int PREFS_ACTIVITY_ID = 2;
 
+    /** number of milliseconds for a take animation */
+    private static final int TAKE_MILLIS = 1500;
 
     //------------------------
     //  widgets
@@ -102,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
     /** allows the user to quickly randomize all the nodes at once */
     private Button mRandomizeAllButt;
+
+    /** this is the view that moves between the nodes indicating a give or take */
+    private Drawable mGiveTakeDrawable;
+
 
     //------------------------
     //  data
@@ -310,6 +322,8 @@ public class MainActivity extends AppCompatActivity {
         setupPlayArea();
         setupConnectedWidgets();
         setupRandomizeButton();
+
+        mGiveTakeDrawable = AppCompatResources.getDrawable(this, R.drawable.circle_black_solid_small);
     }
 
     /**
@@ -768,8 +782,8 @@ public class MainActivity extends AppCompatActivity {
         button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                             ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        final int id = mGraph.getUniqueNodeId();
-        button.setId(id);
+        final int buttonId = mGraph.getUniqueNodeId();
+        button.setId(buttonId);
 
         button.setXYCenter(relativeToParentLoc.x, relativeToParentLoc.y);
         button.setBackgroundColorResource(R.color.button_bg_color_build_disconnected);
@@ -779,11 +793,13 @@ public class MainActivity extends AppCompatActivity {
             public void onPopupButtonClicked(int index) {
                 switch (index) {
                     case 1:
-                        startTake(button);
+                        // indicate that a take was chosen.  Don't actually do anything
+                        // until the animation is complete.
+                        mTaking = true;
                         break;
 
                     case 2:
-                        startGive(button);
+                        mGiving = true;
                         break;
                 }
             }
@@ -799,7 +815,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCollapseFinished() {
-                finishGiveTake(button);
+                startGiveTake(buttonId, button);
             }
         });
 
@@ -861,7 +877,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             //noinspection unchecked
-            mGraph.addNode(id, button);
+            mGraph.addNode(buttonId, button);
         }
         catch (GraphNodeDuplicateIdException e) {
             e.printStackTrace();
@@ -881,44 +897,139 @@ public class MainActivity extends AppCompatActivity {
         mGiving = true;
     }
 
-    private void startTake(MovableNodeButton button) {
-        mTaking = true;
-    }
-
     /**
-     * User has indicated that this node will give to each of its neighbors.
-     * This handles the logic and UI for that move.
+     * Begins the animation of a give or take.  This involves considerable
+     * setup.  Once the animation is complete {@link #giveTakeAnimFinished(List, MovableNodeButton)}
+     * is called via a listener.
      *
-     * @param button    The button that is doing the giving
+     * preconditions:
+     *  mGiving and mTaking should be properly set.
+     *
+     * @param mainButtId    The graph id of the button doing the taking
+     *
+     * @param mainButton    The button that we're sending the money to
+     *                      (the button that's taking the money).
      */
-    private void finishGiveTake(MovableNodeButton button) {
-        @SuppressWarnings("unchecked")
-        int actorId = mGraph.getNodeId(button); // actor is the button that's doing the giving or taking
+    private void startGiveTake(int mainButtId, final MovableNodeButton mainButton) {
 
-        @SuppressWarnings("unchecked")
-        List<Integer> adjacentList = mGraph.getAllAdjacentTo(actorId);
-
-        for (int adjacentNodeId : adjacentList) {
-            MovableNodeButton adjacentNode = (MovableNodeButton) mGraph.getNodeData(adjacentNodeId);
-
-            if (mGiving) {
-                adjacentNode.incrementAmount();
-                button.decrementAmount();
-
-                adjacentNode.invalidate();
-                button.invalidate();
-            }
-
-            if (mTaking) {
-                adjacentNode.decrementAmount();
-                button.incrementAmount();
-
-                adjacentNode.invalidate();
-                button.invalidate();
-            }
-
+        // sanity check
+        if ((mGiving == false) && (mTaking == false)) {
+            Log.e(TAG, "no action to do in startGiveTake()");
+            return;
         }
 
+        //noinspection unchecked
+        List<Integer> adjacentList = mGraph.getAllAdjacentTo(mainButtId);
+
+        // create the little moving dots that will traverse the edges
+        final List<ImageView> dots = new ArrayList<>();
+        for (int adjacentId: adjacentList) {
+            ImageView newDot = new ImageView(this);
+            newDot.setLayoutParams(new LinearLayout.LayoutParams(
+                   LinearLayout.LayoutParams.WRAP_CONTENT,
+                   LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            newDot.setImageDrawable(mGiveTakeDrawable);
+
+            MovableNodeButton adjacentButt = (MovableNodeButton) mGraph.getNodeData(adjacentId);
+            newDot.setTag(adjacentButt);  // we'll need this data later
+
+            // set the initial location of this dot on the main button or the adjacent button
+            // depending on whether this is a give or a take
+            if (mTaking) {
+                newDot.setX(adjacentButt.getCenterX());
+                newDot.setY(adjacentButt.getCenterY());
+            }
+            else {
+                newDot.setX(mainButton.getCenterX());
+                newDot.setY(mainButton.getCenterY());
+            }
+
+            dots.add(newDot);
+            mPlayArea.addView(newDot);
+        }
+
+        // Animate the dots
+        for (int i = 0; i < dots.size(); i++) {
+            ImageView dot = dots.get(i);
+            MovableNodeButton adjacentButt = (MovableNodeButton) dot.getTag();
+
+            ViewPropertyAnimator animator = dot.animate();
+            animator.setDuration(TAKE_MILLIS);
+            if (mTaking) {
+                animator.translationX(mainButton.getCenterX())
+                        .translationY(mainButton.getCenterY());
+            }
+            else {
+                animator.translationX(adjacentButt.getCenterX())
+                        .translationY(adjacentButt.getCenterY());
+            }
+
+            if (i + 1 == dots.size()) {
+                // if this is the last one, set a listener
+                // to fire when the animations ends.
+                animator
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) { }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                giveTakeAnimFinished(dots, mainButton);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) { }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) { }
+                        });
+            }
+        }
+
+    }
+
+
+    /**
+     * Called once a give or take animation is complete.  This finishes
+     * the UI and the logic of a give or a take.<br>
+     *<br>
+     * preconditions:<br>
+     *  mGiving and mTaking are properly set (should have been checked at
+     *  a higher level).
+     *
+     * @param animViews List of all the dot Views that were animating
+     *
+     * @param mainButton    The button that is the center of the animation.
+     */
+    private void giveTakeAnimFinished(List<ImageView> animViews,
+                                      MovableNodeButton mainButton) {
+
+        for (ImageView v : animViews) {
+            // update the dollar amount connected to this view
+            MovableNodeButton button = (MovableNodeButton) v.getTag();
+            if (mGiving) {
+                button.incrementAmount();
+            }
+            else {
+                button.decrementAmount();
+            }
+
+            // remove this view from the play area
+            mPlayArea.removeView(v);
+        }
+
+        // update the main button
+        int currAmount = mainButton.getAmount();
+        int changeAmount = animViews.size();
+        if (mGiving) {
+            mainButton.setAmount(currAmount - changeAmount);
+        }
+        else {
+            mainButton.setAmount(currAmount + changeAmount);
+        }
+
+        // re-check solved state
         if (isSolved()) {
             mConnectedIV.setImageResource(R.drawable.ic_solved);
         }
@@ -927,7 +1038,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
     /**
      * Checks the current state of mGraph and determines if we're in a solved

@@ -172,7 +172,8 @@ public class MovableNodeButton extends SubButtonsBtn
     }
 
     /**
-     * Sets the amount that this button displays.
+     * Sets the amount that this button displays.  Automatically
+     * calls invalidate();
      *
      * @param amount    Should be a value on or between
      *                  MIN_AMOUNT and MAX_AMOUNT
@@ -185,6 +186,7 @@ public class MovableNodeButton extends SubButtonsBtn
 
     /**
      * Increments the amount of this Node by 1.
+     * Automatically calls invalidate().
      */
     public void incrementAmount() {
         setAmount(mAmount + 1);
@@ -192,6 +194,7 @@ public class MovableNodeButton extends SubButtonsBtn
 
     /**
      * Decrements the amount by 1
+     * Automatically calls invalidate().
      */
     public void decrementAmount() {
         setAmount(mAmount - 1);
@@ -456,6 +459,20 @@ public class MovableNodeButton extends SubButtonsBtn
         buttonDataList.add(secondPopup);
 
         return buttonDataList;
+    }
+
+    /**
+     * Finds the center of this button in terms of its parent coordinates.
+     */
+    public float getCenterX() {
+        return getX() + (((float)getWidth()) / 2f);
+    }
+
+    /**
+     * Finds the center of this button in terms of its parent coordinates.
+     */
+    public float getCenterY() {
+        return getY() + (((float)getHeight()) / 2f);
     }
 
 
