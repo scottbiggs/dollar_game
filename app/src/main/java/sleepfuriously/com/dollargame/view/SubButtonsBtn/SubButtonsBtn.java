@@ -1205,6 +1205,9 @@ public class SubButtonsBtn extends View implements ValueAnimator.AnimatorUpdateL
                     RectF rectF = subButtonsBtn.buttonRects.get(buttonData);
                     touchRectF.set(rectF);
                 } else {
+                    if (coordinate == null) {
+                        Log.e(TAG, "getTouchedButtonIndex() could not get ExpandMoveCoordinate!");
+                    }
                     touchRectF.set(initialSubButtonRectF);
                     //noinspection ConstantConditions
                     touchRectF.offset(coordinate.moveX, -coordinate.moveY);

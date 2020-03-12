@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int PREFS_ACTIVITY_ID = 2;
 
     /** number of milliseconds for a take animation */
-    private static final int TAKE_MILLIS = 500;
+    private static final int TAKE_MILLIS = 250;
 
     //------------------------
     //  widgets
@@ -240,10 +240,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent playAreaEvent) {
 
                 if (!mBuildMode) {
-                    if (mAnimatingGiveTake) {
-                        return true;    // solve mode, but animating--do nothing
-                    }
-
                     // Solve mode, pass along the events
                     return false;
                 }
@@ -315,10 +311,7 @@ public class MainActivity extends AppCompatActivity {
         mRandomizeAllButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAnimatingGiveTake == false) {
-                    // don't change anything in the middle of an animation
-                    randomizeAllNodes();
-                }
+                randomizeAllNodes();
             }
         });
     }
@@ -347,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         mDotDimensionWidth = drawable.getIntrinsicWidth();
         mDotDimensionHeight = drawable.getIntrinsicHeight();
 
-        // Not animating currently
+        // Not animating currently, we just started the program!
         mAnimatingGiveTake = false;
     }
 
@@ -401,6 +394,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         processIntent();
+    }
+
+
+    /**
+     * This is overridden so that I can control when touch events are handled
+     * and when they are all ignored.
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (mAnimatingGiveTake) {
+            return true;    // consume all touch events during animations
+        }
+
+        return super.dispatchTouchEvent(ev);
     }
 
 
@@ -816,11 +823,6 @@ public class MainActivity extends AppCompatActivity {
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
             public void onPopupButtonClicked(int index) {
-                if (mAnimatingGiveTake) {
-                    Log.e(TAG, "onPopupButtonClicked() while mAnimatingGiveTake is true!");
-                    return; // do nothing during an animation
-                }
-
                 switch (index) {
                     case 1:
                         // indicate that a take was chosen.  Don't actually do anything
@@ -845,7 +847,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCollapseFinished() {
-                startGiveTake(buttonId, button);
+                if (mTaking || mGiving) {
+                    startGiveTake(buttonId, button);
+                }
             }
         });
 
