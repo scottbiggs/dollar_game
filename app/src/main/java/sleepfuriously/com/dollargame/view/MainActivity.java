@@ -4,8 +4,11 @@ import android.animation.Animator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 
 import androidx.annotation.Nullable;
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int PREFS_ACTIVITY_ID = 2;
 
     /** number of milliseconds for a take animation */
-    private static final int TAKE_MILLIS = 1500;
+    private static final int TAKE_MILLIS = 500;
 
     //------------------------
     //  widgets
@@ -133,6 +136,13 @@ public class MainActivity extends AppCompatActivity {
 
     /** Used to indicate that a take action is occurring */
     private boolean mTaking;
+
+    /** the size of an animation dot in current screen coordinates */
+    private int mDotDimensionWidth, mDotDimensionHeight;
+
+    /** only TRUE during the give/take animation. UI events need to wait until this is FALSE */
+    private boolean mAnimatingGiveTake = false;
+
 
     //------------------------
     //  methods
@@ -230,6 +240,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent playAreaEvent) {
 
                 if (!mBuildMode) {
+                    if (mAnimatingGiveTake) {
+                        return true;    // solve mode, but animating--do nothing
+                    }
+
                     // Solve mode, pass along the events
                     return false;
                 }
@@ -301,7 +315,10 @@ public class MainActivity extends AppCompatActivity {
         mRandomizeAllButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                randomizeAllNodes();
+                if (mAnimatingGiveTake == false) {
+                    // don't change anything in the middle of an animation
+                    randomizeAllNodes();
+                }
             }
         });
     }
@@ -324,6 +341,14 @@ public class MainActivity extends AppCompatActivity {
         setupRandomizeButton();
 
         mGiveTakeDrawable = AppCompatResources.getDrawable(this, R.drawable.circle_black_solid_small);
+
+        // Need to figure out the size of the animation dots for later
+        Drawable drawable = getResources().getDrawable(R.drawable.circle_black_solid_small);
+        mDotDimensionWidth = drawable.getIntrinsicWidth();
+        mDotDimensionHeight = drawable.getIntrinsicHeight();
+
+        // Not animating currently
+        mAnimatingGiveTake = false;
     }
 
     /**
@@ -791,6 +816,11 @@ public class MainActivity extends AppCompatActivity {
         button.setButtonEventListener(new ButtonEventListener() {
             @Override
             public void onPopupButtonClicked(int index) {
+                if (mAnimatingGiveTake) {
+                    Log.e(TAG, "onPopupButtonClicked() while mAnimatingGiveTake is true!");
+                    return; // do nothing during an animation
+                }
+
                 switch (index) {
                     case 1:
                         // indicate that a take was chosen.  Don't actually do anything
@@ -893,9 +923,6 @@ public class MainActivity extends AppCompatActivity {
         mTaking = false;
     }
 
-    private void startGive(MovableNodeButton button) {
-        mGiving = true;
-    }
 
     /**
      * Begins the animation of a give or take.  This involves considerable
@@ -918,6 +945,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // set a flag to prevent any UI events during this animation
+        mAnimatingGiveTake = true;
+
+        float xAdjust = 0, yAdjust = 0;
+
         //noinspection unchecked
         List<Integer> adjacentList = mGraph.getAllAdjacentTo(mainButtId);
 
@@ -935,15 +967,21 @@ public class MainActivity extends AppCompatActivity {
             newDot.setTag(adjacentButt);  // we'll need this data later
 
             // set the initial location of this dot on the main button or the adjacent button
-            // depending on whether this is a give or a take
+            // depending on whether this is a give or a take.  The locations of the dots must
+            // take the size of the dot into account.
+            xAdjust = ((float) mDotDimensionWidth) / 2f;
+            yAdjust = ((float) mDotDimensionHeight) / 2f;
+
+
             if (mTaking) {
-                newDot.setX(adjacentButt.getCenterX());
-                newDot.setY(adjacentButt.getCenterY());
+                newDot.setX(adjacentButt.getCenterX() - xAdjust);
+                newDot.setY(adjacentButt.getCenterY() - yAdjust);
             }
             else {
-                newDot.setX(mainButton.getCenterX());
-                newDot.setY(mainButton.getCenterY());
+                newDot.setX(mainButton.getCenterX() - xAdjust);
+                newDot.setY(mainButton.getCenterY() - yAdjust);
             }
+
 
             dots.add(newDot);
             mPlayArea.addView(newDot);
@@ -957,12 +995,12 @@ public class MainActivity extends AppCompatActivity {
             ViewPropertyAnimator animator = dot.animate();
             animator.setDuration(TAKE_MILLIS);
             if (mTaking) {
-                animator.translationX(mainButton.getCenterX())
-                        .translationY(mainButton.getCenterY());
+                animator.translationX(mainButton.getCenterX() - xAdjust)
+                        .translationY(mainButton.getCenterY() - yAdjust);
             }
             else {
-                animator.translationX(adjacentButt.getCenterX())
-                        .translationY(adjacentButt.getCenterY());
+                animator.translationX(adjacentButt.getCenterX() - xAdjust)
+                        .translationY(adjacentButt.getCenterY() - yAdjust);
             }
 
             if (i + 1 == dots.size()) {
@@ -1036,6 +1074,8 @@ public class MainActivity extends AppCompatActivity {
         else {
             mConnectedIV.setImageResource(R.drawable.ic_unsolved);
         }
+
+        mAnimatingGiveTake = false; // no longer animating
 
     }
 

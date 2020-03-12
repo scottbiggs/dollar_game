@@ -465,14 +465,16 @@ public class MovableNodeButton extends SubButtonsBtn
      * Finds the center of this button in terms of its parent coordinates.
      */
     public float getCenterX() {
-        return getX() + (((float)getWidth()) / 2f);
+        return getCenter().x;
+//        return getX() + (((float)getWidth()) / 2f);
     }
 
     /**
      * Finds the center of this button in terms of its parent coordinates.
      */
     public float getCenterY() {
-        return getY() + (((float)getHeight()) / 2f);
+        return getCenter().y;
+//        return getY() + (((float)getHeight()) / 2f);
     }
 
 
