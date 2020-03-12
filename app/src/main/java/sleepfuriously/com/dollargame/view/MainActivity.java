@@ -4,11 +4,8 @@ import android.animation.Animator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 
 import androidx.annotation.Nullable;
@@ -74,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int PREFS_ACTIVITY_ID = 2;
 
     /** number of milliseconds for a take animation */
-    private static final int TAKE_MILLIS = 250;
+    private static final int TAKE_MILLIS = 300;
 
     //------------------------
     //  widgets

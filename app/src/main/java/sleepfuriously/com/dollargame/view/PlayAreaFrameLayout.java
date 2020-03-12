@@ -17,7 +17,10 @@ import sleepfuriously.com.dollargame.R;
 
 
 /**
- * Created on 2019-09-17.
+ * The layout that holds the main area of the game.  It captures touch
+ * events to make new buttons and draws the lines between the nodes.
+ *
+ * todo: this would be a good place to animate the dots!!!
  */
 public class PlayAreaFrameLayout extends FrameLayout {
 
@@ -146,8 +149,6 @@ public class PlayAreaFrameLayout extends FrameLayout {
     public void removeLine(PointF start, PointF end) {
 //        Log.d(TAG, "removeLine() begin: start = " + start + ", end = " + end);
 
-        int numOrigLines = mLines.size();
-
         // find the line...
         for (int i = 0; i < mLines.size(); i++) {
             Line line = mLines.get(i);
@@ -162,14 +163,6 @@ public class PlayAreaFrameLayout extends FrameLayout {
             }
         }
 
-//        if (numOrigLines == mLines.size()) {
-//            Log.e(TAG, "removeLines() called, but didn't do anything!");
-//            Log.e(TAG, "   mLines[0].start = " + mLines.get(0).start + ", end = " + mLines.get(0).end);
-//        }
-//        else {
-//            Log.d(TAG, "removeLines() removed a line");
-//        }
-//        Log.d(TAG, "removeLine()...  mLines.size =  " + mLines.size());
     }
 
     /** Removes all the lines from the line list */
