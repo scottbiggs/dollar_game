@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.animation.PathInterpolatorCompat;
 
 
 import java.util.ArrayList;
@@ -995,6 +997,11 @@ public class MainActivity extends AppCompatActivity {
 
             ViewPropertyAnimator animator = dot.animate();
             animator.setDuration(TAKE_MILLIS);
+
+            // custom interpolator. Tool at https://matthewlein.com/tools/ceaser
+            Interpolator interpolator = PathInterpolatorCompat.create(0.485f, 0.005f, 0.085f, 1f);
+            animator.setInterpolator(interpolator);
+
             if (mTaking) {
                 animator.translationX(mainButton.getCenterX() - xAdjust)
                         .translationY(mainButton.getCenterY() - yAdjust);
