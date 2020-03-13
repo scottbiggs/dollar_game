@@ -84,6 +84,9 @@
         that have a count less than the genus but are still solvable. I hope you have fun finding them!
     </string>
 
+    <!-- other dialogs -->
+    <string name="waiting_dialog_msg">Calculating dollar amounts</string>
+
     <!-- connected/disconnected strings -->
     <string name="not_connected">disconnected</string>
     <string name="connected">connected</string>

@@ -14,11 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -54,6 +56,8 @@ import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
 import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
 import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
+import sleepfuriously.com.dollargame.view.dialogs.NodeEditDialog;
+import sleepfuriously.com.dollargame.view.dialogs.RandomizingDialog;
 
 
 /**
@@ -142,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
     /** only TRUE during the give/take animation. UI events need to wait until this is FALSE */
     private boolean mAnimatingGiveTake = false;
 
+    /** Used to determine if this Activity is alive or has been destroyed (for AsyncTasks) */
+    private volatile boolean mIsAlive = false;
 
     //------------------------
     //  methods
@@ -151,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mIsAlive = true;
 
         // determines if this was setup
         if (isStartingFromUser()) {
@@ -162,6 +170,12 @@ public class MainActivity extends AppCompatActivity {
             processIntent();
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        mIsAlive = false;       // signal that this Activity is no longer active
+        super.onDestroy();
     }
 
     /**
@@ -1383,63 +1397,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void randomizeAllNodes() {
 
-        // first, get all the nodes and find out how many there are
-        List<Integer> nodeIds = mGraph.getAllNodeIds();
-        int numNodes = nodeIds.size();
-
-        // now get the maximum and minimum values for each node
-        int ceiling = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT);
-        int floor = getResources().getInteger(R.integer.MIN_DOLLAR_AMOUNT);
-
-        // use the settings to figure out what the sum of all the nodes'
-        // dollar amount should be.
-        int targetSum = getCurrentDifficulty();
-        try {
-            targetSum += mGraph.getGenus();
-        }
-        catch (GraphNotConnectedException e) {
-            Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
-        }
-
-        // here's the big calculation, find all the possible combinations
-        List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
-//        Log.d(TAG, "summedCombos = " + summedCombos.toString());
-
-        // Check to see if no possible summation exists.  This shouldn't be possible, but
-        // it doesn't hurt to check.
-        if (summedCombos.size() < 1) {
-            Toast.makeText(this, R.string.impossible_randomize_settings, Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // pick a random list from summedCombos (it's a list of lists)
-        Random rand = new Random();
-        List<Integer> comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
-
-        // sanity check: the comboList and the nodeIds list should be the same size
-        if (comboList.size() != nodeIds.size()) {
-            Log.e(TAG, "error! comboList.size() = " + comboList.size() +
-                    " whereas nodeIds.size() = " + nodeIds.size());
-            return;
-        }
-
-        // randomize the list (since each item in the list appears in a certain
-        // order)
-        Collections.shuffle(comboList);
-
-        // go through all the nodes and assign them to the dollar amounts from
-        // our list.
-        for (int i = 0; i < nodeIds.size(); i++) {
-            // todo: fix this--it's O(n*n)!
-            int nodeId = nodeIds.get(i);
-            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
-
-            node.setAmount(comboList.get(i));
-            node.invalidate();      // todo: is this needed?
-        }
-
-        setGenusUI();
-        setCountUI();
+        RandomizeAsyncTask asyncTask = new RandomizeAsyncTask();
+        asyncTask.execute();
     }
 
 
@@ -1552,4 +1511,131 @@ public class MainActivity extends AppCompatActivity {
             solveModeUI();
         }
     }
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  classes
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /**
+     * Use this to get all the random numbers for the dollar amounts.
+     * Also handles the UI as well.
+     *
+     * preconditions:
+     *  mGraph      Needs to hold the correct graph that is displaying
+     *
+     * side-effects:
+     */
+    class RandomizeAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        RandomizingDialog dialog = null;
+
+        String toastStr = null;
+
+        /** list of all the node IDs that we are randomizing */
+        List<Integer> nodeIds;
+
+        /** The final list of dollar amounts */
+        List<Integer> comboList;
+
+        //-------------------------------------
+
+        private synchronized void doPreExecute() {
+
+            dialog = new RandomizingDialog();
+            dialog.show(MainActivity.this);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            doPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            // first, get all the nodes and find out how many there are
+            //noinspection unchecked
+            nodeIds = mGraph.getAllNodeIds();
+            int numNodes = nodeIds.size();
+
+            // now get the maximum and minimum values for each node
+            int ceiling = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT);
+            int floor = getResources().getInteger(R.integer.MIN_DOLLAR_AMOUNT);
+
+            // use the settings to figure out what the sum of all the nodes'
+            // dollar amount should be.
+            int targetSum = getCurrentDifficulty();
+            try {
+                targetSum += mGraph.getGenus();
+            }
+            catch (GraphNotConnectedException e) {
+                Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
+            }
+
+            // here's the big calculation, find all the possible combinations
+            List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
+//        Log.d(TAG, "summedCombos = " + summedCombos.toString());
+
+            // Check to see if no possible summation exists.  This shouldn't be possible, but
+            // it doesn't hurt to check.
+            if (summedCombos.size() < 1) {
+                toastStr = getString(R.string.impossible_randomize_settings);
+                return null;
+            }
+
+            // pick a random list from summedCombos (it's a list of lists)
+            Random rand = new Random();
+            comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
+
+            // sanity check: the comboList and the nodeIds list should be the same size
+            if (comboList.size() != nodeIds.size()) {
+                Log.e(TAG, "error! comboList.size() = " + comboList.size() +
+                        " whereas nodeIds.size() = " + nodeIds.size());
+                return null;
+            }
+
+            // randomize the list (since each item in the list appears in a certain
+            // order)
+            Collections.shuffle(comboList);
+            return null;
+        }
+
+
+        private synchronized void doPostExecute() {
+            if (!mIsAlive) {
+                return;     // Activity has died, abort.
+            }
+
+            // go through all the nodes and assign them to the dollar amounts from
+            // our list.
+            for (int i = 0; i < nodeIds.size(); i++) {
+                // todo: fix this--it's O(n*n)!
+                int nodeId = nodeIds.get(i);
+                MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
+
+                node.setAmount(comboList.get(i));
+            }
+
+            dialog.dismiss();
+            dialog = null;
+
+            setGenusUI();
+            setCountUI();
+
+            if (toastStr != null) {
+                // display error message
+                Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            doPostExecute();
+            super.onPostExecute(aVoid);
+        }
+
+    } // class RandomizeAsyncTask
+
 }

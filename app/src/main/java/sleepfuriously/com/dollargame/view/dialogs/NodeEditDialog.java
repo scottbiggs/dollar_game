@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.dollargame.view.dialogs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -20,7 +20,7 @@ import sleepfuriously.com.dollargame.R;
  * Displays a dialog that allows the user to modify the dollar amount
  * of a node and delete it.
  */
-class NodeEditDialog {
+public class NodeEditDialog {
 
     //---------------------------
     //  constants
@@ -38,7 +38,7 @@ class NodeEditDialog {
     //  methods
     //---------------------------
 
-    void setOnNodeEditDialogDoneListener(OnNodeEditDialogDoneListener listener) {
+    public void setOnNodeEditDialogDoneListener(OnNodeEditDialogDoneListener listener) {
         mListener = listener;
     }
 
@@ -50,7 +50,7 @@ class NodeEditDialog {
      *
      * @param startDollars  The amount of dollars to display initially.
      */
-    void show(final Context ctx, final int startDollars) {
+    public void show(final Context ctx, final int startDollars) {
 
         // figure out this constant that will be used throughout
         final int seekbarOffset = ctx.getResources().getInteger(R.integer.DOLLAR_AMOUNT_SEEKBAR_OFFSET);
