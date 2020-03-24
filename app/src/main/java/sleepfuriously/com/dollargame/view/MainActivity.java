@@ -20,7 +20,6 @@ import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,16 +43,19 @@ import androidx.core.view.animation.PathInterpolatorCompat;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.dollargame.model.CombinationMaker;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
 import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
+import sleepfuriously.com.dollargame.model.TheNewRandomSum;
 import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 import sleepfuriously.com.dollargame.view.dialogs.NodeEditDialog;
@@ -395,6 +397,17 @@ public class MainActivity extends AppCompatActivity {
 
         // handles refreshing UI
         refreshPrefs();
+
+
+//        int[][] result =
+//                MyCombinationGenerator.getAllCombinations2(2, Arrays.asList(1, 2, 3));
+//        for (int[] array : result) {
+//            Log.d(TAG, Arrays.toString(array));
+//        }
+
+//        CombinationMaker.test();
+
+        TheNewRandomSum.test();
     }
 
 

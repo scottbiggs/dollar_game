@@ -1,5 +1,7 @@
 package sleepfuriously.com.dollargame.model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import java.util.List;
  *
  * todo: usage dox
  */
+@Deprecated
 public class MyCombinationGenerator {
 
     @SuppressWarnings("unused")
@@ -16,15 +19,19 @@ public class MyCombinationGenerator {
     /** temp var to hold all the numbers to be used for the combinations */
     private static List<Integer> mRangeList = null;
 
-    /** Temporary var to hold the list of combinations */
+    /** Temporary var to hold the list of combinations (a list of lists!) */
     private static List<List<Integer>> mCombinationsList = null;
 
 
     /**
      * This is the main purpose of this class.
-     * Estimated complexity: O(howMany ^ (ceiling - floor)). Ugh.
+     * Estimated complexity: O(howMany ^ (ceiling - floor)). Ugh.<br>
+     *<br>
+     * NOTE: May need to put calls to this in a separate process.<br>
+     * <br>
+     * side-effects:<br>
+     *     mRangeList<br>
      *
-     * NOTE: May need to put calls to this in a separate process.
      *
      * @param howMany     The number of ints
      *
@@ -63,11 +70,12 @@ public class MyCombinationGenerator {
 
     /**
      * Intermediary calculation for {@link #getSums(int, int, int, int)}.
-     * This returns ALL possible combinations with the following parameters:
-     *
-     * side effects:
-     *      mRangeList  Will hold a copy of all the integers in the range
+     * This returns ALL possible combinations with the following parameters:<br>
+     *<br>
+     * side effects:<br>
+     *      mRangeList  - Will hold a copy of all the integers in the range
      *                  [floor..ceiling].
+     *      mCombinationsList
      *
      * @param howMany   Number of integers in each list
      *
@@ -90,6 +98,95 @@ public class MyCombinationGenerator {
         return new ArrayList<>(mCombinationsList);
     }
 
+    /**
+     * Like above, but uses a brute-force method of finding all combinations (with repeats, order not important).<br>
+     * <br>
+     * For example: if howMany is 2, and items is {1, 2, 3}, then this will return
+     * {{1 1} {1 2} {1 3} {2 2} {2 3} {3 3}}.
+     *
+     *          Will always return
+     *          this many items:<br>
+     *<br><code>
+     *          (n + k - 1)!<br>
+     *          ------------<br>
+     *           n!(k - 1)!<br>
+     *</code><br>
+     * where n is howMany and k is the number of items.
+     *
+     * @param howMany   The size of each list.
+     *
+     * @param items     List of the items to choose from.
+     *
+     * @return  A list of all the possible lists that can be made from the items of
+     *          length howMany (with repeats, order not important).
+     *          Returns NULL if out of memory (numbers too large).
+     */
+    public static int[][] getAllCombinations2(int howMany, List<Integer> items) {
+
+        // first, calculate the number of lists needed so that the size of our array
+        // will be correct
+        int n = howMany;
+        int k = items.size();
+
+        int numLists = fact(n + k - 1) / (fact(n) * fact(k - 1));
+        Log.d(TAG, "numLists = " + numLists);
+
+        int[][] allCombos;
+        try {
+            allCombos = new int[numLists][howMany];
+        }
+        catch (OutOfMemoryError e) {
+            Log.e(TAG, "Error allocating array in getAllCombinations2!");
+            e.printStackTrace();
+            return null;
+        }
+
+        // Consider an array of n + k - 1 booleans.  This represents a single way of choosing
+        // n things out of k items with repetition. Call it pickArray.
+        PickArray pickArray = new PickArray(n + k - 1);
+
+        // This pick array will essentially tell us how to create a single combination.
+        // It's kind of complicated to explain (at least it was to me), so see this:
+        // https://www.mathsisfun.com/combinatorics/combinations-permutations.html,
+        // the section 1. Combinations with Repetition.
+
+        // Assign all the possible combinations of pickArray
+        for (int i = 0; i < numLists; i++) {
+
+            // use the current pickArray to make an list (actually an array) using the
+            // technique described above.
+            for (int j = 0, count = 0; j < pickArray.mSize; j++) {
+                // stop if we've done howMany already--no need to continue once we've
+                // filled our list (array!).
+                if (count == howMany) {
+                    break;
+                }
+
+                if (pickArray.get(j) == true) {
+                    allCombos[i][count] = items.get(j);
+                    count++;
+                }
+            }
+
+            pickArray.increment();
+        }
+
+        return allCombos;
+    }
+
+
+
+    /**
+     * Finds the factorial of the give number.
+     * Funny how this isn't a basic Math function.
+     */
+    public static int fact(int n) {
+        int product = 1;
+        for (int i = 2; i <= n; i++) {
+            product *= i;
+        }
+        return product;
+    }
 
     /**
      * Another helper function.  Creates a list of consecutive integers from
@@ -121,14 +218,14 @@ public class MyCombinationGenerator {
 
     /**
      * Loosely based on some C code found at http://rosettacode.org/wiki/Combinations_with_repetitions#C.
-     * So many side-effects, yuck!.
-     *
+     * So many side-effects, yuck!.<br>
+     *<br>
      * Difficult to calculate order of complexity because of the recursion AND iteration, but it
      * works!  That's what I get for cobbling together pieces of code.  Estimated O(n^n)
-     * where n is maxTypes.
-     *
-     * side-effects
-     *  mRangeList
+     * where n is maxTypes.<br>
+     *<br>
+     * side-effects<br>
+     *  mRangeList<br>
      *  mCombinationsList
      *
      * @param got       temp storage. needs to have at least len elements
@@ -165,5 +262,147 @@ public class MyCombinationGenerator {
 
         return count;
     }
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  classes
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//    public class GFG {
+//        /**
+//         * arr[] ---> Input Array
+//         * chosen[] ---> Temporary array to store indices of
+//         *               current combination
+//         * start & end ---> Staring and Ending indexes in arr[]
+//         * r ---> Size of a combination to be printed
+//         */
+//        void CombinationRepetitionUtil(int chosen[], int arr[],
+//                                              int index, int r, int start, int end) {
+//            // Since index has become r, current combination is
+//            // ready to be printed, print
+//            if (index == r) {
+//                for (int i = 0; i < r; i++) {
+//                    System.out.printf("%d ", arr[chosen[i]]);
+//                }
+//                System.out.printf("\n");
+//                return;
+//            }
+//
+//            // One by one choose all elements (without considering
+//            // the fact whether element is already chosen or not)
+//            // and recur
+//            for (int i = start; i <= end; i++) {
+//                chosen[index] = i;
+//                CombinationRepetitionUtil(chosen, arr, index + 1,
+//                        r, i, end);
+//            }
+//            return;
+//        }
+//
+//        /**
+//         * The main function that prints all combinations of size r
+//         * in arr[] of size n with repitions. This function mainly
+//         * uses CombinationRepetitionUtil().
+//         */
+//        void CombinationRepetition(int arr[], int n, int r) {
+//            // Allocate memory
+//            int chosen[] = new int[r + 1];
+//
+//            // Call the recursice function
+//            CombinationRepetitionUtil(chosen, arr, 0, r, 0, n - 1);
+//        }
+//
+//        // Driver program to test above functions
+//        public void main(String[] args) {
+//            int arr[] = {1, 2, 3, 4};
+//            int n = arr.length;
+//            int r = 2;
+//            CombinationRepetition(arr, n, r);
+//        }
+//    }
+
+
+    /**
+     * A PickArray is essentially an array of booleans and some useful
+     * methods attached to it.
+     *
+     * A PickArray is essentially a variably sized binary number, where false
+     * is 0 and true is 1.  It's a convenience data for figuring out combinations
+     * with repetition.
+     */
+    static class PickArray {
+
+        boolean[] mPickArray;
+        int mSize;
+
+        /**
+         * The size is essentially the number of bits for this binary
+         * number.  It is literally the number of booleans in the pickArray.
+         */
+        PickArray(int _size) {
+            mSize = _size;
+            mPickArray = new boolean[mSize];
+            zero();
+        }
+
+        /**
+         * Resets the array to all false (0).
+         */
+        void zero() {
+            for (int i = 0; i < mSize; i++) {
+                mPickArray[i] = false;
+            }
+        }
+
+        /**
+         * Returns the value of the boolean at the given index
+         * (starts at zero of course).
+         */
+        boolean get(int index) {
+            return mPickArray[index];
+        }
+
+        /**
+         * Returns TRUE iff the value is max (all true).
+         */
+        boolean isMax() {
+            for (int i = 0; i < mSize; i++) {
+                if (mPickArray[i] == false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Increase the pickArray by 1.  If at max, then do nothing.
+         */
+        void increment() {
+            if (isMax()) {
+                return; // do nothing
+            }
+            for (int i = mSize - 1; i >= 0; i--) {
+                if (mPickArray[i] == false) {
+                    mPickArray[i] = true;
+                    return; // done
+                }
+                mPickArray[i] = false;
+            }
+        }
+
+        /**
+         * Allows you to directly set the values of pickArray.
+         *
+         * @param bools     Be nice, and try to match the number of
+         *                  params to the size!
+         */
+        void set(boolean... bools) {
+            for (int i = 0; i < bools.length; i++) {
+                mPickArray[i] = bools[i];
+            }
+        }
+
+    } // class PickArray
+
 
 }
