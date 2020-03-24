@@ -98,7 +98,7 @@ public class TheNewRandomSum {
 
         // how many possible combinations are there for our settings?
         long numCombinations = numCombinations(mBowlSize, mNumFlavors);
-        Log.d(TAG, "getRandomSum() combinations: " + numCombinations);
+        Log.d(TAG, "getRandomSum(): combinations: " + numCombinations);
 
         // generate the first combination for the boolean array.  This should have
         // bowlSize number of bits set.
@@ -108,12 +108,41 @@ public class TheNewRandomSum {
         // Keep track of the items that have been found to sum correctly
         List<List<Integer>> foundLists = new ArrayList<>();
 
-        // create all combinations, saving the ones that add up to our sum.
+
+        // go through all combinations; first time is simply to count them.
         int count = 0;
+        int found = 0;
         do {
             List<Integer> workList = convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities);
             if (listAddsUp(workList, sum)) {
-                foundLists.add(workList);
+                found++;
+//                foundLists.add(workList);
+//                Log.d(TAG, "  found! --> " + workList.toString());
+            }
+            booleanArray = nextSnoob(booleanArray);
+            count++;
+        } while (count < numCombinations);
+
+        Log.d(TAG, "getRandomSum(): finished first loop. found = " + found);
+
+        // Pick a random number from 0 to found.  This will be our target.
+        int target = new Random().nextInt(found);
+
+
+        // loop again, this time stopping once we reach the target found object.
+        List<Integer> foundList;
+        booleanArray = getFirstBooleanArray(mBowlSize);
+        found = 0;
+        count = 0;
+        do {
+            List<Integer> workList = convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities);
+            if (listAddsUp(workList, sum)) {
+                if (found == target) {
+                    // this is IT!  save and stop.
+                    return workList;
+                }
+                found++;
+//                foundLists.add(workList);
 //                Log.d(TAG, "  found! --> " + workList.toString());
             }
 
@@ -121,17 +150,18 @@ public class TheNewRandomSum {
             count++;
         } while (count < numCombinations);
 
-        Log.d(TAG, " - finished loop in getRandomSum(), looks like we found " + foundLists.size() + " combinations");
+        Log.e(TAG, "Error in getRandomSum()!  Randomly chosen list not found!");
+        return null;    // should cause an error--that'll get their attention
 
-        // make sure there was at least something!
-        if (foundLists.size() == 0) {
-            return emptyList;
-        }
-
-        // pick a random number from 0 to numCombinations.  This will be the
-        // combination to actually return.
-        int itemToPick = new Random().nextInt(foundLists.size());
-        return foundLists.get(itemToPick);
+//        // make sure there was at least something!
+//        if (foundLists.size() == 0) {
+//            return emptyList;
+//        }
+//
+//        // pick a random number from 0 to numCombinations.  This will be the
+//        // combination to actually return.
+//        int itemToPick = new Random().nextInt(foundLists.size());
+//        return foundLists.get(itemToPick);
     }
 
 
