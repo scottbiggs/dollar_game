@@ -43,16 +43,13 @@ import androidx.core.view.animation.PathInterpolatorCompat;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
-import sleepfuriously.com.dollargame.model.MyCombinationGenerator;
 import sleepfuriously.com.dollargame.model.TheNewRandomSum;
 import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
@@ -1536,6 +1533,7 @@ public class MainActivity extends AppCompatActivity {
      *  mGraph      Needs to hold the correct graph that is displaying
      *
      * side-effects:
+     *  Will in all probability cause the contents of the nodes to change.
      */
     class RandomizeAsyncTask extends AsyncTask<Void, Void, Void> {
 
@@ -1545,9 +1543,6 @@ public class MainActivity extends AppCompatActivity {
 
         /** list of all the node IDs that we are randomizing */
         List<Integer> nodeIds;
-
-        /** The final list of dollar amounts */
-//        List<Integer> comboList;
 
         /** Final array to hold the dollar amount */
         int[] comboArray;
@@ -1590,34 +1585,6 @@ public class MainActivity extends AppCompatActivity {
 
             // THIS IS IT!!!
             comboArray = TheNewRandomSum.getRandomSum(numNodes, targetSum, floor, ceiling);
-
-
-
-            // here's the big calculation, find all the possible combinations
-//            List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
-//        Log.d(TAG, "summedCombos = " + summedCombos.toString());
-
-            // Check to see if no possible summation exists.  This shouldn't be possible, but
-            // it doesn't hurt to check.
-//            if (summedCombos.size() < 1) {
-//                toastStr = getString(R.string.impossible_randomize_settings);
-//                return null;
-//            }
-//
-//            // pick a random list from summedCombos (it's a list of lists)
-//            Random rand = new Random();
-//            comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
-
-            // sanity check: the comboList and the nodeIds list should be the same size
-//            if (comboList.size() != nodeIds.size()) {
-//                Log.e(TAG, "error! comboList.size() = " + comboList.size() +
-//                        " whereas nodeIds.size() = " + nodeIds.size());
-//                return null;
-//            }
-
-            // randomize the list (since each item in the list appears in a certain
-            // order)
-//            Collections.shuffle(comboList);
             return null;
         }
 
@@ -1625,6 +1592,12 @@ public class MainActivity extends AppCompatActivity {
         private synchronized void doPostExecute() {
             if (!mIsAlive) {
                 return;     // Activity has died, abort.
+            }
+
+            if ((comboArray == null) || (comboArray.length == 0)) {
+                Log.e(TAG, "Unable to create combinations, aborting!");
+                Toast.makeText(MainActivity.this, R.string.unable_to_generate_random_node_numbers, Toast.LENGTH_LONG).show();
+                return;
             }
 
             // go through all the nodes and assign them to the dollar amounts from
