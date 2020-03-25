@@ -86,6 +86,8 @@
 
     <!-- other dialogs -->
     <string name="waiting_dialog_msg">Calculating dollar amounts</string>
+    <string name="waiting_dialog_long_time_msg">Large numbers of nodes (like more than 12) can cause
+        these calculations to take quite a long time.  Please be patient.</string>
 
     <!-- connected/disconnected strings -->
     <string name="not_connected">disconnected</string>
