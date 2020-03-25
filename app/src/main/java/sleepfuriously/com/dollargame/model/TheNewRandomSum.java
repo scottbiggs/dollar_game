@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,10 +22,16 @@ import java.util.Random;
  *              store has a certain number of flavors to choose from (numFlavors).
  *
  * USAGE:
+ *  Call {@link #getRandomSum(int, int, int, int)}, supplying the bowlSize, the
+ *  sum, the bottom-most number (floor) and the top-most number (ceiling).  You'll
+ *  get back an array of lenght bowlSize, filled with that many numbers chosen
+ *  from your specifications, and they will all add up to sum.  That's it.
  *
+ *  Oh yeah, there's a public method, test() that goes through and tests everything.
+ *  It'll throw some exceptions if there's a real error, otherwise it'll print a ton
+ *  of debug statements.
  */
 public class TheNewRandomSum {
-
 
     //----------------------------------
     //  constants
@@ -39,17 +44,6 @@ public class TheNewRandomSum {
     //  data
     //----------------------------------
 
-    /**
-     * Set during the public call to {@link #getRandomSum(int, int, int, int)}.
-     * Is a precondition for several other methods, but nothing else should set this.
-     */
-    private static int mBowlSize;
-
-    /**
-     * Set in {@link #getRandomSum(int, int, int, int)}.  Should not be changed anywhere
-     * else.  But is a precondition for many methods.
-     */
-    private static int mNumFlavors;
 
     //----------------------------------
     //  methods
@@ -73,56 +67,43 @@ public class TheNewRandomSum {
      *          If the length + (ceiling - floor) > 32, then empty list is
      *          returned as well (too big!).
      */
-//    public static List<Integer> getRandomSum(int bowlSize, int sum, int floor, int ceiling) {
     public static int[] getRandomSum(int bowlSize, int sum, int floor, int ceiling) {
 
-        mBowlSize = bowlSize;
-
-//        List<Integer> emptyList = new ArrayList<>();
         int[] emptyArray = new int[0];
 
-        // generate all the possibilities
-//        List<Integer> possibilities = makePossibleInts(floor, ceiling);
+        // generate all the possible ints and put 'em into an array
         int[] possibilities = makePossibleIntsArray(floor, ceiling);
 
         if ((possibilities == null) || (possibilities.length == 0)) {
             // nothing to do, so exit with nothing
-//            return emptyList;
             return emptyArray;
         }
-        mNumFlavors = possibilities.length;
+        int numFlavors = possibilities.length;
 
 
         // Create the long that will be used as a boolean array
-        int booleanArraySize = mBowlSize + mNumFlavors - 1;
+        int booleanArraySize = bowlSize + numFlavors - 1;
         if (booleanArraySize > 32) {
             // too many possibilities for this program to handle.
             Log.e(TAG, "Too many possibilities in getRandomSum(); booleanArraySize = " + booleanArraySize);
-//            return emptyList;
             return emptyArray;
         }
 
         // how many possible combinations are there for our settings?
-        long numCombinations = numCombinations(mBowlSize, mNumFlavors);
+        long numCombinations = numCombinations(bowlSize, numFlavors);
         Log.d(TAG, "getRandomSum(): combinations: " + numCombinations);
 
         // generate the first combination for the boolean array.  This should have
         // bowlSize number of bits set.
-        long booleanArray = getFirstBooleanArray(mBowlSize);
-
-
-        // Keep track of the items that have been found to sum correctly
-        List<List<Integer>> foundLists = new ArrayList<>();
+        long booleanArray = getFirstBooleanArray(bowlSize);
 
 
         // go through all combinations; first time is simply to count them.
         int count = 0;
         int found = 0;
-        int[] possibilityArray = new int[mBowlSize];
+        int[] possibilityArray = new int[bowlSize];
         do {
-//            List<Integer> workList = convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities);
-            convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities, possibilityArray);
-//            if (listAddsUp(workList, sum)) {
+            convertBooleanArrayToCombination(bowlSize, booleanArray, possibilities, possibilityArray);
             if (arrayAddsUp(possibilityArray, sum)) {
                 found++;
             }
@@ -141,17 +122,18 @@ public class TheNewRandomSum {
 
 
         // loop again, this time stopping once we reach the target found object.
-        booleanArray = getFirstBooleanArray(mBowlSize);
+        booleanArray = getFirstBooleanArray(bowlSize);
         found = 0;
         count = 0;
         do {
-//            List<Integer> workList = convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities);
-            convertBooleanArrayToCombination(mBowlSize, booleanArray, possibilities, possibilityArray);
-            if (found == target) {
-                // this is IT!  save and stop.
-                return possibilityArray;
+            convertBooleanArrayToCombination(bowlSize, booleanArray, possibilities, possibilityArray);
+            if (arrayAddsUp(possibilityArray, sum)) {
+                if (found == target) {
+                    // this is IT!  get our array and return it immediately.
+                    return possibilityArray;
+                }
+                found++;
             }
-            found++;
 
             booleanArray = nextSnoob(booleanArray);
             count++;
@@ -161,17 +143,6 @@ public class TheNewRandomSum {
         return null;    // should cause an error--that'll get their attention
     }
 
-
-    /**
-     * If the items in the list add up to the sum, return true.
-     */
-    private static boolean listAddsUp(List<Integer> list, int sum) {
-        int accumulator = 0;
-        for (int item : list) {
-            accumulator += item;
-        }
-        return accumulator == sum;
-    }
 
     /**
      * Adds the items in the array.  If that equals the given sum,
@@ -187,59 +158,9 @@ public class TheNewRandomSum {
 
 
     /**
-     * Operating on the given boolean array of instructions, this creates a
-     * list of elements from the element list.  This is the final part of
+     * Operating on the given boolean array of instructions, this creates an
+     * array of elements from the element list.  This is the final part of
      * making a combination of elements.
-     *
-     * @param bowlSize  Tells how long the final list will be.
-     *
-     * @param booleanArray  A long that's treated as a binary array.  The bits
-     *                      going right-to-left indicated instructions on how
-     *                      to place items from the elements param into the
-     *                      final list.
-     *
-     * @param elements  A list of all possible items that could be used for the
-     *                  final list.
-     */
-    private static List<Integer> convertBooleanArrayToCombination(int bowlSize,
-                                                                  long booleanArray,
-                                                                  List<Integer> elements) {
-        // Strategy:
-        //  Start with our boolean array.  Consider it as a set of
-        //  instructions on how to pick items from the element list.
-        //
-        //  Starting with the first (right-most) boolean, if it is TRUE,
-        //  then place the first item in mElementArray in our combination array.
-        //  If it is false, then move on to the next element in the mElementArray (going left).
-        //  True means place that item in our combination array, false means to move to the
-        //  next.  Continue doing this until our combination array is full.
-        //
-        //  Again, see https://www.mathsisfun.com/combinatorics/combinations-permutations.html
-        //  for a better explanation.
-
-        List<Integer> chooseArray = new ArrayList<>(bowlSize);
-        int chooseArrayPos = 0;
-        int elementArrayPos = 0;
-        int boolArrayPos = 0;
-
-        do {
-            boolean bit = getBit(boolArrayPos, booleanArray);
-            if (bit == true) {
-                chooseArray.add(chooseArrayPos++, elements.get(elementArrayPos));
-            }
-            else {
-                elementArrayPos++;
-            }
-            boolArrayPos++;
-        } while (chooseArrayPos < bowlSize);
-
-        return chooseArray;
-    }
-
-    /**
-     * Similar to {@link #convertBooleanArrayToCombination(int, long, List)}, but this
-     * is a highly optimized version.  No list, just arrays.  And no allocation is done
-     * here; nope none at all.
      *
      * @param bowlSize  Tells how long the final list will be.
      *
@@ -327,30 +248,6 @@ public class TheNewRandomSum {
      *          Will return null if floor > ceiling or ceiling - floor > 32.
      *          Yes, it'll return an empty array if floor = ceiling.
      */
-    private static List<Integer> makePossibleInts(int floor, int ceiling) {
-
-        if (floor > ceiling) {
-            return null;
-        }
-
-        int size = ceiling - floor;
-        if (size > 32) {
-            Log.e(TAG, "Too big a range for makePossibleInts()!");
-            return null;
-        }
-
-        List<Integer> possibilities = new ArrayList<>(size + 1);
-        for (int i = 0; i <= size; i++) {
-            possibilities.add(floor + i);
-        }
-
-        return possibilities;
-    }
-
-    /**
-     * Just like {@link #makePossibleInts(int, int)}, except returns an array instead
-     * a list.
-     */
     private static int[] makePossibleIntsArray(int floor, int ceiling) {
         if (floor > ceiling) {
             return null;
@@ -362,11 +259,9 @@ public class TheNewRandomSum {
             return null;
         }
 
-//        List<Integer> possibilities = new ArrayList<>(size + 1);
         int[] possibilities = new int[size + 1];
         for (int i = 0; i <= size; i++) {
             possibilities[i] = floor + i;
-//            possibilities.add(floor + i);
         }
 
         return possibilities;
@@ -412,9 +307,8 @@ public class TheNewRandomSum {
      *      ------------<br>
      *       b!(n - 1)!<br>
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public static long numCombinations(int bowlSize, int numFlavors) {
+    private static long numCombinations(int bowlSize, int numFlavors) {
 
         long n = numFlavors;
         long b = bowlSize;
@@ -433,8 +327,7 @@ public class TheNewRandomSum {
     }
 
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public static double fact(long n) {
+    private static double fact(long n) {
         double product = (double) n;
         for (long i = 2; i < n; i++) {
             product *= (double) i;

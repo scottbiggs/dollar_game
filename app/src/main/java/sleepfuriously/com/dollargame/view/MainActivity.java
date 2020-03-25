@@ -43,14 +43,12 @@ import androidx.core.view.animation.PathInterpolatorCompat;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import sleepfuriously.com.dollargame.R;
-import sleepfuriously.com.dollargame.model.CombinationMaker;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
@@ -407,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        CombinationMaker.test();
 
-        TheNewRandomSum.test();
+//        TheNewRandomSum.test();
     }
 
 
@@ -1549,7 +1547,10 @@ public class MainActivity extends AppCompatActivity {
         List<Integer> nodeIds;
 
         /** The final list of dollar amounts */
-        List<Integer> comboList;
+//        List<Integer> comboList;
+
+        /** Final array to hold the dollar amount */
+        int[] comboArray;
 
         //-------------------------------------
 
@@ -1587,31 +1588,36 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
             }
 
+            // THIS IS IT!!!
+            comboArray = TheNewRandomSum.getRandomSum(numNodes, targetSum, floor, ceiling);
+
+
+
             // here's the big calculation, find all the possible combinations
-            List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
+//            List<List<Integer>> summedCombos = MyCombinationGenerator.getSums(numNodes, targetSum, floor, ceiling);
 //        Log.d(TAG, "summedCombos = " + summedCombos.toString());
 
             // Check to see if no possible summation exists.  This shouldn't be possible, but
             // it doesn't hurt to check.
-            if (summedCombos.size() < 1) {
-                toastStr = getString(R.string.impossible_randomize_settings);
-                return null;
-            }
-
-            // pick a random list from summedCombos (it's a list of lists)
-            Random rand = new Random();
-            comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
+//            if (summedCombos.size() < 1) {
+//                toastStr = getString(R.string.impossible_randomize_settings);
+//                return null;
+//            }
+//
+//            // pick a random list from summedCombos (it's a list of lists)
+//            Random rand = new Random();
+//            comboList = summedCombos.get(rand.nextInt(summedCombos.size()));
 
             // sanity check: the comboList and the nodeIds list should be the same size
-            if (comboList.size() != nodeIds.size()) {
-                Log.e(TAG, "error! comboList.size() = " + comboList.size() +
-                        " whereas nodeIds.size() = " + nodeIds.size());
-                return null;
-            }
+//            if (comboList.size() != nodeIds.size()) {
+//                Log.e(TAG, "error! comboList.size() = " + comboList.size() +
+//                        " whereas nodeIds.size() = " + nodeIds.size());
+//                return null;
+//            }
 
             // randomize the list (since each item in the list appears in a certain
             // order)
-            Collections.shuffle(comboList);
+//            Collections.shuffle(comboList);
             return null;
         }
 
@@ -1624,11 +1630,9 @@ public class MainActivity extends AppCompatActivity {
             // go through all the nodes and assign them to the dollar amounts from
             // our list.
             for (int i = 0; i < nodeIds.size(); i++) {
-                // todo: fix this--it's O(n*n)!
                 int nodeId = nodeIds.get(i);
                 MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
-
-                node.setAmount(comboList.get(i));
+                node.setAmount(comboArray[i]);
             }
 
             dialog.dismiss();
