@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
@@ -50,11 +49,10 @@ import sleepfuriously.com.dollargame.R;
 import sleepfuriously.com.dollargame.model.Graph;
 import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
 import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
-import sleepfuriously.com.dollargame.model.TheNewRandomSum;
+import sleepfuriously.com.dollargame.model.SetsOfIntsUtil;
 import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
 import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
 import sleepfuriously.com.dollargame.view.dialogs.NodeEditDialog;
-import sleepfuriously.com.dollargame.view.dialogs.RandomizingDialog;
 
 
 /**
@@ -1405,8 +1403,48 @@ public class MainActivity extends AppCompatActivity {
      */
     private void randomizeAllNodes() {
 
-        RandomizeAsyncTask asyncTask = new RandomizeAsyncTask();
-        asyncTask.execute();
+        // first, get all the nodes and find out how many there are
+        //noinspection unchecked
+        List<Integer> nodeIds = mGraph.getAllNodeIds();
+        int numNodes = nodeIds.size();
+
+        // now get the maximum and minimum values for each node
+        int ceiling = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT);
+        int floor = getResources().getInteger(R.integer.MIN_DOLLAR_AMOUNT);
+
+        // use the settings to figure out what the sum of all the nodes'
+        // dollar amount should be.
+        int targetSum = getCurrentDifficulty();
+        try {
+            targetSum += mGraph.getGenus();
+        }
+        catch (GraphNotConnectedException e) {
+            Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
+        }
+
+        // THIS IS IT!!!
+        SetsOfIntsUtil util = new SetsOfIntsUtil();
+        Integer[] randomNums = util.findRandomSetOfIntsWithGivenSum(targetSum, numNodes, floor, ceiling);
+        if ((randomNums == null) || (randomNums.length == 0)) {
+            Log.e(TAG, "Unable to create combinations, aborting!");
+            Toast.makeText(MainActivity.this, R.string.unable_to_generate_random_node_numbers, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // todo: remove the statistical analysis
+
+
+
+        // go through all the nodes and assign them to the dollar amounts from
+        // our list.
+        for (int i = 0; i < nodeIds.size(); i++) {
+            int nodeId = nodeIds.get(i);
+            MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
+            node.setAmount(randomNums[i]);
+        }
+
+        setGenusUI();
+        setCountUI();
     }
 
 
@@ -1525,107 +1563,5 @@ public class MainActivity extends AppCompatActivity {
     //  classes
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    /**
-     * Use this to get all the random numbers for the dollar amounts.
-     * Also handles the UI as well.
-     *
-     * preconditions:
-     *  mGraph      Needs to hold the correct graph that is displaying
-     *
-     * side-effects:
-     *  Will in all probability cause the contents of the nodes to change.
-     */
-    class RandomizeAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        RandomizingDialog dialog = null;
-
-        String toastStr = null;
-
-        /** list of all the node IDs that we are randomizing */
-        List<Integer> nodeIds;
-
-        /** Final array to hold the dollar amount */
-        int[] comboArray;
-
-        //-------------------------------------
-
-        private synchronized void doPreExecute() {
-
-            dialog = new RandomizingDialog();
-            dialog.show(MainActivity.this);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            doPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            // first, get all the nodes and find out how many there are
-            //noinspection unchecked
-            nodeIds = mGraph.getAllNodeIds();
-            int numNodes = nodeIds.size();
-
-            // now get the maximum and minimum values for each node
-            int ceiling = getResources().getInteger(R.integer.MAX_DOLLAR_AMOUNT);
-            int floor = getResources().getInteger(R.integer.MIN_DOLLAR_AMOUNT);
-
-            // use the settings to figure out what the sum of all the nodes'
-            // dollar amount should be.
-            int targetSum = getCurrentDifficulty();
-            try {
-                targetSum += mGraph.getGenus();
-            }
-            catch (GraphNotConnectedException e) {
-                Log.v(TAG, "Randomizing nodes before graph is connected. No big deal.");
-            }
-
-            // THIS IS IT!!!
-            comboArray = TheNewRandomSum.getRandomSum(numNodes, targetSum, floor, ceiling);
-            return null;
-        }
-
-
-        private synchronized void doPostExecute() {
-            if (!mIsAlive) {
-                return;     // Activity has died, abort.
-            }
-
-            if ((comboArray == null) || (comboArray.length == 0)) {
-                Log.e(TAG, "Unable to create combinations, aborting!");
-                Toast.makeText(MainActivity.this, R.string.unable_to_generate_random_node_numbers, Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            // go through all the nodes and assign them to the dollar amounts from
-            // our list.
-            for (int i = 0; i < nodeIds.size(); i++) {
-                int nodeId = nodeIds.get(i);
-                MovableNodeButton node = (MovableNodeButton) mGraph.getNodeData(nodeId);
-                node.setAmount(comboArray[i]);
-            }
-
-            dialog.dismiss();
-            dialog = null;
-
-            setGenusUI();
-            setCountUI();
-
-            if (toastStr != null) {
-                // display error message
-                Toast.makeText(MainActivity.this, toastStr, Toast.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            doPostExecute();
-            super.onPostExecute(aVoid);
-        }
-
-    } // class RandomizeAsyncTask
 
 }
