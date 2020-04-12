@@ -204,7 +204,7 @@ class SetsOfIntsUtil {
     /**
      * Quick test of the above function.
      */
-    public fun testNextGausianRandom() {
+    fun testNextGausianRandom() {
 
         var biggest = 0f
         var smallest = 0f
@@ -224,11 +224,11 @@ class SetsOfIntsUtil {
         Log.d(TAG, "smallest = $smallest, biggest = $biggest")
     }
 
-    public fun debugOn() {
+    fun debugOn() {
         debug = true
     }
 
-    public fun debugOff() {
+    fun debugOff() {
         debug = false
     }
 

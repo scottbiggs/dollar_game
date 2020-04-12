@@ -8,8 +8,8 @@
 
     <!-- WARNING: All these Maximums and Minimums MUST agree with each other!
         There's no way to enforce this as computations are not allowed here, sigh. -->
-    <integer name="MAX_DOLLAR_AMOUNT">5</integer>
-    <integer name="MIN_DOLLAR_AMOUNT">-5</integer>
+    <integer name="MAX_DOLLAR_AMOUNT">7</integer>
+    <integer name="MIN_DOLLAR_AMOUNT">-7</integer>
 
     <!-- Used by seekbar which can only work in positive numbers (the min is always 0) -->
     <integer name="MAX_DOLLAR_AMOUNT_NON_NEGATIVE">10</integer>
