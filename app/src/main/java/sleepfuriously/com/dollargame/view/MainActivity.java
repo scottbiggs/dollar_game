@@ -1426,13 +1426,23 @@ public class MainActivity extends AppCompatActivity {
         SetsOfIntsUtil util = new SetsOfIntsUtil();
         Integer[] randomNums = util.findRandomSetOfIntsWithGivenSum(targetSum, numNodes, floor, ceiling);
         if ((randomNums == null) || (randomNums.length == 0)) {
-            Log.e(TAG, "Unable to create combinations, aborting!");
+            Log.e(TAG, "Unable to create combinations, aborting!  " +
+                    (randomNums == null ? "(randomNums = null)" : "randomNums.length = 0)"));
             Toast.makeText(MainActivity.this, R.string.unable_to_generate_random_node_numbers, Toast.LENGTH_LONG).show();
             return;
         }
+        if (randomNums.length != numNodes) {
+            Log.e(TAG, "wrong number of random numbers! (expected " + numNodes + ", but got " + randomNums.length + ").  We'll probably crash real soon.");
+            int errSum = 0;
+            for (int item : randomNums) {
+                errSum += item;
+            }
+            Log.e(TAG, "  their sum is: " + errSum);
+        }
 
         // todo: remove the statistical analysis
-
+        displayDistribution(randomNums, floor, ceiling);
+        // todo: end stat analysis
 
 
         // go through all the nodes and assign them to the dollar amounts from
@@ -1445,6 +1455,77 @@ public class MainActivity extends AppCompatActivity {
 
         setGenusUI();
         setCountUI();
+    }
+
+
+    /**
+     * Displays a distribution graph of the numbers in the given array.
+     *
+     * The output will be a graph showing how many items (relative to each other)
+     * are in each number.
+     */
+    private void displayDistribution(Integer[] array, int floor, int ceiling) {
+        // get stats of each number
+        int[] statsArray = new int[ceiling - floor + 1];    // Each item holds the count of that many numbers
+        for (int i = 0; i < array.length; i++) {
+            int currentRandomNum = array[i];
+            currentRandomNum -= floor; // normalize so that zero is the bottom
+            statsArray[currentRandomNum]++;
+        }
+
+        Log.d(TAG, "Analysis:");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < statsArray.length; i++) {
+            builder.append(Math.abs(i + floor));
+            builder.append(" ");
+        }
+        Log.d(TAG, builder.toString());
+
+        builder.setLength(0);
+        for (int i = 0; i < statsArray.length; i++) {
+            builder.append("--");
+        }
+        Log.d(TAG, builder.toString());
+
+        builder.setLength(0);
+        for (int i = 0; i < statsArray.length; i++) {
+            builder.append(statsArray[i] + " ");
+        }
+        Log.d(TAG, builder.toString());
+
+
+        builder.setLength(0);
+        for (int i = 0; i < statsArray.length; i++) {
+            float currentQuantity = statsArray[i];  // a number in range [-5..5]
+            currentQuantity += 5f;                  // adjust to zero
+            currentQuantity = currentQuantity / (float) statsArray.length;  // range [0..1]
+            currentQuantity *= 5;       // range [0..5]
+            int quantity = Math.round(currentQuantity);  // round to nearest int
+            switch (quantity) {
+                case 0:
+                case 1:
+                    builder.append(" ");
+                    break;
+                case 2:
+                    builder.append(Character.toString((char)0x2581));
+                    break;
+//                case 2:
+//                    builder.append(Character.toString((char)0x2581));
+//                    break;
+                case 3:
+                    builder.append(Character.toString((char)0x2583));
+                    break;
+                case 4:
+                    builder.append(Character.toString((char)0x2585));
+                    break;
+                case 5:
+                    builder.append(Character.toString((char)0x2588));
+                    break;
+            }
+//            builder.append(statsArray[i]);
+            builder.append(" ");
+        }
+        Log.d(TAG, builder.toString());
     }
 
 
