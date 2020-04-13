@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.biggsdollargame.view;
 
 
 import android.graphics.Paint;

@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.buttons;
+package sleepfuriously.com.biggsdollargame.view.buttons;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,9 +14,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import sleepfuriously.com.dollargame.R;
-import sleepfuriously.com.dollargame.view.SubButtonsBtn.SubButtonsBtn;
-import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonData;
+import sleepfuriously.com.biggsdollargame.R;
+import sleepfuriously.com.biggsdollargame.view.SubButtonsBtn.SubButtonsBtn;
+import sleepfuriously.com.biggsdollargame.view.SubButtonsBtn.ButtonData;
 
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_MOVE;
@@ -31,13 +31,13 @@ import static android.view.MotionEvent.ACTION_UP;
  * Depending on the mode, the button can be expandable, movable, or click-only.<br>
  * <br>
  * You need to register the {@link OnMoveListener} to get
- * movement events and register the {@link sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener}
+ * movement events and register the {@link sleepfuriously.com.biggsdollargame.view.SubButtonsBtn.ButtonEventListener}
  * to get click events.  It's pretty standard, but uses 2 listeners
  * instead of one.<br>
  * <br>
  * Aaaaannnd, while a button is movable (not expandable), only callbacks to {@link OnMoveListener}
  * are called.  And conversely while a button is expandable (not movable), only callbacks to
- * {@link sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener} occur.
+ * {@link sleepfuriously.com.biggsdollargame.view.SubButtonsBtn.ButtonEventListener} occur.
  */
 public class MovableNodeButton extends SubButtonsBtn
         implements Runnable {

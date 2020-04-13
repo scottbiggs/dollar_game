@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.biggsdollargame.view;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -47,14 +47,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import sleepfuriously.com.dollargame.R;
-import sleepfuriously.com.dollargame.model.Graph;
-import sleepfuriously.com.dollargame.model.GraphNodeDuplicateIdException;
-import sleepfuriously.com.dollargame.model.GraphNotConnectedException;
-import sleepfuriously.com.dollargame.model.SetsOfIntsUtil;
-import sleepfuriously.com.dollargame.view.SubButtonsBtn.ButtonEventListener;
-import sleepfuriously.com.dollargame.view.buttons.MovableNodeButton;
-import sleepfuriously.com.dollargame.view.dialogs.NodeEditDialog;
+import sleepfuriously.com.biggsdollargame.R;
+import sleepfuriously.com.biggsdollargame.model.Graph;
+import sleepfuriously.com.biggsdollargame.model.GraphNodeDuplicateIdException;
+import sleepfuriously.com.biggsdollargame.model.GraphNotConnectedException;
+import sleepfuriously.com.biggsdollargame.model.SetsOfIntsUtil;
+import sleepfuriously.com.biggsdollargame.view.SubButtonsBtn.ButtonEventListener;
+import sleepfuriously.com.biggsdollargame.view.buttons.MovableNodeButton;
+import sleepfuriously.com.biggsdollargame.view.dialogs.NodeEditDialog;
 
 
 /**

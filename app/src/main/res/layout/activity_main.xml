@@ -56,7 +56,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <sleepfuriously.com.dollargame.view.PlayAreaFrameLayout
+    <sleepfuriously.com.biggsdollargame.view.PlayAreaFrameLayout
         android:id="@+id/play_area_fl"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -70,7 +70,7 @@
         app:layout_constraintTop_toBottomOf="@+id/main_switch"
         app:layout_constraintVertical_bias="0.0">
 
-    </sleepfuriously.com.dollargame.view.PlayAreaFrameLayout>
+    </sleepfuriously.com.biggsdollargame.view.PlayAreaFrameLayout>
 
     <TextView
         android:id="@+id/bottom_hint_tv"

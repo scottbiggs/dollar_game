@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.dialogs;
+package sleepfuriously.com.biggsdollargame.view.dialogs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,7 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import java.util.Random;
 
-import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.biggsdollargame.R;
 
 /**
  * Displays a dialog that allows the user to modify the dollar amount

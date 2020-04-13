@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame;
+package sleepfuriously.com.biggsdollargame;
 
 import org.junit.Test;
 

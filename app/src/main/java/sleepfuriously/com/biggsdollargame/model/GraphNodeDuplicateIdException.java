@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.model;
+package sleepfuriously.com.biggsdollargame.model;
 
 /**
  *	This Exception is thrown whenever the user tries to

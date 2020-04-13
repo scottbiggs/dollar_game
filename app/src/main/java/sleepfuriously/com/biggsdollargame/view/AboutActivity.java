@@ -1,6 +1,5 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.biggsdollargame.view;
 
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
@@ -10,9 +9,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.TintableBackgroundView;
 
-import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.biggsdollargame.R;
 
 /**
  * Displays info about this app

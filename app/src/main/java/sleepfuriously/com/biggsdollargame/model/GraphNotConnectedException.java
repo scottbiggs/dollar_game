@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.model;
+package sleepfuriously.com.biggsdollargame.model;
 
 /**
  * This exception is thrown when someone tries to calculate the

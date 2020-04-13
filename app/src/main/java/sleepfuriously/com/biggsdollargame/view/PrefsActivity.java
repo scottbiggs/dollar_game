@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view;
+package sleepfuriously.com.biggsdollargame.view;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,11 +7,10 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 
 import androidx.annotation.Nullable;
-import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Map;
 
-import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.biggsdollargame.R;
 
 /**
  * Does the prefs

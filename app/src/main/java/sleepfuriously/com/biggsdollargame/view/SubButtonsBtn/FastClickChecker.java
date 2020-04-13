@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.SubButtonsBtn;
+package sleepfuriously.com.biggsdollargame.view.SubButtonsBtn;
 
 /**
  * Use to determine clicks from drags and double clicks.

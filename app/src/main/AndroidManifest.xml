@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="sleepfuriously.com.dollargame">
+    package="sleepfuriously.com.biggsdollargame">
 
     <application
         android:allowBackup="true"
@@ -11,16 +11,16 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity android:name=".view.MainActivity">
+        <activity android:name="sleepfuriously.com.biggsdollargame.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.PrefsActivity" />
+        <activity android:name="sleepfuriously.com.biggsdollargame.view.PrefsActivity" />
 
-        <activity android:name=".view.AboutActivity"
+        <activity android:name="sleepfuriously.com.biggsdollargame.view.AboutActivity"
             android:theme="@style/Theme.AppCompat.Dialog"
             />
 

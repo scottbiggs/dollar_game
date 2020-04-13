@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.SubButtonsBtn;
+package sleepfuriously.com.biggsdollargame.view.SubButtonsBtn;
 
 /**
  * Created by dear33 on 2016/9/11.

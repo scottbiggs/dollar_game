@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.SubButtonsBtn;
+package sleepfuriously.com.biggsdollargame.view.SubButtonsBtn;
 
 /**
  * Calculates angles for the multiple sub-buttons.

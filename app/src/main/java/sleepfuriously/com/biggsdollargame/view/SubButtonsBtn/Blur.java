@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.SubButtonsBtn;
+package sleepfuriously.com.biggsdollargame.view.SubButtonsBtn;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,4 +1,4 @@
-package sleepfuriously.com.dollargame.view.SubButtonsBtn;
+package sleepfuriously.com.biggsdollargame.view.SubButtonsBtn;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sleepfuriously.com.dollargame.R;
+import sleepfuriously.com.biggsdollargame.R;
 
 
 /**
