@@ -57,7 +57,7 @@ class SetsOfIntsUtil {
         debugOn()
 
         debugPrint("### RESULT: ### array size = " + resultArray.size.toString())
-        for (i in 0..(resultArray.size - 1)) {
+        for (i in resultArray.indices) {
             debugPrint( i.toString() + ": " + resultArray.get(i).toString() )
         }
         debugPrint("RESULT sum = " + resultArray.sum())

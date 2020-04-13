@@ -1,6 +1,7 @@
 package sleepfuriously.com.dollargame.view;
 
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
@@ -141,9 +143,6 @@ public class MainActivity extends AppCompatActivity {
     /** only TRUE during the give/take animation. UI events need to wait until this is FALSE */
     private boolean mAnimatingGiveTake = false;
 
-    /** Used to determine if this Activity is alive or has been destroyed (for AsyncTasks) */
-    private volatile boolean mIsAlive = false;
-
     //------------------------
     //  methods
     //------------------------
@@ -152,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mIsAlive = true;
 
         // determines if this was setup
         if (isStartingFromUser()) {
@@ -169,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        mIsAlive = false;       // signal that this Activity is no longer active
         super.onDestroy();
     }
 
@@ -240,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
      * initializes the play area.
      * Works by side-effect.
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setupPlayArea() {
         mPlayArea = findViewById(R.id.play_area_fl);
 
@@ -472,9 +469,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void fullScreenStickyImmersive() {
         View decorView = getWindow().getDecorView();
-        int uiOptions;
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
-        uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
         decorView.setSystemUiVisibility(uiOptions);
     }
 
@@ -555,10 +555,8 @@ public class MainActivity extends AppCompatActivity {
         Intent appLinkIntent = getIntent();
         String appLinkAction = appLinkIntent.getAction();
 
-        if (appLinkAction.equals(Intent.ACTION_MAIN)) {
-            return true;
-        }
-        return false;
+        assert appLinkAction != null;
+        return appLinkAction.equals(Intent.ACTION_MAIN);
     }
 
     /**
@@ -1357,7 +1355,7 @@ public class MainActivity extends AppCompatActivity {
     private int getButtonStateColor(MovableNodeButton button) {
 
         // if the node is connected to any other node, then use the connected color
-        List<Integer> connectedNodes = mGraph.getAllAdjacentTo(button.getId());
+        List connectedNodes = mGraph.getAllAdjacentTo(button.getId());
         if (connectedNodes.size() > 0) {
 //            Log.d(TAG, "getButtonStateColor(), returning CONNECTED");
             return R.color.button_bg_color_build_connected;
@@ -1441,7 +1439,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // todo: remove the statistical analysis
-        displayDistribution(randomNums, floor, ceiling);
+//        displayDistribution(randomNums, floor, ceiling);
         // todo: end stat analysis
 
 
@@ -1464,11 +1462,12 @@ public class MainActivity extends AppCompatActivity {
      * The output will be a graph showing how many items (relative to each other)
      * are in each number.
      */
+    @Deprecated
     private void displayDistribution(Integer[] array, int floor, int ceiling) {
         // get stats of each number
         int[] statsArray = new int[ceiling - floor + 1];    // Each item holds the count of that many numbers
-        for (int i = 0; i < array.length; i++) {
-            int currentRandomNum = array[i];
+        for (int integer : array) {
+            int currentRandomNum = integer;
             currentRandomNum -= floor; // normalize so that zero is the bottom
             statsArray[currentRandomNum]++;
         }
@@ -1488,15 +1487,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, builder.toString());
 
         builder.setLength(0);
-        for (int i = 0; i < statsArray.length; i++) {
-            builder.append(statsArray[i] + " ");
+        for (int value : statsArray) {
+            builder.append(value);
+            builder.append(" ");
         }
         Log.d(TAG, builder.toString());
 
 
         builder.setLength(0);
-        for (int i = 0; i < statsArray.length; i++) {
-            float currentQuantity = statsArray[i];  // a number in range [-5..5]
+        for (float v : statsArray) {
+            float currentQuantity = v;  // a number in range [-5..5]
             currentQuantity += 5f;                  // adjust to zero
             currentQuantity = currentQuantity / (float) statsArray.length;  // range [0..1]
             currentQuantity *= 5;       // range [0..5]
@@ -1507,19 +1507,19 @@ public class MainActivity extends AppCompatActivity {
                     builder.append(" ");
                     break;
                 case 2:
-                    builder.append(Character.toString((char)0x2581));
+                    builder.append((char) 0x2581);
                     break;
 //                case 2:
 //                    builder.append(Character.toString((char)0x2581));
 //                    break;
                 case 3:
-                    builder.append(Character.toString((char)0x2583));
+                    builder.append((char) 0x2583);
                     break;
                 case 4:
-                    builder.append(Character.toString((char)0x2585));
+                    builder.append((char) 0x2585);
                     break;
                 case 5:
-                    builder.append(Character.toString((char)0x2588));
+                    builder.append((char) 0x2588);
                     break;
             }
 //            builder.append(statsArray[i]);
