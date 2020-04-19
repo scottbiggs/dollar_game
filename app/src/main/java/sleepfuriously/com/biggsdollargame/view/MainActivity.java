@@ -699,6 +699,19 @@ public class MainActivity extends AppCompatActivity {
             mMainSwitch.setChecked(true);
         }
 
+        // Reset in case we're in the middle of a connect/disconnect
+        if (mConnecting) {
+            mConnecting = false;
+        }
+
+        // Make sure all the nodes are in the right color (it's possible
+        // that the switch to solve-mode was in the middle of a connection
+        List<MovableNodeButton> nodes = mGraph.getAllNodeData();
+        for (MovableNodeButton node : nodes) {
+            node.setBackgroundColorResource(R.color.button_bg_color_build_normal);
+            node.invalidate();
+        }
+
         mBuildTv.setTextColor(getResources().getColor(R.color.textcolor_ghosted));
         mSolveTv.setTextColor(getResources().getColor(R.color.textcolor_on));
 
