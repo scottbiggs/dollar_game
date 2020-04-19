@@ -90,7 +90,6 @@ public class NodeEditDialog {
             }
         });
 
-        final ToggleButton nodeToggleButt = inflatedView.findViewById(R.id.dialog_delete_butt);
 
         String initialDollarStr = ctx.getString(R.string.dollar_number,
                 dialogSeekBar.getProgress() - seekbarOffset);
@@ -104,7 +103,7 @@ public class NodeEditDialog {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // call the listener signalling that the user cancelled.
-                        mListener.result(true, startDollars, nodeToggleButt.isChecked());
+                        mListener.result(true, startDollars, false);
                     }
                 })
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -113,12 +112,26 @@ public class NodeEditDialog {
                     public void onClick(DialogInterface dialog, int which) {
                         // call listener with proper data
                         mListener.result(false,
-                                dialogSeekBar.getProgress() - seekbarOffset,
-                                nodeToggleButt.isChecked());
+                                         dialogSeekBar.getProgress() - seekbarOffset,
+                                         false);
                     }
                 });
 
-        AlertDialog dialog = dialogBuilder.create();
+        final AlertDialog dialog = dialogBuilder.create();
+
+        // Since this button needs to dismiss the dialog (which can only be
+        // accessed through a Dialog, not a DialogBuilder), it is located here
+        // near the end of the method when the dialog is actually instantiated.
+        final Button deleteButt = inflatedView.findViewById(R.id.dialog_delete_butt);
+        deleteButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // signal that this button is to be deleted
+                mListener.result(false, startDollars, true);
+                dialog.dismiss();
+            }
+        });
+
         dialog.show();
     }
 

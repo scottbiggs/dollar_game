@@ -17,6 +17,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
         android:max="@integer/MAX_DOLLAR_AMOUNT_NON_NEGATIVE"
         android:progress="@integer/MAX_DOLLAR_AMOUNT_NON_NEGATIVE_0"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
         android:text="@string/dialog_orig_label"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/dialog_orig_label"
         app:layout_constraintStart_toEndOf="@+id/dialog_orig_label"
@@ -66,23 +69,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialog_orig_label" />
 
-    <ToggleButton
-        android:id="@+id/dialog_delete_butt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textOn="@string/delete_node"
-        android:textOff="@string/keep_node"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seperator" />
+<!--    <FrameLayout-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@color/button_border_negative"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/seperator"-->
+<!--        >-->
+        <Button
+            android:id="@+id/dialog_delete_butt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:backgroundTint="@color/colorAccentLight"
+            android:text="@string/delete_node"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seperator"
+            />
+<!--    </FrameLayout>-->
 
     <Button
         android:id="@+id/dialog_rand_butt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:text="@string/dialog_random"
         app:layout_constraintBaseline_toBaselineOf="@+id/dialog_orig_label"
         app:layout_constraintEnd_toEndOf="parent" />
