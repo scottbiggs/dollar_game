@@ -108,6 +108,6 @@
     <string name="impossible_randomize_settings">The current node configuration and settings make it impossible to produce suitable dollar amounts.</string>
     <string name="done">done</string>
     <string name="version_error">error</string> <!-- error when attempting to get version -->
-    <string name="unable_to_generate_random_node_numbers">Unable to generate dollar amounts for the nodes. Try few nodes maybe?</string>
+    <string name="unable_to_generate_random_node_numbers">Unable to generate dollar amounts for the nodes. Try fewer nodes maybe?</string>
 
 </resources>

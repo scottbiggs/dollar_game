@@ -313,6 +313,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupRandomizeButton() {
         mRandomizeAllButt = findViewById(R.id.random_all_butt);
+
+        if (mGraph.numNodes() == 0) {
+            mRandomizeAllButt.setEnabled(false);
+        }
+        else {
+            mRandomizeAllButt.setEnabled(true);
+        }
+
         mRandomizeAllButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -731,7 +739,12 @@ public class MainActivity extends AppCompatActivity {
         mHintTv.setText(R.string.build_hint);
 
         mRandomizeAllButt.setVisibility(View.VISIBLE);
-        mRandomizeAllButt.setEnabled(true);
+        if (mGraph.numNodes() > 0) {
+            mRandomizeAllButt.setEnabled(true);
+        }
+        else {
+            mRandomizeAllButt.setEnabled(false);
+        }
     }
 
     /**
@@ -936,6 +949,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         resetConnectedUI();
+
+        // Turn on the randomize all button if it's off
+        if (!mRandomizeAllButt.isEnabled()) {
+            mRandomizeAllButt.setEnabled(true);
+        }
     }
 
 
@@ -1168,7 +1186,12 @@ public class MainActivity extends AppCompatActivity {
 
         rebuildPlayAreaLines();
         resetConnectedUI();
+
+        if (mGraph.numNodes() == 0) {
+            mRandomizeAllButt.setEnabled(false);    // turn off if no more buttons
+        }
     }
+
 
     /**
      * Call this to execute the logic and the UI of a node button being moved.
@@ -1392,7 +1415,12 @@ public class MainActivity extends AppCompatActivity {
         setGenusUI();
 
         mRandomizeAllButt.setVisibility(View.VISIBLE);
-        mRandomizeAllButt.setEnabled(true);
+        if (mGraph.numNodes() > 0) {
+            mRandomizeAllButt.setEnabled(true);
+        }
+        else {
+            mRandomizeAllButt.setEnabled(false);
+        }
     }
 
 

@@ -144,6 +144,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/random_all_button_text"
+        android:enabled="false"
         app:layout_constraintBottom_toTopOf="@+id/bottom_hint_tv"
         app:layout_constraintStart_toStartOf="parent" />
 
