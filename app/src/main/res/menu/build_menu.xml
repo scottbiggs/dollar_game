@@ -7,10 +7,12 @@
     <item
         android:id="@+id/build_load"
         android:title="@string/load"
+        android:enabled="false"
         />
     <item
         android:id="@+id/build_save"
         android:title="@string/save"
+        android:enabled="false"
         />
     <item
         android:id="@+id/build_settings"
@@ -19,10 +21,12 @@
     <item
         android:id="@+id/build_share"
         android:title="@string/share"
+        android:enabled="false"
         />
     <item
         android:id="@+id/build_help"
         android:title="@string/help"
+        android:enabled="false"
         />
     <item
         android:id="@+id/build_about"

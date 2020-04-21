@@ -542,6 +542,10 @@ public class MainActivity extends AppCompatActivity {
                 doOptions();
                 break;
 
+            case R.id.build_exit:
+                finish();
+                break;
+
             default:
                 Toast.makeText(this, "unknown menu selection", Toast.LENGTH_LONG).show();
                 break;

@@ -57,6 +57,16 @@
         </string>
     <string name="more_info">There\'s way more than you ever wanted to know about the math of this game
         <a href="https://mattbaker.blog/2013/10/18/riemann-roch-for-graphs-and-applications/">here</a>. </string>
+    <string name="legalese_title">Legalese</string>
+    <string name="legalese_">I worked hard to make sure this game works and has no chance of ever harming anyone.
+        But just in case I missed something, don\'t come running to me—no harm is intended and I\'ll accept no
+        responsibility for such.\n\n
+        But the good news is that your data and privacy are completely safe. No information will ever be
+        recorded, let alone saved, stored, sold, or used in any way outside of this app. I don\'t like it
+        when other companies do it, and I won\'t do it to you.</string>
+    <string name="copyright">Lastly, I made this game, and I jealously guard the
+        copyright. I will find anyone who steals this code or distributes it for profit, and I will
+        find them and tell their mother.\n\n©2020 by Biggs</string>
 
     <!-- edit dollar amount / delete node dialog -->
     <string name="dialog_title"> $$ Dollar Amount $$</string>
