@@ -520,7 +520,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.build_about:
                 doAbout();
-                Log.d(TAG, "menu option: about");
                 break;
 
             case R.id.build_help:
@@ -696,7 +695,6 @@ public class MainActivity extends AppCompatActivity {
      * Does all the UI for Solve mode.
      */
     private void solveModeUI() {
-        Log.d(TAG, "solveModeUI()");
 
         // Only change the switch if it NOT checked (in Build Mode)
         if (!mMainSwitch.isChecked()) {
@@ -736,7 +734,6 @@ public class MainActivity extends AppCompatActivity {
      * Does all the UI for changing to Build mode. No logic is done.
      */
     private void buildModeUI() {
-        Log.d(TAG, "buildmodeUI()");
 
         // Only change the switch if it IS checked (in Solve Mode)
         if (mMainSwitch.isChecked()) {
@@ -769,9 +766,7 @@ public class MainActivity extends AppCompatActivity {
      * Should ONLY be used while in Build mode.
      */
     private void connectUI() {
-        Log.d(TAG, "connectUI()");
         mHintTv.setText(R.string.connect_hint);
-
         mRandomizeAllButt.setEnabled(false);
     }
 
@@ -904,13 +899,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void movingTo(float diffX, float diffY) {
                 continueMove(button, diffX, diffY);
-//                Log.d(TAG, "moving to " + diffX + ", " + diffY);
             }
 
             @Override
             public void moveEnded(float diffX, float diffY) {
                 continueMove(button, diffX, diffY);
-//                Log.d(TAG, "move ended");
             }
 
             @Override
@@ -922,7 +915,6 @@ public class MainActivity extends AppCompatActivity {
 
                     if (endId == mStartNodeId) {
                         // Can't connect to yourself!
-                        Log.d(TAG, "clicking on yourself");
                         button.setBackgroundColorResource(getButtonStateColor(button));
                         button.invalidate();
                     }
@@ -1281,8 +1273,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void disconnectButtons(int startButtonId, int endButtonId) {
 
-        Log.d(TAG, "disconnectButtons:  start = " + startButtonId + ", end = " + endButtonId);
-
         // cannot disconnect yourself!
         if (startButtonId == endButtonId) {
             Log.v(TAG, "Attempting to disconnect a button to itself--aborted.");
@@ -1333,8 +1323,6 @@ public class MainActivity extends AppCompatActivity {
      * @param endButtonId       Destination button (node)
      */
     private void connectButtons(int startButtonId, int endButtonId) {
-
-        Log.d(TAG, "connectButtons:  start = " + startButtonId + ", end = " + endButtonId);
 
         // cannot connect to yourself!
         if (startButtonId == endButtonId) {
@@ -1397,11 +1385,9 @@ public class MainActivity extends AppCompatActivity {
         // if the node is connected to any other node, then use the connected color
         List connectedNodes = mGraph.getAllAdjacentTo(button.getId());
         if (connectedNodes.size() > 0) {
-//            Log.d(TAG, "getButtonStateColor(), returning CONNECTED");
             return R.color.button_bg_color_build_connected;
         }
         else {
-//            Log.d(TAG, "getButtonStateColor(), returning DISconnected");
             return R.color.button_bg_color_build_disconnected;
         }
     }

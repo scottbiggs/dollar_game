@@ -1,6 +1,7 @@
 package sleepfuriously.com.biggsdollargame.model
 
 import android.util.Log
+import android.util.Log.d
 import java.lang.Float.MIN_VALUE
 import kotlin.random.Random
 
@@ -54,7 +55,7 @@ class SetsOfIntsUtil {
 
         val resultArray = findRandomSetOfIntsWithGivenSumRecurse(sum, numInts, floor, ceiling, "")
 
-        debugOn()
+//        debugOn()
 
         debugPrint("### RESULT: ### array size = " + resultArray.size.toString())
         for (i in resultArray.indices) {
@@ -149,7 +150,7 @@ class SetsOfIntsUtil {
 
         // convert the random to an integer within the given range.
         val intRandNum = (r * (range.count()).toFloat()).toInt() + range.first
-        Log.d(TAG, "weightedRandom( $range ) ==> $intRandNum")
+        debugPrint("weightedRandom( $range ) ==> $intRandNum")
         return intRandNum
     }
 
@@ -212,7 +213,7 @@ class SetsOfIntsUtil {
         var randNum: Float
         for (i in 0..9999999) {
             randNum = nextGaussianRandom()
-//            Log.d(TAG, "nextGaussian: $randNum")
+            debugPrint("nextGaussian: $randNum")
 
             if (randNum > biggest) {
                 biggest = randNum
@@ -221,7 +222,7 @@ class SetsOfIntsUtil {
                 smallest = randNum
             }
         }
-        Log.d(TAG, "smallest = $smallest, biggest = $biggest")
+        debugPrint("smallest = $smallest, biggest = $biggest")
     }
 
     fun debugOn() {
