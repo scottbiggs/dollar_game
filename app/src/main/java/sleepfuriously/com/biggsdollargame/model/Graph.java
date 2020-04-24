@@ -3,7 +3,11 @@ package sleepfuriously.com.biggsdollargame.model;
 
 import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.util.Log;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -31,7 +35,7 @@ import java.util.HashMap;
  *
  *		- Use the graph as you like.
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"unused", "UnusedReturnValue", "WeakerAccess"})
 public class Graph<T>
         implements Iterable<T> {
 
@@ -211,6 +215,8 @@ public class Graph<T>
      * graph that prevents making a clone (probably
      * a duplicate node ID).
      */
+    @SuppressWarnings({"MethodDoesntCallSuperMethod", "NullableProblems"})
+    @Nullable
     public Graph clone() {
         Graph<T> newGraph = new Graph<>(mDirected);
 
@@ -302,7 +308,7 @@ public class Graph<T>
      * Returns a list of all the node ids for this graph.
      */
     public List<Integer> getAllNodeIds() {
-        return new ArrayList<Integer>(mNodes.keySet());
+        return new ArrayList<>(mNodes.keySet());
     }
 
     /**
@@ -312,7 +318,7 @@ public class Graph<T>
      * Note that this is a copy of the data.
      */
     public List<T> getAllNodeData() {
-        return new ArrayList<T>(mNodes.values());
+        return new ArrayList<>(mNodes.values());
     }
 
     /**
@@ -333,13 +339,12 @@ public class Graph<T>
     public Integer getNodeId(T data) {
         // Note: the id is also the key
         Set<Integer> keys = mNodes.keySet();
-        Iterator<Integer> iterator = keys.iterator();
 
-        while (iterator.hasNext()) {
-            int key = iterator.next();
+        for (int key : keys) {
             // Now get the associated data with this key and
             // test it against the input param
             T tmpData = mNodes.get(key);
+            assert tmpData != null;
             if (tmpData.equals(data)) {
                 return key;
             }
@@ -423,12 +428,7 @@ public class Graph<T>
         // if the size of the visited list is the same as our number of
         // nodes, then we'll know that all were visited. This can only
         // happen if the graph is connected!
-        if (visited.size() == mNodes.size()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (visited.size() == mNodes.size());
     }
 
     /**
@@ -513,8 +513,8 @@ public class Graph<T>
      *
      *	@param	id	The id of the node to be removed.
      *
-     *	@returns	TRUE if the node was removed.
-     *				FALSE if the node can't be found.
+     *	@return	TRUE if the node was removed.
+     *			FALSE if the node can't be found.
      */
     public boolean removeNode(int id) {
         if (mNodes.remove(id) == null) {
@@ -587,6 +587,7 @@ public class Graph<T>
      *	preconditions:
      *		Uses the .toString() method of the T class.
      */
+    @NotNull
     @Override
     public String toString() {
         String nodestr = " Nodes[" + mNodes.size() + "]:";
@@ -595,10 +596,8 @@ public class Graph<T>
         // a Set of the keys/IDs and use an Iterator to process
         // them.
         Set<Integer> ids = mNodes.keySet();
-        Iterator<Integer> iterator = ids.iterator();
 
-        while (iterator.hasNext()) {
-            int id = iterator.next();
+        for (int id : ids) {
             nodestr = nodestr + " (" + id + ": " + mNodes.get(id) + ")";
         }
 
@@ -636,7 +635,7 @@ public class Graph<T>
     @Override
     public Iterator iterator() {
 
-        return (Iterator) new Iterator() {
+        return new Iterator() {
 
             private Set<Integer> keySet = mNodes.keySet();
             private Iterator<Integer> keySetIterator = keySet.iterator();

@@ -1174,6 +1174,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // set the button to the dollar amount.
                 button.setAmount(dollarAmount);
+                setCountUI();
             }
         });
         dialog.show(this, button.getAmount());
