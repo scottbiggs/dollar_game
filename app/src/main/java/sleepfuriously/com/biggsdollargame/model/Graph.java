@@ -119,12 +119,10 @@ public class Graph<T>
      *
      *	@param	nodeData	Some data to store with this node.
      *
-     *	@return	The current number of nodes AFTER this one has been added.
-     *
      *	@throws	GraphNodeDuplicateIdException	if the id is already used
      *											for a node.
      */
-    public int addNode(int id, T nodeData)
+    public void addNode(int id, T nodeData)
             throws GraphNodeDuplicateIdException {
         // check to see if id already exists
         if (mNodes.containsKey(id)) {
@@ -132,8 +130,23 @@ public class Graph<T>
         }
 
         mNodes.put(id, nodeData);
-        return mNodes.size();
     }
+
+    /**
+     * Adds a new node to this graph, generating a unique id.
+     *
+     * @param nodeData  The data to store.
+     *
+     * @return  The ID of this node.
+     */
+    public int addNode(T nodeData)
+            throws GraphNodeDuplicateIdException {
+
+        int id = getUniqueNodeId();
+        addNode(id, nodeData);
+        return id;
+    }
+
 
     /**
      * Adds an edge to this class.  Does not allow duplicate edges!
@@ -193,7 +206,7 @@ public class Graph<T>
 
 
     /**
-     *	Just like AddEdge, but without any weight.
+     *	Just like {@link #addEdge(int, int, int)} , but without any weight.
      */
     public int addEdge(int startNodeId, int endNodeId) {
         return addEdge(startNodeId, endNodeId, 0);
@@ -323,6 +336,8 @@ public class Graph<T>
 
     /**
      * Returns the data associated with the node id.
+     *
+     * @return null if no data found for this id
      */
     public T getNodeData(int nodeId) {
         return mNodes.get(nodeId);
@@ -467,6 +482,9 @@ public class Graph<T>
      *	O(n)
      *
      * @param	nodeId		The ID of the node in question.
+     *
+     * @return  List of ids of all the nodes that are immediately connected
+     *          (share an edge) with the given node.
      */
     protected List<Edge> getEdges(int nodeId) {
 
@@ -501,15 +519,12 @@ public class Graph<T>
 
 
     /**
-     * Removes the given node.  This assumes that any edges associated
-     * with this node have been PREVIOUSLY removed!  This will cause
-     * a total cluster fuck if you don't do this before-hand! You've
-     * been warned!
+     * Removes the given node.  Will remove any edges associated with
+     * this node too.
      *
-     * But wait, there's more! If there are MORE THAN ONE node with
-     * the same id (and there shouldn't!), this will remove only the
-     * first that was found.  Really--you should be more careful with
-     * your graphs!
+     * If there are MORE THAN ONE nodes with the same id (and there
+     * shouldn't be!), this will remove only the first that was found.
+     * Really--you should be more careful with your graphs!
      *
      *	@param	id	The id of the node to be removed.
      *
@@ -517,6 +532,9 @@ public class Graph<T>
      *			FALSE if the node can't be found.
      */
     public boolean removeNode(int id) {
+
+        removeEdgesWithNode(id);
+
         if (mNodes.remove(id) == null) {
             return false;
         }
@@ -524,7 +542,17 @@ public class Graph<T>
     }
 
     /**
-     * Removes all edges that use a given node.
+     * Removes every node from this Graph.  But this is
+     * not a stupid method, all the edges are removed first!
+     */
+    public void removeAllNodes() {
+        removeAllEdges();
+        mNodes.clear();
+    }
+
+
+    /**
+     * Removes all edges that use a given node.  Does not remove that node.
      *
      * @return The number of edges that were removed.
      */
@@ -575,9 +603,24 @@ public class Graph<T>
         return removed;
     }
 
+    /**
+     * Does what it says: removes all edges from this Graph.
+     */
+    public void removeAllEdges() {
+        mEdges.clear();
+    }
+
+
     /** Returns the edge at the given index */
-    public Edge getEdge(int index) {
+    protected Edge getEdge(int index) {
         return mEdges.get(index);
+    }
+
+    /**
+     * Returns a list of all the edges in the graph.
+     */
+    public List<Edge> getAllEdges() {
+        return mEdges;
     }
 
 

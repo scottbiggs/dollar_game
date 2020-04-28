@@ -1188,8 +1188,6 @@ public class MainActivity extends AppCompatActivity {
 
         mPlayArea.removeView(nodeToDelete);
 
-        // remove the edges associated with this node, and then the node
-        mGraph.removeEdgesWithNode(nodeId);
         mGraph.removeNode(nodeId);
 
         resetAllButtonStateColors();
@@ -1231,9 +1229,8 @@ public class MainActivity extends AppCompatActivity {
     private void rebuildPlayAreaLines() {
         mPlayArea.removeAllLines();
 
-        for (int i = 0; i < mGraph.numEdges(); i++) {
-            Graph.Edge edge = mGraph.getEdge(i);
-
+        List<Graph.Edge> edges = mGraph.getAllEdges();
+        for (Graph.Edge edge : edges) {
             MovableNodeButton startbutton = (MovableNodeButton) mGraph.getNodeData(edge.startNodeId);
             PointF startp = startbutton.getCenter();
 
